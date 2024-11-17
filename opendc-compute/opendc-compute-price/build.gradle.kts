@@ -20,27 +20,18 @@
  * SOFTWARE.
  */
 
-package org.opendc.compute.topology.specs
+description = "OpenDC Compute Service implementation"
 
-import org.opendc.simulator.compute.cpu.CpuPowerModel
-import org.opendc.simulator.compute.models.MachineModel
-import java.util.UUID
+// Build configuration
+plugins {
+    `kotlin-library-conventions`
+}
 
-/**
- * Description of a physical host that will be simulated by OpenDC and host the virtual machines.
- *
- * @param uid Unique identifier of the host.
- * @param name The name of the host.
- * @param meta The metadata of the host.
- * @param model The physical model of the machine.
- * @param cpuPowerModel The [SimPsuFactory] to construct the PSU that models the power consumption of the machine.
- * @param multiplexerFactory The [FlowMultiplexerFactory] that is used to multiplex the virtual machines over the host.
- */
-public data class HostSpec(
-    val uid: UUID,
-    val name: String,
-    val meta: Map<String, Any>,
-    val model: MachineModel,
-    val cpuPowerModel: CpuPowerModel,
-    val priceTracePath: String? = null,
-)
+dependencies {
+    api(projects.opendcCompute.opendcComputeApi)
+    implementation(projects.opendcCommon)
+    implementation(project(mapOf("path" to ":opendc-trace:opendc-trace-api")))
+    implementation(project(mapOf("path" to ":opendc-simulator:opendc-simulator-compute")))
+
+    implementation(libs.kotlin.logging)
+}

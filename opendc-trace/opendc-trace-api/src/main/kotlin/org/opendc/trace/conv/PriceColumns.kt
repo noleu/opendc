@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 AtLarge Research
+ * Copyright (c) 2022 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,16 @@
  * SOFTWARE.
  */
 
-package org.opendc.compute.topology.specs
+@file:JvmName("PriceColumns")
 
-import org.opendc.simulator.compute.cpu.CpuPowerModel
-import org.opendc.simulator.compute.models.MachineModel
-import java.util.UUID
+package org.opendc.trace.conv
 
 /**
- * Description of a physical host that will be simulated by OpenDC and host the virtual machines.
- *
- * @param uid Unique identifier of the host.
- * @param name The name of the host.
- * @param meta The metadata of the host.
- * @param model The physical model of the machine.
- * @param cpuPowerModel The [SimPsuFactory] to construct the PSU that models the power consumption of the machine.
- * @param multiplexerFactory The [FlowMultiplexerFactory] that is used to multiplex the virtual machines over the host.
+ * A column containing the task identifier.
  */
-public data class HostSpec(
-    val uid: UUID,
-    val name: String,
-    val meta: Map<String, Any>,
-    val model: MachineModel,
-    val cpuPowerModel: CpuPowerModel,
-    val priceTracePath: String? = null,
-)
+public const val PRICE_TIMESTAMP: String = "timestamp"
+
+/**
+ * A column containing the task identifier.
+ */
+public const val PRICE_VALUE: String = "price"

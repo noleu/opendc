@@ -48,6 +48,8 @@ public class SimMachine {
     private SimPsu psu;
     private Memory memory;
 
+    private double price;
+
     private Consumer<Exception> completion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,6 +108,8 @@ public class SimMachine {
     public double getCpuUsage() {
         return 0.0;
     }
+
+    public void updatePrice(double price) { this.price = price; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Constructors
