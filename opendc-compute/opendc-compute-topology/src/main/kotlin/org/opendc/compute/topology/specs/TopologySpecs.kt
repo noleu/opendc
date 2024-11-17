@@ -70,6 +70,7 @@ public data class HostJSONSpec(
     val memory: MemoryJSONSpec,
     val powerModel: PowerModelSpec = PowerModelSpec.DFLT,
     val count: Int = 1,
+    val priceTracePath: String? = null,
 )
 
 /**

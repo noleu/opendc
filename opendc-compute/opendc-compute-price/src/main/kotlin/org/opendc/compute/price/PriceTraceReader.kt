@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 AtLarge Research
+ * Copyright (c) 2021 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,37 +20,32 @@
  * SOFTWARE.
  */
 
-@file:JvmName("Tables")
+@file:JvmName("ComputeWorkloadsNew")
 
-package org.opendc.trace.conv
+package org.opendc.compute.price
 
-/**
- * A table containing all workflows in a workload.
- */
-public const val TABLE_WORKFLOWS: String = "workflows"
-
-/**
- * A table containing all tasks in a workload.
- */
-public const val TABLE_TASKS: String = "tasks"
+import org.opendc.simulator.compute.price.PriceFragment
+import java.io.File
+import javax.management.InvalidAttributeValueException
 
 /**
- * A table containing all resources in a workload.
+ * Construct a workload from a trace.
  */
-public const val TABLE_RESOURCES: String = "resources"
+public fun getPriceFragments(pathToFile: String?): List<PriceFragment>? {
+    if (pathToFile == null) {
+        return null
+    }
+
+    return getPriceFragments(File(pathToFile))
+}
 
 /**
- * A table containing all resource states in a workload.
+ * Construct a workload from a trace.
  */
-public const val TABLE_RESOURCE_STATES: String = "resource_states"
+public fun getPriceFragments(file: File): List<PriceFragment> {
+    if (!file.exists()) {
+        throw InvalidAttributeValueException("The carbon trace cannot be found")
+    }
 
-/**
- * A table containing the groups of resources that interfere when run on the same execution platform.
- */
-public const val TABLE_INTERFERENCE_GROUPS: String = "interference_groups"
-
-public const val TABLE_CARBON_INTENSITIES: String = "carbon_intensities"
-
-public const val TABLE_PRICE: String = "price"
-
-public const val TABLE_FAILURES: String = "failures"
+    return PriceTraceLoader().get(file)
+}

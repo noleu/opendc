@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 AtLarge Research
+ * Copyright (c) 2024 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,37 +20,44 @@
  * SOFTWARE.
  */
 
-@file:JvmName("Tables")
-
-package org.opendc.trace.conv
+package org.opendc.simulator.compute.price;
 
 /**
- * A table containing all workflows in a workload.
+ * An object holding the carbon intensity during a specific time frame.
+ * Used by {@link PriceModel}.
  */
-public const val TABLE_WORKFLOWS: String = "workflows"
+public class PriceFragment {
+    private long startTime;
+    private long endTime;
+    private double price;
 
-/**
- * A table containing all tasks in a workload.
- */
-public const val TABLE_TASKS: String = "tasks"
+    public PriceFragment(long startTime, long endTime, double price) {
+        this.setStartTime(startTime);
+        this.setEndTime(endTime);
+        this.setPrice(price);
+    }
 
-/**
- * A table containing all resources in a workload.
- */
-public const val TABLE_RESOURCES: String = "resources"
+    public double getPrice() {
+        return price;
+    }
 
-/**
- * A table containing all resource states in a workload.
- */
-public const val TABLE_RESOURCE_STATES: String = "resource_states"
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
-/**
- * A table containing the groups of resources that interfere when run on the same execution platform.
- */
-public const val TABLE_INTERFERENCE_GROUPS: String = "interference_groups"
+    public long getEndTime() {
+        return endTime;
+    }
 
-public const val TABLE_CARBON_INTENSITIES: String = "carbon_intensities"
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
 
-public const val TABLE_PRICE: String = "price"
+    public long getStartTime() {
+        return startTime;
+    }
 
-public const val TABLE_FAILURES: String = "failures"
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+}
