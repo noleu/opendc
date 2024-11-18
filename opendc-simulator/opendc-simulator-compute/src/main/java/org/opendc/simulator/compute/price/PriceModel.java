@@ -34,7 +34,9 @@ import org.opendc.simulator.engine.FlowNode;
  */
 public class PriceModel extends FlowNode {
 
-    private SimMachine machine;
+    //private SimMachine machine;
+    private SimPriceSource priceSource;
+
 
     private long startTime = 0L; // The absolute timestamp on which the workload started
 
@@ -47,16 +49,18 @@ public class PriceModel extends FlowNode {
      * Construct a CarbonModel
      *
      * @param parentGraph The active FlowGraph which should be used to make the new FlowNode
-     * @param machine The Machine which should be updated with the price
+     * @param priceSource The Machine which should be updated with the price
      * @param priceFragments A list of Price Fragments defining the price at different time frames
      * @param startTime The start time of the simulation. This is used to go from relative time (used by the clock)
      *                  to absolute time (used by carbon fragments).
      */
     public PriceModel(
-        FlowGraph parentGraph, SimMachine machine, List<PriceFragment> priceFragments, long startTime) {
+        //FlowGraph parentGraph, SimMachine machine, List<PriceFragment> priceFragments, long startTime) {
+        FlowGraph parentGraph, SimPriceSource priceSource, List<PriceFragment> priceFragments, long startTime) {
         super(parentGraph);
 
-        this.machine = machine;
+        //this.machine = machine;
+        this.priceSource = priceSource;
         this.startTime = startTime;
         this.fragments = priceFragments;
 
@@ -116,6 +120,6 @@ public class PriceModel extends FlowNode {
     }
 
     private void pushPrice(double price) {
-        this.machine.updatePrice(price);
+        this.priceSource.updatePrice(price);
     }
 }

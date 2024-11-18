@@ -171,6 +171,7 @@ public class TaskTableReaderImpl(
                     newHost.getModel().coreCount,
                     newHost.getModel().cpuCapacity,
                     newHost.getModel().memoryCapacity,
+                    //newHost.getModel().price
                 )
         }
 

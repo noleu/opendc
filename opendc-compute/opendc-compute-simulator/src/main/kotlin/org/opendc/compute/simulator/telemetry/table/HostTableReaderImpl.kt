@@ -74,7 +74,7 @@ public class HostTableReaderImpl(
             "x86",
             host.getModel().coreCount,
             host.getModel().cpuCapacity,
-            host.getModel().memoryCapacity,
+            host.getModel().memoryCapacity
         )
 
     override val timestamp: Instant

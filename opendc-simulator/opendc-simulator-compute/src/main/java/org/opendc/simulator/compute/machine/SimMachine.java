@@ -30,6 +30,7 @@ import org.opendc.simulator.compute.cpu.SimCpu;
 import org.opendc.simulator.compute.memory.Memory;
 import org.opendc.simulator.compute.models.MachineModel;
 import org.opendc.simulator.compute.power.SimPsu;
+import org.opendc.simulator.compute.price.PriceModel;
 import org.opendc.simulator.compute.workload.SimWorkload;
 import org.opendc.simulator.compute.workload.Workload;
 import org.opendc.simulator.engine.FlowGraph;
@@ -49,6 +50,7 @@ public class SimMachine {
     private Memory memory;
 
     private double price;
+    private PriceModel priceModel;
 
     private Consumer<Exception> completion;
 
@@ -120,6 +122,7 @@ public class SimMachine {
             MachineModel machineModel,
             CpuPowerModel cpuPowerModel,
             Multiplexer powerMux,
+            PriceModel priceModel,
             Consumer<Exception> completion) {
         this.graph = graph;
         this.machineModel = machineModel;
@@ -139,6 +142,8 @@ public class SimMachine {
         // Create a Multiplexer and add the cpu as supplier
         this.cpuMux = new Multiplexer(this.graph);
         graph.addEdge(this.cpuMux, this.cpu);
+
+        this.priceModel = priceModel;
 
         this.completion = completion;
     }

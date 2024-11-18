@@ -36,6 +36,7 @@ import org.opendc.simulator.compute.cpu.CpuPowerModel
 import org.opendc.simulator.compute.machine.SimMachine
 import org.opendc.simulator.compute.models.MachineModel
 import org.opendc.simulator.compute.models.MemoryUnit
+import org.opendc.simulator.compute.price.PriceModel
 import org.opendc.simulator.engine.FlowGraph
 import java.time.Duration
 import java.time.Instant
@@ -63,6 +64,7 @@ public class SimHost(
     private val machineModel: MachineModel,
     private val powerModel: CpuPowerModel,
     private val powerMux: Multiplexer,
+    private val priceModel: PriceModel
 ) : AutoCloseable {
     /**
      * The event listeners registered with this host.
@@ -133,6 +135,7 @@ public class SimHost(
                 this.machineModel,
                 this.powerModel,
                 this.powerMux,
+                this.priceModel
             ) { cause ->
                 hostState = if (cause != null) HostState.ERROR else HostState.DOWN
             }

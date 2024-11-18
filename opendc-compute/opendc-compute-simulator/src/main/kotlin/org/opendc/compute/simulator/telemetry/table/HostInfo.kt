@@ -32,5 +32,5 @@ public data class HostInfo(
     val coreCount: Int,
     val coreSpeed: Double,
     val memCapacity: Long,
-    val price: Double,
+    //val price: Double,
 )
