@@ -141,4 +141,9 @@ public interface HostTableReader : Exportable {
      * The [Instant] at which the host booted.
      */
     public val bootTimeAbsolute: Instant?
+
+    /**
+     * The price of the host
+     */
+    public val price : Double
 }

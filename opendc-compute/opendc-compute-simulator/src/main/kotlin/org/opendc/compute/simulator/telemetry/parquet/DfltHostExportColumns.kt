@@ -174,6 +174,10 @@ public object DfltHostExportColumns {
             field = Types.optional(INT64).named("boot_time_absolute"),
         ) { it.bootTimeAbsolute?.toEpochMilli() }
 
+    public val PRICE: ExportColumn<HostTableReader> =
+        ExportColumn(
+            field = Types.optional(FLOAT).named("price")
+        ){it.price}
     /**
      * The columns that are always included in the output file.
      */

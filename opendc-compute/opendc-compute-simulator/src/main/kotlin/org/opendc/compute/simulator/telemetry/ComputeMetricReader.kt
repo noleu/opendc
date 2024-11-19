@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.opendc.common.Dispatcher
 import org.opendc.common.asCoroutineDispatcher
+import org.opendc.common.logger.logger
 import org.opendc.compute.simulator.host.SimHost
 import org.opendc.compute.simulator.service.ComputeService
 import org.opendc.compute.simulator.service.ServiceTask
@@ -84,6 +85,7 @@ public class ComputeMetricReader(
      * Mapping from [SimPowerSource] instances to [PowerSourceTableReaderImpl]
      */
     private val powerSourceTableReaders = mutableMapOf<SimPowerSource, PowerSourceTableReaderImpl>()
+    private var price = 0.0
 
     /**
      * The background job that is responsible for collecting the metrics every cycle.
@@ -119,6 +121,7 @@ public class ComputeMetricReader(
                     }
                 reader.record(now)
                 this.monitor.record(reader.copy())
+                this.price += reader.price
                 reader.reset()
             }
 
@@ -158,6 +161,7 @@ public class ComputeMetricReader(
             this.serviceTableReader.record(now)
             monitor.record(this.serviceTableReader.copy())
 
+
             if (loggCounter >= 100) {
                 var loggString = "\n\t\t\t\t\tMetrics after ${now.toEpochMilli() / 1000 / 60 / 60} hours:\n"
                 loggString += "\t\t\t\t\t\tTasks Total: ${this.serviceTableReader.tasksTotal}\n"
@@ -165,6 +169,7 @@ public class ComputeMetricReader(
                 loggString += "\t\t\t\t\t\tTasks Pending: ${this.serviceTableReader.tasksPending}\n"
                 loggString += "\t\t\t\t\t\tTasks Completed: ${this.serviceTableReader.tasksCompleted}\n"
                 loggString += "\t\t\t\t\t\tTasks Terminated: ${this.serviceTableReader.tasksTerminated}\n"
+                loggString += "\t\t\t\t\t\tPrice: ${this.price}\n"
 
                 this.logger.warn { loggString }
                 loggCounter = 0
