@@ -31,6 +31,7 @@ import org.opendc.simulator.compute.memory.Memory;
 import org.opendc.simulator.compute.models.MachineModel;
 import org.opendc.simulator.compute.power.SimPsu;
 import org.opendc.simulator.compute.price.PriceModel;
+import org.opendc.simulator.compute.price.SimPriceSource;
 import org.opendc.simulator.compute.workload.SimWorkload;
 import org.opendc.simulator.compute.workload.Workload;
 import org.opendc.simulator.engine.FlowGraph;
@@ -50,6 +51,7 @@ public class SimMachine {
     private Memory memory;
 
     private double price;
+    private SimPriceSource priceSource;
     private PriceModel priceModel;
 
     private Consumer<Exception> completion;
@@ -90,6 +92,10 @@ public class SimMachine {
         return psu;
     }
 
+    public SimPriceSource getPriceSource(){
+        return priceSource;
+    }
+
     /**
      * Return the CPU capacity of the hypervisor in MHz.
      */
@@ -111,7 +117,7 @@ public class SimMachine {
         return 0.0;
     }
 
-    public void updatePrice(double price) { this.price = price; }
+    //public void updatePrice(double price) { this.price = price; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -144,6 +150,7 @@ public class SimMachine {
         graph.addEdge(this.cpuMux, this.cpu);
 
         this.priceModel = priceModel;
+//        this.priceSource = new SimPriceSource();
 
         this.completion = completion;
     }
