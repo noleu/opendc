@@ -26,11 +26,13 @@ import org.opendc.compute.api.Flavor
 import org.opendc.compute.api.TaskState
 import org.opendc.compute.simulator.internal.Guest
 import org.opendc.compute.simulator.internal.GuestListener
+import org.opendc.compute.simulator.price.PriceFragment
 import org.opendc.compute.simulator.service.ServiceTask
 import org.opendc.compute.simulator.telemetry.GuestCpuStats
 import org.opendc.compute.simulator.telemetry.GuestSystemStats
 import org.opendc.compute.simulator.telemetry.HostCpuStats
 import org.opendc.compute.simulator.telemetry.HostSystemStats
+import org.opendc.compute.simulator.price.PriceModel
 import org.opendc.simulator.compute.cpu.CpuPowerModel
 import org.opendc.simulator.compute.machine.SimMachine
 import org.opendc.simulator.compute.models.MachineModel
@@ -90,6 +92,14 @@ public class SimHost(
             machineModel.memory.size,
         )
 
+    private val priceModel: PriceModel =
+        PriceModel(
+            graph,
+            this,
+            priceFragments,
+            startTime
+        )
+
     private var simMachine: SimMachine? = null
 
     /**
@@ -111,6 +121,8 @@ public class SimHost(
     private var totalDowntime = 0L
     private var bootTime: Instant? = null
     private val cpuLimit = machineModel.cpuModel.totalCapacity
+
+    private var price: Double = 0.0
 
     init {
         launch()
@@ -198,12 +210,20 @@ public class SimHost(
         return this.guests
     }
 
+    public fun getPrice(): Double {
+        return price
+    }
+
     public fun canFit(task: ServiceTask): Boolean {
         val sufficientMemory = model.memoryCapacity >= task.flavor.memorySize
         val enoughCpus = model.coreCount >= task.flavor.coreCount
         val canFit = simMachine!!.canFit(task.flavor.toMachineModel())
 
         return sufficientMemory && enoughCpus && canFit
+    }
+
+    public fun updatePrice(price: Double) {
+        this.price = price
     }
 
     /**
@@ -304,6 +324,7 @@ public class SimHost(
             running,
             failed,
             invalid,
+            price
         )
     }
 

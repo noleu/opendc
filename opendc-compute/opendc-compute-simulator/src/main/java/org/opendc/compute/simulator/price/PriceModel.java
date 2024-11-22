@@ -20,21 +20,21 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.compute.price;
+package org.opendc.compute.simulator.price;
 
 import java.util.List;
 
-import org.opendc.simulator.compute.machine.SimMachine;
+import org.opendc.compute.simulator.host.SimHost;
 import org.opendc.simulator.engine.FlowGraph;
 import org.opendc.simulator.engine.FlowNode;
 
 /**
- * PriceModel used to provide the Price of a {@link SimMachine}
+ * PriceModel used to provide the Price of a {@link SimHost}
  * A PriceModel is based on a list of {@link PriceFragment} that define the price at specific time frames.
  */
 public class PriceModel extends FlowNode {
 
-    private SimMachine machine;
+    private SimHost host;
 
     private long startTime = 0L; // The absolute timestamp on which the workload started
 
@@ -47,16 +47,16 @@ public class PriceModel extends FlowNode {
      * Construct a CarbonModel
      *
      * @param parentGraph The active FlowGraph which should be used to make the new FlowNode
-     * @param machine The Machine which should be updated with the price
+     * @param host The Host which should be updated with the price
      * @param priceFragments A list of Price Fragments defining the price at different time frames
      * @param startTime The start time of the simulation. This is used to go from relative time (used by the clock)
      *                  to absolute time (used by carbon fragments).
      */
     public PriceModel(
-        FlowGraph parentGraph, SimMachine machine, List<PriceFragment> priceFragments, long startTime) {
+        FlowGraph parentGraph, SimHost host, List<PriceFragment> priceFragments, long startTime) {
         super(parentGraph);
 
-        this.machine = machine;
+        this.host = host;
         this.startTime = startTime;
         this.fragments = priceFragments;
 
@@ -89,13 +89,17 @@ public class PriceModel extends FlowNode {
     private void findCorrectFragment(long absoluteTime) {
 
         // Traverse to the previous fragment, until you reach the correct fragment
-        while (absoluteTime < this.current_fragment.getStartTime()) {
+        while (absoluteTime < this.current_fragment.getStartTime() && this.fragment_index > 0) {
             this.current_fragment = fragments.get(--this.fragment_index);
         }
 
         // Traverse to the next fragment, until you reach the correct fragment
-        while (absoluteTime >= this.current_fragment.getEndTime()) {
+        while (absoluteTime >= this.current_fragment.getEndTime() && this.fragment_index < this.fragments.size() - 1) {
             this.current_fragment = fragments.get(++this.fragment_index);
+        }
+
+        if (this.fragment_index < 0 || this.fragment_index >= this.fragments.size() - 1) {
+            close();
         }
     }
 
@@ -116,6 +120,6 @@ public class PriceModel extends FlowNode {
     }
 
     private void pushPrice(double price) {
-        this.machine.updatePrice(price);
+        this.host.updatePrice(price);
     }
 }
