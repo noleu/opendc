@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 AtLarge Research
+ * Copyright (c) 2021 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,44 +20,31 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.compute.price;
+@file:JvmName("ComputeWorkloadsNew")
+
+package org.opendc.compute.simulator.price
+
+import java.io.File
+import javax.management.InvalidAttributeValueException
 
 /**
- * An object holding the carbon intensity during a specific time frame.
- * Used by {@link PriceModel}.
+ * Construct a workload from a trace.
  */
-public class PriceFragment {
-    private long startTime;
-    private long endTime;
-    private double price;
-
-    public PriceFragment(long startTime, long endTime, double price) {
-        this.setStartTime(startTime);
-        this.setEndTime(endTime);
-        this.setPrice(price);
+public fun getPriceFragments(pathToFile: String?): List<PriceFragment>? {
+    if (pathToFile == null) {
+        return null
     }
 
-    public double getPrice() {
-        return price;
+    return getPriceFragments(File(pathToFile))
+}
+
+/**
+ * Construct a workload from a trace.
+ */
+public fun getPriceFragments(file: File): List<PriceFragment> {
+    if (!file.exists()) {
+        throw InvalidAttributeValueException("The carbon trace cannot be found")
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public long getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
+    return PriceTraceLoader().get(file)
 }

@@ -56,7 +56,7 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
                                     localTimestamp = Instant.ofEpochMilli(value)
                                 }
                             }
-                        "carbon_intensity" ->
+                        "price" ->
                             object : PrimitiveConverter() {
                                 override fun addDouble(value: Double) {
                                     localPrice = value

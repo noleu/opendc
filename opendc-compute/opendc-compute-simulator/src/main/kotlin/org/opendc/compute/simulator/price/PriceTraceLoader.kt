@@ -20,9 +20,8 @@
  * SOFTWARE.
  */
 
-package org.opendc.compute.price
+package org.opendc.compute.simulator.price
 
-import org.opendc.simulator.compute.price.PriceFragment
 import org.opendc.trace.Trace
 import org.opendc.trace.conv.PRICE_TIMESTAMP
 import org.opendc.trace.conv.PRICE_VALUE
@@ -48,7 +47,7 @@ public class PriceTraceLoader {
     /**
      * Read the metadata into a workload.
      */
-    private fun parseCarbon(trace: Trace): List<PriceFragment> {
+    private fun parsePrice(trace: Trace): List<PriceFragment> {
         val reader = checkNotNull(trace.getTable(TABLE_PRICE)).newReader()
 
         val startTimeCol = reader.resolve(PRICE_TIMESTAMP)
@@ -78,9 +77,9 @@ public class PriceTraceLoader {
      * Load the trace with the specified [name] and [format].
      */
     public fun get(pathToFile: File): List<PriceFragment> {
-        val trace = Trace.open(pathToFile, "carbon")
+        val trace = Trace.open(pathToFile, "price")
 
-        return parseCarbon(trace)
+        return parsePrice(trace)
     }
 
     /**

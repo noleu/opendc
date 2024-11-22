@@ -160,6 +160,11 @@ public object DfltTaskExportColumns {
                     .named("task_state"),
         ) { Binary.fromString(it.taskState?.name) }
 
+    public val PRICE: ExportColumn<TaskTableReader> =
+        ExportColumn(
+            field = Types.optional(FLOAT).named("price"),
+        ) { it.price }
+
     /**
      * The columns that are always included in the output file.
      */
