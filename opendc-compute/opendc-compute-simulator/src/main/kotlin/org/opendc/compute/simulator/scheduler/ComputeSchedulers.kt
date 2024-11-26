@@ -29,6 +29,7 @@ import org.opendc.compute.simulator.scheduler.filters.RamFilter
 import org.opendc.compute.simulator.scheduler.filters.VCpuFilter
 import org.opendc.compute.simulator.scheduler.weights.CoreRamWeigher
 import org.opendc.compute.simulator.scheduler.weights.InstanceCountWeigher
+import org.opendc.compute.simulator.scheduler.weights.PriceWeigher
 import org.opendc.compute.simulator.scheduler.weights.RamWeigher
 import org.opendc.compute.simulator.scheduler.weights.VCpuWeigher
 import java.util.SplittableRandom
@@ -45,6 +46,7 @@ public enum class ComputeSchedulerEnum {
     ProvisionedCoresInv,
     Random,
     Replay,
+    Price,
 }
 
 public fun createComputeScheduler(
@@ -114,5 +116,11 @@ public fun createComputeScheduler(
                 random = SplittableRandom(seeder.nextLong()),
             )
         ComputeSchedulerEnum.Replay -> ReplayScheduler(placements)
+        ComputeSchedulerEnum.Price ->
+            FilterScheduler(
+                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio)),
+                weighers = listOf(PriceWeigher(multiplier = -1.0))
+            )
+//            LowestPriceScheduler()
     }
 }
