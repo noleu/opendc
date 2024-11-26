@@ -43,7 +43,7 @@ public fun getPriceFragments(pathToFile: String?): List<PriceFragment>? {
  */
 public fun getPriceFragments(file: File): List<PriceFragment> {
     if (!file.exists()) {
-        throw InvalidAttributeValueException("The carbon trace cannot be found")
+        throw InvalidAttributeValueException("The price trace cannot be found")
     }
 
     return PriceTraceLoader().get(file)
