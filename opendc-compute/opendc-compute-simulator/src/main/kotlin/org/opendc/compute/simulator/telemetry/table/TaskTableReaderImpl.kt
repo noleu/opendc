@@ -69,6 +69,7 @@ public class TaskTableReaderImpl(
         _finishTime = table.finishTime
 
         _taskState = table.taskState
+        _price = table.price
     }
 
     /**
@@ -156,6 +157,10 @@ public class TaskTableReaderImpl(
         get() = _taskState
     private var _taskState: TaskState? = null
 
+    override val price: Double
+        get() = _price
+    private var _price: Double = 0.0
+
     /**
      * Record the next cycle.
      */
@@ -171,6 +176,7 @@ public class TaskTableReaderImpl(
                     newHost.getModel().coreCount,
                     newHost.getModel().cpuCapacity,
                     newHost.getModel().memoryCapacity,
+                    newHost.getPrice()
                 )
         }
 
@@ -191,6 +197,12 @@ public class TaskTableReaderImpl(
         _bootTime = sysStats?.bootTime
         _creationTime = task.createdAt
         _finishTime = task.finishedAt
+
+        _price = if (_host != null) {
+            _host?.getPrice()!!
+        } else {
+            0.0
+        }
 
         _taskState = task.state
 

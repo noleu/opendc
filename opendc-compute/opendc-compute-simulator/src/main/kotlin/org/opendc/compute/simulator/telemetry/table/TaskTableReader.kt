@@ -123,6 +123,8 @@ public interface TaskTableReader : Exportable {
      * The state of the task
      */
     public val taskState: TaskState?
+
+    public val price: Double
 }
 
 // Loads the default export fields for deserialization whenever this file is loaded.

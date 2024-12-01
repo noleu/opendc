@@ -1,3 +1,6 @@
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+}
 /*
  * Copyright (c) 2017 AtLarge Research
  *
@@ -60,3 +63,5 @@ include(":opendc-trace:opendc-trace-failure")
 include(":opendc-trace:opendc-trace-tools")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+include("opendc-compute:opendc-compute-price")
+findProject(":opendc-compute:opendc-compute-price")?.name = "opendc-compute-price"

@@ -25,10 +25,12 @@
 package org.opendc.compute.simulator.scheduler
 
 import org.opendc.compute.simulator.scheduler.filters.ComputeFilter
+import org.opendc.compute.simulator.scheduler.filters.PriceFilter
 import org.opendc.compute.simulator.scheduler.filters.RamFilter
 import org.opendc.compute.simulator.scheduler.filters.VCpuFilter
 import org.opendc.compute.simulator.scheduler.weights.CoreRamWeigher
 import org.opendc.compute.simulator.scheduler.weights.InstanceCountWeigher
+import org.opendc.compute.simulator.scheduler.weights.PriceWeigher
 import org.opendc.compute.simulator.scheduler.weights.RamWeigher
 import org.opendc.compute.simulator.scheduler.weights.VCpuWeigher
 import java.util.SplittableRandom
@@ -45,6 +47,8 @@ public enum class ComputeSchedulerEnum {
     ProvisionedCoresInv,
     Random,
     Replay,
+    Price,
+    RadicalPrice
 }
 
 public fun createComputeScheduler(
@@ -112,6 +116,16 @@ public fun createComputeScheduler(
                 weighers = emptyList(),
                 subsetSize = Int.MAX_VALUE,
                 random = SplittableRandom(seeder.nextLong()),
+            )
+        ComputeSchedulerEnum.Price ->
+            FilterScheduler(
+                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio)),
+                weighers = listOf(PriceWeigher(multiplier = -1.0))
+            )
+        ComputeSchedulerEnum.RadicalPrice ->
+            FilterScheduler(
+                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio), PriceFilter(300.0)),
+                weighers = listOf(PriceWeigher(multiplier = -1.0))
             )
         ComputeSchedulerEnum.Replay -> ReplayScheduler(placements)
     }

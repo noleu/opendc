@@ -20,27 +20,31 @@
  * SOFTWARE.
  */
 
-package org.opendc.compute.topology.specs
+@file:JvmName("ComputeWorkloadsNew")
 
-import org.opendc.simulator.compute.cpu.CpuPowerModel
-import org.opendc.simulator.compute.models.MachineModel
-import java.util.UUID
+package org.opendc.compute.simulator.price
+
+import java.io.File
+import javax.management.InvalidAttributeValueException
 
 /**
- * Description of a physical host that will be simulated by OpenDC and host the virtual machines.
- *
- * @param uid Unique identifier of the host.
- * @param name The name of the host.
- * @param meta The metadata of the host.
- * @param model The physical model of the machine.
- * @param cpuPowerModel The [SimPsuFactory] to construct the PSU that models the power consumption of the machine.
- * @param multiplexerFactory The [FlowMultiplexerFactory] that is used to multiplex the virtual machines over the host.
+ * Construct a workload from a trace.
  */
-public data class HostSpec(
-    val uid: UUID,
-    val name: String,
-    val meta: Map<String, Any>,
-    val model: MachineModel,
-    val cpuPowerModel: CpuPowerModel,
-    val priceTracePath: String? = null,
-)
+public fun getPriceFragments(pathToFile: String?): List<PriceFragment>? {
+    if (pathToFile == null) {
+        return null
+    }
+
+    return getPriceFragments(File(pathToFile))
+}
+
+/**
+ * Construct a workload from a trace.
+ */
+public fun getPriceFragments(file: File): List<PriceFragment> {
+    if (!file.exists()) {
+        throw InvalidAttributeValueException("The price trace cannot be found")
+    }
+
+    return PriceTraceLoader().get(file)
+}
