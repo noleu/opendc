@@ -170,6 +170,14 @@ public object DfltTaskExportColumns {
                     .named("task_state"),
         ) { Binary.fromString(it.taskState?.name) }
 
+    public val PRICE_STATE: ExportColumn<TaskTableReader> =
+        ExportColumn(
+            field =
+                Types.required(BINARY)
+                    .`as`(LogicalTypeAnnotation.stringType())
+                    .named("price_state"),
+        ) { Binary.fromString(it.priceState) }
+
     public val PRICE: ExportColumn<TaskTableReader> =
         ExportColumn(
             field = Types.optional(FLOAT).named("price"),

@@ -25,6 +25,7 @@ package org.opendc.compute.simulator.internal
 import mu.KotlinLogging
 import org.opendc.compute.api.TaskState
 import org.opendc.compute.simulator.host.SimHost
+import org.opendc.compute.simulator.price.PriceState
 import org.opendc.compute.simulator.service.ServiceTask
 import org.opendc.compute.simulator.telemetry.GuestCpuStats
 import org.opendc.compute.simulator.telemetry.GuestSystemStats
@@ -46,6 +47,7 @@ public class Guest(
     private val listener: GuestListener,
     public val task: ServiceTask,
     public val simMachine: SimMachine,
+    public val priceState: PriceState
 ) {
     /**
      * The state of the [Guest].
@@ -216,6 +218,8 @@ public class Guest(
             Duration.ofMillis(uptime),
             Duration.ofMillis(downtime),
             bootTime,
+            priceState.toString(),
+            host.getPrice(priceState)
         )
     }
 

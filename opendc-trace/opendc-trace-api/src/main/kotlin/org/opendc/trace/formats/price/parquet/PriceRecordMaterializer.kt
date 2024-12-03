@@ -28,6 +28,9 @@ import org.apache.parquet.io.api.PrimitiveConverter
 import org.apache.parquet.io.api.RecordMaterializer
 import org.apache.parquet.schema.MessageType
 import java.time.Instant
+import org.opendc.trace.conv.PRICE_TIMESTAMP
+import org.opendc.trace.conv.PRICE_ON_DEMAND
+import org.opendc.trace.conv.PRICE_SPOT
 
 /**
  * A [RecordMaterializer] for [Task] records.
@@ -37,7 +40,8 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
      * State of current record being read.
      */
     private var localTimestamp: Instant = Instant.MIN
-    private var localPrice: Double = 0.0
+    private var localSpotPrice: Double = 0.0
+    private var localOnDemandPrice: Double = 0.0
 
     /**
      * Root converter for the record.
@@ -50,16 +54,22 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
             private val converters =
                 schema.fields.map { type ->
                     when (type.name) {
-                        "timestamp" ->
+                        PRICE_TIMESTAMP ->
                             object : PrimitiveConverter() {
                                 override fun addLong(value: Long) {
                                     localTimestamp = Instant.ofEpochMilli(value)
                                 }
                             }
-                        "price" ->
+                        PRICE_SPOT ->
                             object : PrimitiveConverter() {
                                 override fun addDouble(value: Double) {
-                                    localPrice = value
+                                    localSpotPrice = value
+                                }
+                            }
+                        PRICE_ON_DEMAND ->
+                            object : PrimitiveConverter() {
+                                override fun addDouble(value: Double) {
+                                    localOnDemandPrice = value
                                 }
                             }
                         else -> error("Unknown column $type")
@@ -68,7 +78,8 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
 
             override fun start() {
                 localTimestamp = Instant.MIN
-                localPrice = 0.0
+                localSpotPrice = 0.0
+                localOnDemandPrice = 0.0
             }
 
             override fun end() {}
@@ -79,7 +90,8 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
     override fun getCurrentRecord(): PriceFragment =
         PriceFragment(
             localTimestamp,
-            localPrice,
+            localSpotPrice,
+            localOnDemandPrice
         )
 
     override fun getRootConverter(): GroupConverter = root

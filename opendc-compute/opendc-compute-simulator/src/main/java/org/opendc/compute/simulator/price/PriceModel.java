@@ -62,7 +62,8 @@ public class PriceModel extends FlowNode {
 
         this.fragment_index = 0;
         this.current_fragment = this.fragments.get(this.fragment_index);
-        this.pushPrice(this.current_fragment.getPrice());
+        this.pushPriceState(this.current_fragment.getOnDemandPrice(), this.current_fragment.getSpotPrice());
+        this.pushPrice(this.current_fragment.getOnDemandPrice(), this.current_fragment.getSpotPrice());
     }
 
     public void close() {
@@ -112,14 +113,27 @@ public class PriceModel extends FlowNode {
         if ((absolute_time < current_fragment.getStartTime()) || (absolute_time >= current_fragment.getEndTime())) {
             this.findCorrectFragment(absolute_time);
 
-            pushPrice(current_fragment.getPrice());
+            pushPriceState(current_fragment.getOnDemandPrice(), current_fragment.getSpotPrice());
+            pushPrice(current_fragment.getOnDemandPrice(), current_fragment.getSpotPrice());
         }
 
         // Update again at the end of this fragment
         return getRelativeTime(current_fragment.getEndTime());
     }
 
-    private void pushPrice(double price) {
-        this.host.updatePrice(price);
+    private void pushPriceState(double onDemandPrice, double spotPrice) {
+        PriceState state;
+
+        if (spotPrice >= onDemandPrice) {
+            state = PriceState.ON_DEMAND;
+        } else {
+            state = PriceState.SPOT;
+        }
+
+        this.host.updatePriceState(state);
+    }
+
+    private void pushPrice(double onDemandPrice, double spotPrice) {
+        this.host.updatePrice(onDemandPrice, spotPrice);
     }
 }

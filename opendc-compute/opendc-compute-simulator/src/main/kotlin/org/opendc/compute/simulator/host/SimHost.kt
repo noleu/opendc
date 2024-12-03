@@ -33,6 +33,8 @@ import org.opendc.compute.simulator.telemetry.GuestSystemStats
 import org.opendc.compute.simulator.telemetry.HostCpuStats
 import org.opendc.compute.simulator.telemetry.HostSystemStats
 import org.opendc.compute.simulator.price.PriceModel
+import org.opendc.compute.simulator.price.PriceState
+import org.opendc.compute.simulator.service.ComputeService
 import org.opendc.simulator.compute.cpu.CpuPowerModel
 import org.opendc.simulator.compute.machine.SimMachine
 import org.opendc.simulator.compute.models.MachineModel
@@ -65,6 +67,9 @@ public class SimHost(
     private val machineModel: MachineModel,
     private val cpuPowerModel: CpuPowerModel,
     private val powerMux: FlowDistributor,
+    private val priceFragments: List<PriceFragment>,
+    private val startTime: Long,
+    private val computeClient: ComputeService.ComputeClient
 ) : AutoCloseable {
     /**
      * The event listeners registered with this host.
@@ -122,7 +127,9 @@ public class SimHost(
     private var bootTime: Instant? = null
     private val cpuLimit = machineModel.cpuModel.totalCapacity
 
-    private var price: Double = 0.0
+    private var priceState: PriceState = PriceState.ON_DEMAND
+    private var onDemandPrice: Double = 0.0
+    private var spotPrice: Double = 0.0
 
     init {
         launch()
@@ -210,8 +217,24 @@ public class SimHost(
         return this.guests
     }
 
-    public fun getPrice(): Double {
-        return price
+    public fun getPriceState(): PriceState {
+        return priceState
+    }
+
+    public fun getCurrentPrice(): Double {
+        return if (priceState == PriceState.ON_DEMAND) {
+            onDemandPrice
+        } else {
+            spotPrice
+        }
+    }
+
+    public fun getPrice(state: PriceState): Double {
+        return if (state == PriceState.ON_DEMAND) {
+            onDemandPrice
+        } else {
+            spotPrice
+        }
     }
 
     public fun canFit(task: ServiceTask): Boolean {
@@ -222,8 +245,26 @@ public class SimHost(
         return sufficientMemory && enoughCpus && canFit
     }
 
-    public fun updatePrice(price: Double) {
-        this.price = price
+    public fun updatePriceState(newState: PriceState) {
+        // All tasks started while the pricing state was spot will get kicked out when the state switched to on demand
+        if (newState == PriceState.ON_DEMAND && priceState == PriceState.SPOT) {
+            val spotGuests = guests.filter { it.priceState == PriceState.SPOT }
+            val snapshots = spotGuests.map { it.virtualMachine!!.activeWorkload.getSnapshot() }
+            val tasks = spotGuests.map { it.task }
+
+            spotGuests.forEach { it.fail() } // TODO: This shouldn't be fail but a nicer way to stop the guest
+
+            for ((task, snapshot) in tasks.zip(snapshots)) {
+                computeClient.rescheduleTask(task, snapshot)
+            }
+        }
+
+        priceState = newState
+    }
+
+    public fun updatePrice(newOnDemandPrice: Double, newSpotPrice: Double) {
+        this.onDemandPrice = newOnDemandPrice
+        this.spotPrice = newSpotPrice
     }
 
     /**
@@ -243,6 +284,7 @@ public class SimHost(
                 guestListener,
                 task,
                 simMachine!!,
+                priceState
             )
 
         guests.add(newGuest)
@@ -324,7 +366,8 @@ public class SimHost(
             running,
             failed,
             invalid,
-            price
+            priceState.toString(),
+            getCurrentPrice()
         )
     }
 
