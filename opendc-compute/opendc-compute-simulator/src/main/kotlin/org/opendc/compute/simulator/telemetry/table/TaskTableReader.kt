@@ -124,6 +124,8 @@ public interface TaskTableReader : Exportable {
      */
     public val taskState: TaskState?
 
+    public val priceState: String
+
     public val price: Double
 }
 

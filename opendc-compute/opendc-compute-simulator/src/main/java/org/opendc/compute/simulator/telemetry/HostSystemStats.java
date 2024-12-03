@@ -48,4 +48,5 @@ public record HostSystemStats(
         int guestsRunning,
         int guestsError,
         int guestsInvalid,
+        String priceState,
         double price) {}

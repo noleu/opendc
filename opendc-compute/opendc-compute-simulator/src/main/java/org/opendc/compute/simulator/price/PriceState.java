@@ -20,18 +20,9 @@
  * SOFTWARE.
  */
 
-@file:JvmName("PriceColumns")
+package org.opendc.compute.simulator.price;
 
-package org.opendc.trace.conv
-
-/**
- * A column containing the task identifier.
- */
-public const val PRICE_TIMESTAMP: String = "timestamp"
-
-/**
- * A column containing the task identifier.
- */
-public const val PRICE_ON_DEMAND: String = "on_demand_price"
-
-public const val PRICE_SPOT: String = "spot_price"
+public enum PriceState {
+    SPOT,
+    ON_DEMAND
+}

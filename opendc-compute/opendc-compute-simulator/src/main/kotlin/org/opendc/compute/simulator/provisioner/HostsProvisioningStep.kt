@@ -83,7 +83,8 @@ public class HostsProvisioningStep internal constructor(
                         hostSpec.cpuPowerModel,
                         powerMux,
                         priceFragments!!,
-                        startTime
+                        startTime,
+                        service.newClient()
                     )
 
                 require(simHosts.add(simHost)) { "Host with uid ${hostSpec.uid} already exists" }

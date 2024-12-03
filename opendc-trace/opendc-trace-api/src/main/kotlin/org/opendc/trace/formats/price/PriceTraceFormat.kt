@@ -26,9 +26,10 @@ import org.opendc.trace.TableColumn
 import org.opendc.trace.TableColumnType
 import org.opendc.trace.TableReader
 import org.opendc.trace.TableWriter
-import org.opendc.trace.conv.PRICE_TIMESTAMP
-import org.opendc.trace.conv.PRICE_VALUE
 import org.opendc.trace.conv.TABLE_PRICE
+import org.opendc.trace.conv.PRICE_TIMESTAMP
+import org.opendc.trace.conv.PRICE_ON_DEMAND
+import org.opendc.trace.conv.PRICE_SPOT
 import org.opendc.trace.formats.price.parquet.PriceReadSupport
 import org.opendc.trace.spi.TableDetails
 import org.opendc.trace.spi.TraceFormat
@@ -56,7 +57,8 @@ public class PriceTraceFormat : TraceFormat {
                 TableDetails(
                     listOf(
                         TableColumn(PRICE_TIMESTAMP, TableColumnType.Instant),
-                        TableColumn(PRICE_VALUE, TableColumnType.Double),
+                        TableColumn(PRICE_ON_DEMAND, TableColumnType.Double),
+                        TableColumn(PRICE_SPOT, TableColumnType.Double)
                     ),
                 )
             else -> throw IllegalArgumentException("Table $table not supported")

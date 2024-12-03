@@ -31,7 +31,8 @@ import org.apache.parquet.schema.MessageType
 import org.apache.parquet.schema.PrimitiveType
 import org.apache.parquet.schema.Types
 import org.opendc.trace.conv.PRICE_TIMESTAMP
-import org.opendc.trace.conv.PRICE_VALUE
+import org.opendc.trace.conv.PRICE_ON_DEMAND
+import org.opendc.trace.conv.PRICE_SPOT
 
 /**
  * A [ReadSupport] instance for [Task] objects.
@@ -45,7 +46,8 @@ internal class PriceReadSupport(private val projection: List<String>?) : ReadSup
     private val colMap =
         mapOf(
             PRICE_TIMESTAMP to "timestamp",
-            PRICE_VALUE to "price",
+            PRICE_ON_DEMAND to "on_demand_price",
+            PRICE_SPOT to "spot_price",
         )
 
     override fun init(context: InitContext): ReadContext {
@@ -76,7 +78,7 @@ internal class PriceReadSupport(private val projection: List<String>?) : ReadSup
 
     companion object {
         /**
-         * Parquet read schema for the "tasks" table in the trace.
+         * Parquet read schema for the "price" table in the trace.
          */
         @JvmStatic
         val READ_SCHEMA: MessageType =
@@ -88,7 +90,10 @@ internal class PriceReadSupport(private val projection: List<String>?) : ReadSup
                         .named("timestamp"),
                     Types
                         .optional(PrimitiveType.PrimitiveTypeName.DOUBLE)
-                        .named("price"),
+                        .named("on_demand_price"),
+                    Types
+                        .optional(PrimitiveType.PrimitiveTypeName.DOUBLE)
+                        .named("spot_price")
                 )
                 .named("price_fragment")
     }

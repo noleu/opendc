@@ -24,7 +24,8 @@ package org.opendc.compute.simulator.price
 
 import org.opendc.trace.Trace
 import org.opendc.trace.conv.PRICE_TIMESTAMP
-import org.opendc.trace.conv.PRICE_VALUE
+import org.opendc.trace.conv.PRICE_ON_DEMAND
+import org.opendc.trace.conv.PRICE_SPOT
 import org.opendc.trace.conv.TABLE_PRICE
 import java.io.File
 import java.lang.ref.SoftReference
@@ -51,14 +52,16 @@ public class PriceTraceLoader {
         val reader = checkNotNull(trace.getTable(TABLE_PRICE)).newReader()
 
         val startTimeCol = reader.resolve(PRICE_TIMESTAMP)
-        val carbonIntensityCol = reader.resolve(PRICE_VALUE)
+        val onDemandPriceCol = reader.resolve(PRICE_ON_DEMAND)
+        val spotPriceCol = reader.resolve(PRICE_SPOT)
 
         try {
             while (reader.nextRow()) {
                 val startTime = reader.getInstant(startTimeCol)!!
-                val carbonIntensity = reader.getDouble(carbonIntensityCol)
+                val onDemandPrice = reader.getDouble(onDemandPriceCol)
+                val spotPrice = reader.getDouble(spotPriceCol)
 
-                builder.add(startTime, carbonIntensity)
+                builder.add(startTime, onDemandPrice, spotPrice)
             }
 
             // Make sure the virtual machines are ordered by start time
@@ -106,13 +109,15 @@ public class PriceTraceLoader {
          */
         fun add(
             startTime: Instant,
-            price: Double,
+            onDemandPrice: Double,
+            spotPrice: Double
         ) {
             fragments.add(
                 PriceFragment(
                     startTime.toEpochMilli(),
                     Long.MAX_VALUE,
-                    price,
+                    onDemandPrice,
+                    spotPrice
                 ),
             )
         }
