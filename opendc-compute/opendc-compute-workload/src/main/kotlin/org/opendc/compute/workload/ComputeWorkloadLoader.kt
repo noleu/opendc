@@ -30,6 +30,7 @@ import org.opendc.trace.conv.TABLE_RESOURCE_STATES
 import org.opendc.trace.conv.resourceCpuCapacity
 import org.opendc.trace.conv.resourceCpuCount
 import org.opendc.trace.conv.resourceDuration
+import org.opendc.trace.conv.resourceDeadline
 import org.opendc.trace.conv.resourceID
 import org.opendc.trace.conv.resourceMemCapacity
 import org.opendc.trace.conv.resourceStateCpuUsage
@@ -105,6 +106,7 @@ public class ComputeWorkloadLoader(
         val idCol = reader.resolve(resourceID)
         val submissionTimeCol = reader.resolve(resourceSubmissionTime)
         val durationCol = reader.resolve(resourceDuration)
+        val deadline = reader.resolve(resourceDeadline)
         val cpuCountCol = reader.resolve(resourceCpuCount)
         val cpuCapacityCol = reader.resolve(resourceCpuCapacity)
         val memCol = reader.resolve(resourceMemCapacity)
