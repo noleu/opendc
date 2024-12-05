@@ -87,13 +87,17 @@ public class CarbonModel extends FlowNode {
     private void findCorrectFragment(long absoluteTime) {
 
         // Traverse to the previous fragment, until you reach the correct fragment
-        while (absoluteTime < this.current_fragment.getStartTime()) {
+        while (absoluteTime < this.current_fragment.getStartTime() && this.fragment_index > 0) {
             this.current_fragment = fragments.get(--this.fragment_index);
         }
 
         // Traverse to the next fragment, until you reach the correct fragment
-        while (absoluteTime >= this.current_fragment.getEndTime()) {
+        while (absoluteTime >= this.current_fragment.getEndTime() && this.fragment_index < this.fragments.size() - 1) {
             this.current_fragment = fragments.get(++this.fragment_index);
+        }
+
+        if (this.fragment_index < 0 || this.fragment_index >= this.fragments.size() - 1) {
+            close();
         }
     }
 
