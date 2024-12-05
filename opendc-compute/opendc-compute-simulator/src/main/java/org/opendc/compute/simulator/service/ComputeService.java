@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.UUID;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.opendc.common.Dispatcher;
@@ -48,19 +49,25 @@ import org.opendc.compute.simulator.host.HostListener;
 import org.opendc.compute.simulator.host.HostModel;
 import org.opendc.compute.simulator.host.HostState;
 import org.opendc.compute.simulator.host.SimHost;
+import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.scheduler.ComputeScheduler;
+import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
 import org.opendc.simulator.compute.power.SimPowerSource;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The {@link ComputeService} hosts the API implementation of the OpenDC Compute Engine.
  */
 public final class ComputeService implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputeService.class);
+    private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
     /**
      * The {@link InstantSource} representing the clock tracking the (simulation) time.
@@ -117,7 +124,7 @@ public final class ComputeService implements AutoCloseable {
     /**
      * The active tasks in the system.
      */
-    private final Map<ServiceTask, SimHost> completedTasks = new HashMap<>();
+        private final Map<ServiceTask, SimHost> completedTasks = new HashMap<>();
 
     /**
      * The registered flavors for this compute service.
@@ -211,6 +218,9 @@ public final class ComputeService implements AutoCloseable {
                 requestSchedulingCycle();
             }
         }
+
+//        @Override
+//        public void onStateChanged(@NotNull SimHost host, @NotNull ServiceTask task, @NotNull clock)
     };
 
     private int maxCores = 0;
@@ -223,6 +233,7 @@ public final class ComputeService implements AutoCloseable {
     private int tasksActive = 0; // Number of tasks that are currently running
     private int tasksTerminated = 0; // Number of tasks that were terminated due to too much failures
     private int tasksCompleted = 0; // Number of tasks completed successfully
+    private HashMap<SimHost, Long> delayPerHost = new HashMap<SimHost, Long>(); // Average delay of the host
 
     /**
      * Construct a {@link ComputeService} instance.
@@ -232,6 +243,93 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
+        if (this.scheduler instanceof UniformProgressionScheduler) {
+            startPeriodicReevaluation();
+        }
+    }
+
+    private void startPeriodicReevaluation() {
+//        pacer.enqueue();
+        while (true) {
+            timer.scheduleAtFixedRate(() -> reevaluateTasks(), 0, 1000, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void reevaluateTasks() {
+        long now = clock.millis();
+        long maxDelay = delayPerHost.values().stream().max(Long::compare).orElse(0L);
+
+        for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
+            ServiceTask task = activeTask.getKey();
+            SimHost host = activeTask.getValue();
+            long remainingTime = task.getDeadline().toEpochMilli() - now;
+//            long computationTime = now - task.launchedAt.getEpochSecond();
+//            long computationTime = task.duration.toEpochMilli();
+            long computationTime = task.duration;
+            long currentProgress = task.getCurrentProgress();
+            long expectedProgress = now * computationTime/remainingTime;
+
+            // R(t) ≥ C(t) + 2
+            // Wu et. al Safety Net Rule
+            if (host.getPriceState() == PriceState.SPOT && currentProgress < computationTime + 2 * maxDelay) {
+                findNewOnDemandInstance(task);
+            }
+
+            // cp(t) ≥ ep(t + 2d).
+            // Wu et. al Exploitation + Hysterics Rule
+            if (host.getPriceState() == PriceState.ON_DEMAND && currentProgress < expectedProgress) {
+                findNewSpotInstance(task);
+            }
+
+
+        }
+    }
+
+    private void findNewSpotInstance(ServiceTask task) {
+        SimHost currentHost = task.getHost();
+
+        task.requiresOnDemand(false);
+        task.requiresSpot(true);
+        HostView hv = scheduler.select(task);
+        SimHost newHost = hv.getHost();
+
+        // Remove the task from the old host
+        Workload remainingWorkload = currentHost.removeTaskWithSnapshot(task);
+        if (remainingWorkload == null) {
+            LOGGER.error("Failed to remove task {} from host {}. Task was not found in a Guest", task, currentHost);
+            return;
+        }
+        task.setWorkload(remainingWorkload);
+        activeTasks.remove(task);
+
+        // Assign the task to the new host
+        task.host = newHost;
+        newHost.spawn(task);
+        activeTasks.put(task, newHost);
+    }
+
+    private void findNewOnDemandInstance(ServiceTask task) {
+
+        SimHost currentHost = task.getHost();
+
+        task.requiresOnDemand(true);
+        task.requiresSpot(false);
+        HostView hv = scheduler.select(task);
+        SimHost newHost = hv.getHost();
+
+        // Remove the task from the old host
+        Workload remainingWorkload = currentHost.removeTaskWithSnapshot(task);
+        if (remainingWorkload == null) {
+            LOGGER.error("Failed to remove task {} from host {}. Task was not found in a Guest", task, currentHost);
+            return;
+        }
+        task.setWorkload(remainingWorkload);
+        activeTasks.remove(task);
+
+        // Assign the task to the new host
+        task.host = newHost;
+        newHost.spawn(task);
+        activeTasks.put(task, newHost);
     }
 
     /**
@@ -288,7 +386,6 @@ public final class ComputeService implements AutoCloseable {
         if (host.getState() == HostState.UP) {
             availableHosts.add(hv);
         }
-
         scheduler.addHost(hv);
         host.addListener(hostListener);
     }
@@ -677,6 +774,7 @@ public final class ComputeService implements AutoCloseable {
 
             internalTask.setWorkload(workload);
             internalTask.start();
+//            service.taskQueue.add(task);
         }
     }
 
