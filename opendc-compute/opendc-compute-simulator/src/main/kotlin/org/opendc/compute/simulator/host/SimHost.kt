@@ -41,6 +41,8 @@ import org.opendc.simulator.compute.models.MachineModel
 import org.opendc.simulator.compute.models.MemoryUnit
 import org.opendc.simulator.engine.graph.FlowDistributor
 import org.opendc.simulator.engine.graph.FlowGraph
+import org.opendc.simulator.compute.workload.Workload
+import org.opendc.simulator.engine.FlowGraph
 import java.time.Duration
 import java.time.Instant
 import java.time.InstantSource
@@ -322,6 +324,17 @@ public class SimHost(
 
         taskToGuestMap.remove(task)
         guests.remove(guest)
+    }
+
+    public fun removeTaskWithSnapshot(task: ServiceTask) : Workload? {
+        val guest = taskToGuestMap[task] ?: return null
+        val snapshot = guest.virtualMachine!!.activeWorkload.getSnapshot()
+        val task = guest.task
+
+        taskToGuestMap.remove(task)
+        guests.remove(guest)
+        return snapshot
+
     }
 
     public fun addListener(listener: HostListener) {
