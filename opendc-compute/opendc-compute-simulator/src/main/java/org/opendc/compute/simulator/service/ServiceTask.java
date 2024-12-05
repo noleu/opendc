@@ -67,6 +67,7 @@ public class ServiceTask {
 
     private int numFailures = 0;
     private boolean requiresOnDemand = false;
+    private boolean requiresSpot = false;
 
     ServiceTask(
             ComputeService service,
@@ -208,7 +209,7 @@ public class ServiceTask {
     void setState(TaskState newState) {
         if (this.launchedAt != null) {
             long timeSinceLaunch = this.service.getClock().instant().minus(this.launchedAt.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
-            this.currentProgress = this.duration.toEpochMilli() - timeSinceLaunch;
+//            this.currentProgress = this.duration.toEpochMilli() - timeSinceLaunch;
             this.currentProgress = this.duration - timeSinceLaunch;
         }
         if (this.state == newState) {
@@ -246,8 +247,16 @@ public class ServiceTask {
         return requiresOnDemand;
     }
 
-    public void setRequiresOnDemand(boolean requiresOnDemand) {
+    public void requiresOnDemand(boolean requiresOnDemand) {
         this.requiresOnDemand = requiresOnDemand;
+    }
+
+    public boolean requiresSpot() {
+        return requiresSpot;
+    }
+
+    public void requiresSpot(boolean requiresSpot) {
+        this.requiresSpot = requiresSpot;
     }
 
     public long getCurrentProgress() {
