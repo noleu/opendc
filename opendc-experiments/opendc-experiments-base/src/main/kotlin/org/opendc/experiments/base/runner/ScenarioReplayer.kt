@@ -37,10 +37,12 @@ import org.opendc.compute.simulator.service.ServiceTask
 import org.opendc.compute.workload.Task
 import org.opendc.experiments.base.experiment.specs.FailureModelSpec
 import org.opendc.experiments.base.experiment.specs.createFailureModel
+import java.time.Instant
 import java.time.InstantSource
 import java.util.Random
 import kotlin.coroutines.coroutineContext
 import kotlin.math.max
+import kotlin.math.roundToLong
 
 /**
  * A watcher that is locked and waits for a change in the task state to unlock
@@ -119,7 +121,8 @@ public suspend fun ComputeService.replay(
                 val workload = entry.trace
                 val meta = mutableMapOf<String, Any>("workload" to workload)
                 // if deadline is not set, set it to the submissionTime + duration plus 10% tolerance
-                val deadLine = entry.deadline ?: (entry.submissionTime.toEpochMilli() + 1.1 * entry.duration)
+
+                val deadLine = entry.deadline ?: Instant.ofEpochMilli((entry.submissionTime.toEpochMilli() + 1.1 * entry.duration).roundToLong())
                 meta["deadline"] = deadLine
                 meta["duration"] = entry.duration
 

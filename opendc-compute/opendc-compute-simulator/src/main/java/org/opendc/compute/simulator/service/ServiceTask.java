@@ -61,7 +61,7 @@ public class ServiceTask {
     Instant finishedAt;
     long currentProgress = 0L;
     SimHost host = null;
-    Instant duration; // TODO: May be instant
+    long duration; // TODO: May be instant
     Instant deadline;
     private ComputeService.SchedulingRequest request = null;
 
@@ -81,7 +81,7 @@ public class ServiceTask {
         this.flavor = flavor;
         this.workload = workload;
         this.meta = meta;
-        this.duration = (Instant) meta.get("duration");
+        this.duration = (long) meta.get("duration");
         this.deadline = (Instant) meta.get("deadline");
 
         this.createdAt = this.service.getClock().instant();
@@ -209,6 +209,7 @@ public class ServiceTask {
         if (this.launchedAt != null) {
             long timeSinceLaunch = this.service.getClock().instant().minus(this.launchedAt.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
             this.currentProgress = this.duration.toEpochMilli() - timeSinceLaunch;
+            this.currentProgress = this.duration - timeSinceLaunch;
         }
         if (this.state == newState) {
             return;
