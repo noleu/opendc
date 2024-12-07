@@ -127,7 +127,8 @@ public class SimHost(
     private var totalUptime = 0L
     private var totalDowntime = 0L
     private var bootTime: Instant? = null
-    private val cpuLimit = machineModel.cpuModel.totalCapacity
+    private val cpuLimit = machineModel.cpu.totalCapacity
+    private var taskDelay = 0L
 
     private var priceState: PriceState = PriceState.ON_DEMAND
     private var onDemandPrice: Double = 0.0
@@ -415,6 +416,10 @@ public class SimHost(
 
     override fun equals(other: Any?): Boolean {
         return other is SimHost && uid == other.uid
+    }
+
+    public fun taskDelay() : Long {
+        return this.taskDelay
     }
 
     override fun toString(): String = "SimHost[uid=$uid,name=$name,model=$model]"
