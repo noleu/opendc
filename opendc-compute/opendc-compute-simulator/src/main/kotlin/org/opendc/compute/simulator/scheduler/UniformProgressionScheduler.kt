@@ -12,7 +12,7 @@ import org.opendc.compute.simulator.service.ServiceTask
 public class UniformProgressionScheduler : ComputeScheduler{
 
     private val hosts = mutableListOf<HostView>()
-    private val filters = mutableListOf<HostFilter>(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.5))
+    private val filters = mutableListOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.5))
 
     override fun addHost(host: HostView) {
         hosts.add(host)
@@ -23,7 +23,6 @@ public class UniformProgressionScheduler : ComputeScheduler{
     }
 
     override fun select(task: ServiceTask): HostView? {
-
 
         if (task.requiresOnDemand()) {
             // only use on demand hosts
@@ -37,29 +36,4 @@ public class UniformProgressionScheduler : ComputeScheduler{
             .minByOrNull { it.price }
         return host
     }
-//
-//    fun reSelect(task: ServiceTask): HostView? {
-//        if (task.requiresOnDemand()) {
-//            // only use on demand hosts
-//
-//        }
-//
-//        val host = hosts.filter { host -> host.isOnline() && host.isSuitable(task) && !isSafetyNetRuleViolated(task) }
-//            .minByOrNull { it.getSpotPrice() }
-//
-//        return host
-//    }
-//
-//    private fun isSafetyNetRuleViolated(task: ServiceTask): Boolean {
-//
-//        if (task.createdAt == null ) {
-//            return false
-//        }
-//        if (task.deadline == null) {
-//            return true
-//        }
-//        var computationTime = Instant.now().epochSecond - (task.launchedAt?.epochSecond ?: Instant.now().epochSecond)
-//        var remainingTime = task.deadline?.epochSecond - Instant.now().epochSecond
-//        return remainingTime < computationTime + 2 * task.delay
-//    }
 }
