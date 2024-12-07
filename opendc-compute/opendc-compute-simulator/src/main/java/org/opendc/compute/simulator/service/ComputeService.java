@@ -234,6 +234,7 @@ public final class ComputeService implements AutoCloseable {
     private int tasksTerminated = 0; // Number of tasks that were terminated due to too much failures
     private int tasksCompleted = 0; // Number of tasks completed successfully
     private HashMap<SimHost, Long> delayPerHost = new HashMap<SimHost, Long>(); // Average delay of the host
+    private long maxDelay = 0L;
 
     /**
      * Construct a {@link ComputeService} instance.
@@ -249,87 +250,106 @@ public final class ComputeService implements AutoCloseable {
     }
 
     private void startPeriodicReevaluation() {
-//        pacer.enqueue();
-        while (true) {
-            timer.scheduleAtFixedRate(() -> reevaluateTasks(), 0, 1000, TimeUnit.MILLISECONDS);
-        }
+        timer.scheduleAtFixedRate(this::reevaluateTasks, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
     private void reevaluateTasks() {
+        if (activeTasks.isEmpty()) {
+            return;
+        }
         long now = clock.millis();
-        long maxDelay = delayPerHost.values().stream().max(Long::compare).orElse(0L);
 
         for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
             ServiceTask task = activeTask.getKey();
             SimHost host = activeTask.getValue();
-            long remainingTime = task.getDeadline().toEpochMilli() - now;
-//            long computationTime = now - task.launchedAt.getEpochSecond();
-//            long computationTime = task.duration.toEpochMilli();
-            long computationTime = task.duration;
-            long currentProgress = task.getCurrentProgress();
-            long expectedProgress = now * computationTime/remainingTime;
 
-            // R(t) ≥ C(t) + 2
-            // Wu et. al Safety Net Rule
-            if (host.getPriceState() == PriceState.SPOT && currentProgress < computationTime + 2 * maxDelay) {
-                findNewOnDemandInstance(task);
+            if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task)) {
+                task.requiresOnDemand(true);
+                task.requiresSpot(false);
             }
 
-            // cp(t) ≥ ep(t + 2d).
-            // Wu et. al Exploitation + Hysterics Rule
-            if (host.getPriceState() == PriceState.ON_DEMAND && currentProgress < expectedProgress) {
-                findNewSpotInstance(task);
+            if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task)) {
+                task.requiresOnDemand(false);
+                task.requiresSpot(true);
             }
 
+            HostView newHostView = scheduler.select(task);
+            SimHost newHost = newHostView.getHost();
+            HostView currentHostView = hostToView.get(host);
 
+            Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
+            task.setWorkload(remainingWorkload);
+
+            ServiceFlavor flavor = task.getFlavor();
+            currentHostView.provisionedCores -= flavor.getCoreCount();
+            currentHostView.instanceCount--;
+            currentHostView.availableMemory += flavor.getMemorySize();
+            if (activeTasks.remove(task) != null) {
+                tasksActive--;
+            }
+
+            if (newHostView == null || !newHost.canFit(task)) {
+                LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
+
+                task.host = null;
+                SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
+                taskQueue.addFirst(request);
+                tasksPending++;
+
+            } else {
+                try {
+                    task.host = newHost;
+
+                    newHost.spawn(task);
+
+                    tasksActive++;
+                    attemptsSuccess++;
+
+                    newHostView.instanceCount++;
+                    newHostView.provisionedCores += flavor.getCoreCount();
+                    newHostView.availableMemory -= flavor.getMemorySize();
+
+                    activeTasks.put(task, host);
+                } catch (Exception cause) {
+                    LOGGER.error("Failed to deploy VM", cause);
+                    attemptsFailure++;
+                }
+            }
         }
     }
 
-    private void findNewSpotInstance(ServiceTask task) {
-        SimHost currentHost = task.getHost();
+    // could be moved to task
+    private boolean SafetyNetRuleApplies(ServiceTask task) {
+        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+        long computationTime = task.duration;
 
-        task.requiresOnDemand(false);
-        task.requiresSpot(true);
-        HostView hv = scheduler.select(task);
-        SimHost newHost = hv.getHost();
-
-        // Remove the task from the old host
-        Workload remainingWorkload = currentHost.removeTaskWithSnapshot(task);
-        if (remainingWorkload == null) {
-            LOGGER.error("Failed to remove task {} from host {}. Task was not found in a Guest", task, currentHost);
-            return;
-        }
-        task.setWorkload(remainingWorkload);
-        activeTasks.remove(task);
-
-        // Assign the task to the new host
-        task.host = newHost;
-        newHost.spawn(task);
-        activeTasks.put(task, newHost);
+        // R(t) ≥ C(t) + 2
+        // Wu et. al Safety Net Rule
+        // in paper it is delay of the host, but this might be unknown, so we're using upper bound
+        return remainingTime < computationTime + 2 * maxDelay;
     }
 
-    private void findNewOnDemandInstance(ServiceTask task) {
+    private void updateMaxDelay() {
 
-        SimHost currentHost = task.getHost();
-
-        task.requiresOnDemand(true);
-        task.requiresSpot(false);
-        HostView hv = scheduler.select(task);
-        SimHost newHost = hv.getHost();
-
-        // Remove the task from the old host
-        Workload remainingWorkload = currentHost.removeTaskWithSnapshot(task);
-        if (remainingWorkload == null) {
-            LOGGER.error("Failed to remove task {} from host {}. Task was not found in a Guest", task, currentHost);
-            return;
+        for (HostView hv : availableHosts) {
+            long delay = hv.getHost().taskDelay();
+            if (delay > this.maxDelay) {
+                maxDelay = delay;
+            }
         }
-        task.setWorkload(remainingWorkload);
-        activeTasks.remove(task);
+    }
 
-        // Assign the task to the new host
-        task.host = newHost;
-        newHost.spawn(task);
-        activeTasks.put(task, newHost);
+    // could be moved to task
+    private boolean HysteriaRuleApplies(ServiceTask task) {
+        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+        long computationTime = task.duration;
+        long currentProgress = task.getCurrentProgress(); // not sure if correct
+        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
+
+        // cp(t) ≥ ep(t + 2d).
+        // Wu et. al Exploitation + Hysterics Rule
+        // in paper it is delay of the host, but this might be unknown, so we're using upper bound
+        return currentProgress >= expectedProgress + 2 * maxDelay;
     }
 
     /**
@@ -385,6 +405,9 @@ public final class ComputeService implements AutoCloseable {
 
         if (host.getState() == HostState.UP) {
             availableHosts.add(hv);
+            if (host.taskDelay() >= maxDelay) {
+                maxDelay = host.taskDelay();
+            }
         }
         scheduler.addHost(hv);
         host.addListener(hostListener);
@@ -408,6 +431,9 @@ public final class ComputeService implements AutoCloseable {
             availableHosts.remove(view);
             scheduler.removeHost(view);
             host.removeListener(hostListener);
+            if (maxDelay == host.taskDelay()) {
+                updateMaxDelay();
+            }
         }
     }
 
@@ -548,6 +574,16 @@ public final class ComputeService implements AutoCloseable {
 
                 this.setTaskToBeRemoved(task);
                 continue;
+            }
+
+            if (SafetyNetRuleApplies(task)) {
+                task.requiresOnDemand(true);
+                task.requiresSpot(false);
+            }
+
+            if (HysteriaRuleApplies(task)) {
+                task.requiresOnDemand(true);
+                task.requiresSpot(false);
             }
 
             final ServiceFlavor flavor = task.getFlavor();
@@ -765,6 +801,7 @@ public final class ComputeService implements AutoCloseable {
 
         @Nullable
         public void rescheduleTask(@NotNull ServiceTask task, @NotNull Workload workload) {
+            LOGGER.warn("Rescheduling task {}", task.getUid());
             ServiceTask internalTask = findTask(task.getUid());
             //            SimHost from = service.lookupHost(internalTask);
 
