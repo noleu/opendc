@@ -295,6 +295,7 @@ public final class ComputeService implements AutoCloseable {
                 SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
                 taskQueue.addFirst(request);
                 tasksPending++;
+                requestSchedulingCycle();
 
             } else {
                 try {
@@ -501,6 +502,7 @@ public final class ComputeService implements AutoCloseable {
 
         isClosed = true;
         pacer.cancel();
+        timer.shutdown();
     }
 
     /**
