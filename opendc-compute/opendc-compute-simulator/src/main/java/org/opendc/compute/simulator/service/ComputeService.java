@@ -578,14 +578,17 @@ public final class ComputeService implements AutoCloseable {
                 continue;
             }
 
-            if (SafetyNetRuleApplies(task)) {
-                task.requiresOnDemand(true);
-                task.requiresSpot(false);
-            }
+            if (scheduler instanceof UniformProgressionScheduler) {
 
-            if (HysteriaRuleApplies(task)) {
-                task.requiresOnDemand(true);
-                task.requiresSpot(false);
+                if (SafetyNetRuleApplies(task)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
+
+                if (HysteriaRuleApplies(task)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
             }
 
             final ServiceFlavor flavor = task.getFlavor();
