@@ -42,7 +42,7 @@ import org.opendc.simulator.compute.models.MemoryUnit
 import org.opendc.simulator.engine.graph.FlowDistributor
 import org.opendc.simulator.engine.graph.FlowGraph
 import org.opendc.simulator.compute.workload.Workload
-import org.opendc.simulator.engine.FlowGraph
+//import org.opendc.simulator.engine.FlowGraph
 import java.time.Duration
 import java.time.Instant
 import java.time.InstantSource
@@ -127,7 +127,7 @@ public class SimHost(
     private var totalUptime = 0L
     private var totalDowntime = 0L
     private var bootTime: Instant? = null
-    private val cpuLimit = machineModel.cpu.totalCapacity
+    private val cpuLimit = machineModel.cpuModel.totalCapacity
     private var taskDelay = 0L
 
     private var priceState: PriceState = PriceState.ON_DEMAND

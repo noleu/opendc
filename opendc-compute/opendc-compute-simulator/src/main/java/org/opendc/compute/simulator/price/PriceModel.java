@@ -25,8 +25,9 @@ package org.opendc.compute.simulator.price;
 import java.util.List;
 
 import org.opendc.compute.simulator.host.SimHost;
-import org.opendc.simulator.engine.FlowGraph;
-import org.opendc.simulator.engine.FlowNode;
+//import org.opendc.simulator.engine.graph.FlowDistributor;
+import org.opendc.simulator.engine.graph.FlowGraph;
+import org.opendc.simulator.engine.graph.FlowNode;
 
 /**
  * PriceModel used to provide the Price of a {@link SimHost}
