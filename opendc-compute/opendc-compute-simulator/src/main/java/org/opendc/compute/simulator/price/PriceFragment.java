@@ -29,21 +29,28 @@ package org.opendc.compute.simulator.price;
 public class PriceFragment {
     private long startTime;
     private long endTime;
-    private double price;
 
-    public PriceFragment(long startTime, long endTime, double price) {
+    private double onDemandPrice;
+    private double spotPrice;
+
+    public PriceFragment(long startTime, long endTime, double onDemandPrice, double spotPrice) {
         this.setStartTime(startTime);
         this.setEndTime(endTime);
-        this.setPrice(price);
+        this.setOnDemandPrice(onDemandPrice);
+        this.setSpotPrice(spotPrice);
     }
 
-    public double getPrice() {
-        return price;
+    public double getOnDemandPrice() {
+        return onDemandPrice;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setOnDemandPrice(double price) {
+        this.onDemandPrice = price;
     }
+
+    public double getSpotPrice() {return spotPrice;}
+
+    public void setSpotPrice(double price) {this.spotPrice = price;}
 
     public long getEndTime() {
         return endTime;

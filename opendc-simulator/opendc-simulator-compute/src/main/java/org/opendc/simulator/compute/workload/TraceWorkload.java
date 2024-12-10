@@ -24,7 +24,7 @@ package org.opendc.simulator.compute.workload;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendc.simulator.engine.FlowSupplier;
+import org.opendc.simulator.engine.graph.FlowSupplier;
 
 public class TraceWorkload implements Workload {
     private ArrayList<TraceFragment> fragments;
@@ -41,6 +41,10 @@ public class TraceWorkload implements Workload {
         this.checkpointInterval = checkpointInterval;
         this.checkpointDuration = checkpointDuration;
         this.checkpointIntervalScaling = checkpointIntervalScaling;
+    }
+
+    public TraceWorkload(ArrayList<TraceFragment> fragments) {
+        this(fragments, 0L, 0L, 1.0);
     }
 
     public ArrayList<TraceFragment> getFragments() {
@@ -140,7 +144,7 @@ public class TraceWorkload implements Workload {
          * @param cores The number of cores used during this fragment.
          */
         public void add(long duration, double usage, int cores) {
-            fragments.add(0, new TraceFragment(duration, usage, cores));
+            fragments.add(fragments.size(), new TraceFragment(duration, usage, cores));
         }
 
         /**

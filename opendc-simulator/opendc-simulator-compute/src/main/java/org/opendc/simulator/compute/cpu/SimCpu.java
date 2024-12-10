@@ -24,11 +24,11 @@ package org.opendc.simulator.compute.cpu;
 
 import org.opendc.simulator.compute.machine.PerformanceCounters;
 import org.opendc.simulator.compute.models.CpuModel;
-import org.opendc.simulator.engine.FlowConsumer;
-import org.opendc.simulator.engine.FlowEdge;
-import org.opendc.simulator.engine.FlowGraph;
-import org.opendc.simulator.engine.FlowNode;
-import org.opendc.simulator.engine.FlowSupplier;
+import org.opendc.simulator.engine.graph.FlowConsumer;
+import org.opendc.simulator.engine.graph.FlowEdge;
+import org.opendc.simulator.engine.graph.FlowGraph;
+import org.opendc.simulator.engine.graph.FlowNode;
+import org.opendc.simulator.engine.graph.FlowSupplier;
 
 /**
  * A {@link SimCpu} of a machine.
@@ -40,13 +40,14 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
 
     private double currentCpuDemand = 0.0f; // cpu capacity demanded by the mux
     private double currentCpuUtilization = 0.0f;
-    private double currentPowerDemand = 0.0f; // power demanded of the psu
     private double currentCpuSupplied = 0.0f; // cpu capacity supplied to the mux
+
+    private double currentPowerDemand = 0.0f; // power demanded of the psu
     private double currentPowerSupplied = 0.0f; // cpu capacity supplied by the psu
 
     private double maxCapacity;
 
-    private PerformanceCounters performanceCounters = new PerformanceCounters();
+    private final PerformanceCounters performanceCounters = new PerformanceCounters();
     private long lastCounterUpdate;
     private final double cpuFrequencyInv;
 
@@ -101,13 +102,13 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
     // Constructors
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public SimCpu(FlowGraph graph, CpuModel cpuModel, int id) {
+    public SimCpu(FlowGraph graph, CpuModel cpuModel, CpuPowerModel powerModel, int id) {
         super(graph);
         this.cpuModel = cpuModel;
         this.maxCapacity = this.cpuModel.getTotalCapacity();
 
         // TODO: connect this to the front-end
-        this.cpuPowerModel = CpuPowerModels.linear(400, 200);
+        this.cpuPowerModel = powerModel;
 
         this.lastCounterUpdate = graph.getEngine().getClock().millis();
 
@@ -122,22 +123,20 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
     public long onUpdate(long now) {
         updateCounters(now);
 
+        this.currentCpuUtilization = Math.min(this.currentCpuDemand / this.maxCapacity, 1.0);
+
         // Calculate Power Demand and send to PSU
-        // TODO: look at the double / double thing
         double powerDemand = this.cpuPowerModel.computePower(this.currentCpuUtilization);
 
         if (powerDemand != this.currentPowerDemand) {
             this.pushDemand(this.psuEdge, powerDemand);
-            this.currentPowerDemand = powerDemand;
         }
 
         // Calculate the amount of cpu this can provide
-        // TODO: This should be based on the provided power
-        double cpuSupply = this.currentCpuDemand;
+        double cpuSupply = Math.min(this.currentCpuDemand, this.maxCapacity);
 
         if (cpuSupply != this.currentCpuSupplied) {
             this.pushSupply(this.muxEdge, cpuSupply);
-            this.currentCpuSupplied = cpuSupply;
         }
 
         return Long.MAX_VALUE;
@@ -183,6 +182,8 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
      */
     @Override
     public void pushDemand(FlowEdge supplierEdge, double newPowerDemand) {
+        updateCounters();
+        this.currentPowerDemand = newPowerDemand;
         this.psuEdge.pushDemand(newPowerDemand);
     }
 
@@ -205,7 +206,14 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
         this.currentCpuDemand = newCpuDemand;
         this.currentCpuUtilization = this.currentCpuDemand / this.maxCapacity;
 
-        this.invalidate();
+        this.currentCpuUtilization = Math.min(this.currentCpuDemand / this.maxCapacity, 1.0);
+
+        // Calculate Power Demand and send to PSU
+        double powerDemand = this.cpuPowerModel.computePower(this.currentCpuUtilization);
+
+        if (powerDemand != this.currentPowerDemand) {
+            this.pushDemand(this.psuEdge, powerDemand);
+        }
     }
 
     /**
@@ -217,7 +225,13 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
         updateCounters();
         this.currentPowerSupplied = newPowerSupply;
 
-        this.invalidate();
+        // Calculate the amount of cpu this can provide
+        double cpuSupply = Math.min(this.currentCpuDemand, this.maxCapacity);
+        ;
+
+        if (cpuSupply != this.currentCpuSupplied) {
+            this.pushSupply(this.muxEdge, cpuSupply);
+        }
     }
 
     /**
@@ -234,6 +248,8 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
     @Override
     public void addSupplierEdge(FlowEdge supplierEdge) {
         this.psuEdge = supplierEdge;
+
+        this.invalidate();
     }
 
     /**

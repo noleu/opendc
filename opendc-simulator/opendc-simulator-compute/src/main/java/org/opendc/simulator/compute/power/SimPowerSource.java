@@ -24,10 +24,10 @@ package org.opendc.simulator.compute.power;
 
 import java.util.List;
 import org.opendc.simulator.compute.cpu.SimCpu;
-import org.opendc.simulator.engine.FlowEdge;
-import org.opendc.simulator.engine.FlowGraph;
-import org.opendc.simulator.engine.FlowNode;
-import org.opendc.simulator.engine.FlowSupplier;
+import org.opendc.simulator.engine.graph.FlowEdge;
+import org.opendc.simulator.engine.graph.FlowGraph;
+import org.opendc.simulator.engine.graph.FlowNode;
+import org.opendc.simulator.engine.graph.FlowSupplier;
 
 /**
  * A {@link SimPsu} implementation that estimates the power consumption based on CPU usage.
@@ -126,12 +126,6 @@ public final class SimPowerSource extends FlowNode implements FlowSupplier {
 
     @Override
     public long onUpdate(long now) {
-        updateCounters();
-        double powerSupply = this.powerDemand;
-
-        if (powerSupply != this.powerSupplied) {
-            this.pushSupply(this.muxEdge, powerSupply);
-        }
 
         return Long.MAX_VALUE;
     }
@@ -163,14 +157,17 @@ public final class SimPowerSource extends FlowNode implements FlowSupplier {
 
     @Override
     public void handleDemand(FlowEdge consumerEdge, double newPowerDemand) {
-
         this.powerDemand = newPowerDemand;
-        this.invalidate();
+
+        double powerSupply = this.powerDemand;
+
+        if (powerSupply != this.powerSupplied) {
+            this.pushSupply(this.muxEdge, powerSupply);
+        }
     }
 
     @Override
     public void pushSupply(FlowEdge consumerEdge, double newSupply) {
-
         this.powerSupplied = newSupply;
         consumerEdge.pushSupply(newSupply);
     }

@@ -32,4 +32,7 @@ public const val PRICE_TIMESTAMP: String = "timestamp"
 /**
  * A column containing the task identifier.
  */
-public const val PRICE_VALUE: String = "price"
+public const val PRICE_ON_DEMAND: String = "on_demand_price"
+
+public const val PRICE_SPOT: String = "spot_price"
+

@@ -30,6 +30,7 @@ import org.opendc.trace.conv.TABLE_RESOURCE_STATES
 import org.opendc.trace.conv.resourceCpuCapacity
 import org.opendc.trace.conv.resourceCpuCount
 import org.opendc.trace.conv.resourceDuration
+import org.opendc.trace.conv.resourceDeadline
 import org.opendc.trace.conv.resourceID
 import org.opendc.trace.conv.resourceMemCapacity
 import org.opendc.trace.conv.resourceStateCpuUsage
@@ -38,6 +39,7 @@ import org.opendc.trace.conv.resourceSubmissionTime
 import java.io.File
 import java.lang.ref.SoftReference
 import java.time.Duration
+import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToLong
@@ -105,6 +107,7 @@ public class ComputeWorkloadLoader(
         val idCol = reader.resolve(resourceID)
         val submissionTimeCol = reader.resolve(resourceSubmissionTime)
         val durationCol = reader.resolve(resourceDuration)
+        val deadlineCol = reader.resolve(resourceDeadline)
         val cpuCountCol = reader.resolve(resourceCpuCount)
         val cpuCapacityCol = reader.resolve(resourceCpuCapacity)
         val memCol = reader.resolve(resourceMemCapacity)
@@ -121,6 +124,7 @@ public class ComputeWorkloadLoader(
 
                 val submissionTime = reader.getInstant(submissionTimeCol)!!
                 val duration = reader.getLong(durationCol)
+                val deadline = if (deadlineCol < 0) null else reader.getInstant(deadlineCol)
                 val cpuCount = reader.getInt(cpuCountCol)
                 val cpuCapacity = reader.getDouble(cpuCapacityCol)
                 val memCapacity = reader.getDouble(memCol) / 1000.0 // Convert from KB to MB
@@ -139,6 +143,7 @@ public class ComputeWorkloadLoader(
                         totalLoad,
                         submissionTime,
                         duration,
+                        deadline,
                         builder.build(),
                     ),
                 )

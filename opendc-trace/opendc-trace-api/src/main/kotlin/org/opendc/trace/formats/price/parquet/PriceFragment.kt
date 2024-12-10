@@ -29,5 +29,6 @@ import java.time.Instant
  */
 internal data class PriceFragment(
     val timestamp: Instant,
-    val price: Double,
+    val spotPrice: Double,
+    val onDemandPrice: Double
 )

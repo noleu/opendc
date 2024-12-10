@@ -24,7 +24,8 @@ package org.opendc.trace.formats.price
 
 import org.opendc.trace.TableReader
 import org.opendc.trace.conv.PRICE_TIMESTAMP
-import org.opendc.trace.conv.PRICE_VALUE
+import org.opendc.trace.conv.PRICE_ON_DEMAND
+import org.opendc.trace.conv.PRICE_SPOT
 import org.opendc.trace.formats.price.parquet.PriceFragment
 import org.opendc.trace.util.parquet.LocalParquetReader
 import java.time.Duration
@@ -53,18 +54,22 @@ internal class PriceTableReader(private val reader: LocalParquetReader<PriceFrag
     }
 
     private val colTimestamp = 0
-    private val colPrice = 1
+    private val colOnDemandPrice = 1
+    private val colSpotPrice = 2
 
     override fun resolve(name: String): Int {
         return when (name) {
             PRICE_TIMESTAMP -> colTimestamp
-            PRICE_VALUE -> colPrice
+            PRICE_ON_DEMAND -> colOnDemandPrice
+            PRICE_SPOT -> colSpotPrice
+
             else -> -1
         }
     }
 
     override fun isNull(index: Int): Boolean {
-        require(index in colTimestamp..colPrice) { "Invalid column index" }
+        require(index in colTimestamp..colSpotPrice) { "Invalid column index" }
+
         return false
     }
 
@@ -87,7 +92,8 @@ internal class PriceTableReader(private val reader: LocalParquetReader<PriceFrag
     override fun getDouble(index: Int): Double {
         val record = checkNotNull(record) { "Reader in invalid state" }
         return when (index) {
-            colPrice -> record.price
+            colOnDemandPrice -> record.onDemandPrice
+            colSpotPrice -> record.spotPrice
             else -> throw IllegalArgumentException("Invalid column")
         }
     }

@@ -55,6 +55,12 @@ public val resourceCarbonIntensity: String = "carbon_intensity"
 public val resourceDuration: String = "duration"
 
 /**
+ * End time for the resource.
+ */
+@JvmField
+public val resourceDeadline: String = "deadline"
+
+/**
  * Number of CPUs for the resource.
  */
 @JvmField

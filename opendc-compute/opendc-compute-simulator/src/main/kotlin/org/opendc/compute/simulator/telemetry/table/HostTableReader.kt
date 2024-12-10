@@ -142,5 +142,7 @@ public interface HostTableReader : Exportable {
      */
     public val bootTimeAbsolute: Instant?
 
+    public val priceState: String
+
     public val price: Double
 }

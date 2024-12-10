@@ -23,6 +23,7 @@
 package org.opendc.compute.simulator.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,10 +59,15 @@ public class ServiceTask {
     Instant launchedAt = null;
     Instant createdAt;
     Instant finishedAt;
+    long currentProgress = 0L;
     SimHost host = null;
+    long duration; // TODO: May be instant
+    Instant deadline;
     private ComputeService.SchedulingRequest request = null;
 
     private int numFailures = 0;
+    private boolean requiresOnDemand = false;
+    private boolean requiresSpot = false;
 
     ServiceTask(
             ComputeService service,
@@ -76,6 +82,8 @@ public class ServiceTask {
         this.flavor = flavor;
         this.workload = workload;
         this.meta = meta;
+        this.duration = (long) meta.get("duration");
+        this.deadline = (Instant) meta.get("deadline");
 
         this.createdAt = this.service.getClock().instant();
     }
@@ -199,12 +207,18 @@ public class ServiceTask {
     }
 
     void setState(TaskState newState) {
+        if (this.launchedAt != null) {
+            long timeSinceLaunch = this.service.getClock().instant().minus(this.launchedAt.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
+//            this.currentProgress = this.duration.toEpochMilli() - timeSinceLaunch;
+            this.currentProgress = this.duration - timeSinceLaunch;
+        }
         if (this.state == newState) {
             return;
         }
 
         for (TaskWatcher watcher : watchers) {
             watcher.onStateChanged(this, newState);
+
         }
         if (newState == TaskState.FAILED) {
             this.numFailures++;
@@ -212,6 +226,7 @@ public class ServiceTask {
 
         if ((newState == TaskState.COMPLETED) || newState == TaskState.FAILED) {
             this.finishedAt = this.service.getClock().instant();
+
         }
 
         this.state = newState;
@@ -226,5 +241,29 @@ public class ServiceTask {
             this.request = null;
             request.isCancelled = true;
         }
+    }
+
+    public boolean requiresOnDemand() {
+        return requiresOnDemand;
+    }
+
+    public void requiresOnDemand(boolean requiresOnDemand) {
+        this.requiresOnDemand = requiresOnDemand;
+    }
+
+    public boolean requiresSpot() {
+        return requiresSpot;
+    }
+
+    public void requiresSpot(boolean requiresSpot) {
+        this.requiresSpot = requiresSpot;
+    }
+
+    public long getCurrentProgress() {
+        return this.currentProgress;
+    }
+
+    public Instant getDeadline() {
+        return this.deadline;
     }
 }

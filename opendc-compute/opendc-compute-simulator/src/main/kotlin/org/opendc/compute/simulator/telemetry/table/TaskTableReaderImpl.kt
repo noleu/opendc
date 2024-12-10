@@ -55,6 +55,8 @@ public class TaskTableReaderImpl(
         _timestampAbsolute = table.timestampAbsolute
 
         _cpuLimit = table.cpuLimit
+        _cpuDemand = table.cpuDemand
+        _cpuUsage = table.cpuUsage
         _cpuActiveTime = table.cpuActiveTime
         _cpuIdleTime = table.cpuIdleTime
         _cpuStealTime = table.cpuStealTime
@@ -69,6 +71,8 @@ public class TaskTableReaderImpl(
         _finishTime = table.finishTime
 
         _taskState = table.taskState
+        _priceState = table.priceState
+
         _price = table.price
     }
 
@@ -129,6 +133,14 @@ public class TaskTableReaderImpl(
         get() = _cpuLimit
     private var _cpuLimit = 0.0
 
+    override val cpuUsage: Double
+        get() = _cpuUsage
+    private var _cpuUsage = 0.0
+
+    override val cpuDemand: Double
+        get() = _cpuDemand
+    private var _cpuDemand = 0.0
+
     override val cpuActiveTime: Long
         get() = _cpuActiveTime - previousCpuActiveTime
     private var _cpuActiveTime = 0L
@@ -157,6 +169,10 @@ public class TaskTableReaderImpl(
         get() = _taskState
     private var _taskState: TaskState? = null
 
+    override val priceState: String
+        get() = _priceState
+    private var _priceState: String = ""
+
     override val price: Double
         get() = _price
     private var _price: Double = 0.0
@@ -175,8 +191,7 @@ public class TaskTableReaderImpl(
                     "x86",
                     newHost.getModel().coreCount,
                     newHost.getModel().cpuCapacity,
-                    newHost.getModel().memoryCapacity,
-                    newHost.getPrice()
+                    newHost.getModel().memoryCapacity
                 )
         }
 
@@ -187,22 +202,22 @@ public class TaskTableReaderImpl(
         _timestampAbsolute = now + startTime
 
         _cpuLimit = cpuStats?.capacity ?: 0.0
-        _cpuActiveTime = cpuStats?.activeTime ?: 0
-        _cpuIdleTime = cpuStats?.idleTime ?: 0
-        _cpuStealTime = cpuStats?.stealTime ?: 0
-        _cpuLostTime = cpuStats?.lostTime ?: 0
-        _uptime = sysStats?.uptime?.toMillis() ?: 0
-        _downtime = sysStats?.downtime?.toMillis() ?: 0
+        _cpuDemand = cpuStats?.demand ?: 0.0
+        _cpuUsage = cpuStats?.usage ?: 0.0
+        _cpuActiveTime = cpuStats?.activeTime ?: _cpuActiveTime
+        _cpuIdleTime = cpuStats?.idleTime ?: _cpuIdleTime
+        _cpuStealTime = cpuStats?.stealTime ?: _cpuStealTime
+        _cpuLostTime = cpuStats?.lostTime ?: _cpuLostTime
+        _uptime = sysStats?.uptime?.toMillis() ?: _uptime
+        _downtime = sysStats?.downtime?.toMillis() ?: _downtime
         _provisionTime = task.launchedAt
-        _bootTime = sysStats?.bootTime
+        _bootTime = sysStats?.bootTime ?: _bootTime
         _creationTime = task.createdAt
         _finishTime = task.finishedAt
 
-        _price = if (_host != null) {
-            _host?.getPrice()!!
-        } else {
-            0.0
-        }
+        _priceState = sysStats?.priceState ?: ""
+        _price = sysStats?.price ?: 0.0
+
 
         _taskState = task.state
 

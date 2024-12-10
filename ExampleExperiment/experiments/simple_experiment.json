@@ -1,0 +1,24 @@
+{
+    "name": "dev-exp",
+    "topologies": [
+        {
+            "pathToFile": "/home/niels/Uni/opendc/ExampleExperiment/topologies/small.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "/home/niels/Uni/opendc/ExampleExperiment/workloads/bitbrains-small",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "UniformProgression"
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30000
+        }
+    ]
+}

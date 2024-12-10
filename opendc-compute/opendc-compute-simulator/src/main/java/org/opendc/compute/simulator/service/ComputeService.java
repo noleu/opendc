@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.UUID;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.opendc.common.Dispatcher;
@@ -48,19 +49,25 @@ import org.opendc.compute.simulator.host.HostListener;
 import org.opendc.compute.simulator.host.HostModel;
 import org.opendc.compute.simulator.host.HostState;
 import org.opendc.compute.simulator.host.SimHost;
+import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.scheduler.ComputeScheduler;
+import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
 import org.opendc.simulator.compute.power.SimPowerSource;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The {@link ComputeService} hosts the API implementation of the OpenDC Compute Engine.
  */
 public final class ComputeService implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputeService.class);
+    private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
     /**
      * The {@link InstantSource} representing the clock tracking the (simulation) time.
@@ -117,7 +124,7 @@ public final class ComputeService implements AutoCloseable {
     /**
      * The active tasks in the system.
      */
-    private final Map<ServiceTask, SimHost> completedTasks = new HashMap<>();
+        private final Map<ServiceTask, SimHost> completedTasks = new HashMap<>();
 
     /**
      * The registered flavors for this compute service.
@@ -211,6 +218,9 @@ public final class ComputeService implements AutoCloseable {
                 requestSchedulingCycle();
             }
         }
+
+//        @Override
+//        public void onStateChanged(@NotNull SimHost host, @NotNull ServiceTask task, @NotNull clock)
     };
 
     private int maxCores = 0;
@@ -223,6 +233,8 @@ public final class ComputeService implements AutoCloseable {
     private int tasksActive = 0; // Number of tasks that are currently running
     private int tasksTerminated = 0; // Number of tasks that were terminated due to too much failures
     private int tasksCompleted = 0; // Number of tasks completed successfully
+    private HashMap<SimHost, Long> delayPerHost = new HashMap<SimHost, Long>(); // Average delay of the host
+    private long maxDelay = 0L;
 
     /**
      * Construct a {@link ComputeService} instance.
@@ -232,6 +244,113 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
+        if (this.scheduler instanceof UniformProgressionScheduler) {
+            startPeriodicReevaluation();
+        }
+    }
+
+    private void startPeriodicReevaluation() {
+        timer.scheduleAtFixedRate(this::reevaluateTasks, 0, 1000, TimeUnit.MILLISECONDS);
+    }
+
+    private void reevaluateTasks() {
+        if (activeTasks.isEmpty()) {
+            return;
+        }
+        long now = clock.millis();
+
+        for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
+            ServiceTask task = activeTask.getKey();
+            SimHost host = activeTask.getValue();
+
+            if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task)) {
+                task.requiresOnDemand(true);
+                task.requiresSpot(false);
+            }
+
+            if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task)) {
+                task.requiresOnDemand(false);
+                task.requiresSpot(true);
+            }
+
+            HostView newHostView = scheduler.select(task);
+            SimHost newHost = newHostView.getHost();
+            HostView currentHostView = hostToView.get(host);
+
+            Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
+            task.setWorkload(remainingWorkload);
+
+            ServiceFlavor flavor = task.getFlavor();
+            currentHostView.provisionedCores -= flavor.getCoreCount();
+            currentHostView.instanceCount--;
+            currentHostView.availableMemory += flavor.getMemorySize();
+            if (activeTasks.remove(task) != null) {
+                tasksActive--;
+            }
+
+            if (newHostView == null || !newHost.canFit(task)) {
+                LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
+
+                task.host = null;
+                SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
+                taskQueue.addFirst(request);
+                tasksPending++;
+                requestSchedulingCycle();
+
+            } else {
+                try {
+                    task.host = newHost;
+
+                    newHost.spawn(task);
+
+                    tasksActive++;
+                    attemptsSuccess++;
+
+                    newHostView.instanceCount++;
+                    newHostView.provisionedCores += flavor.getCoreCount();
+                    newHostView.availableMemory -= flavor.getMemorySize();
+
+                    activeTasks.put(task, host);
+                } catch (Exception cause) {
+                    LOGGER.error("Failed to deploy VM", cause);
+                    attemptsFailure++;
+                }
+            }
+        }
+    }
+
+    // could be moved to task
+    private boolean SafetyNetRuleApplies(ServiceTask task) {
+        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+        long computationTime = task.duration;
+
+        // R(t) ≥ C(t) + 2
+        // Wu et. al Safety Net Rule
+        // in paper it is delay of the host, but this might be unknown, so we're using upper bound
+        return remainingTime < computationTime + 2 * maxDelay;
+    }
+
+    private void updateMaxDelay() {
+
+        for (HostView hv : availableHosts) {
+            long delay = hv.getHost().taskDelay();
+            if (delay > this.maxDelay) {
+                maxDelay = delay;
+            }
+        }
+    }
+
+    // could be moved to task
+    private boolean HysteriaRuleApplies(ServiceTask task) {
+        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+        long computationTime = task.duration;
+        long currentProgress = task.getCurrentProgress(); // not sure if correct
+        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
+
+        // cp(t) ≥ ep(t + 2d).
+        // Wu et. al Exploitation + Hysterics Rule
+        // in paper it is delay of the host, but this might be unknown, so we're using upper bound
+        return currentProgress >= expectedProgress + 2 * maxDelay;
     }
 
     /**
@@ -287,8 +406,10 @@ public final class ComputeService implements AutoCloseable {
 
         if (host.getState() == HostState.UP) {
             availableHosts.add(hv);
+            if (host.taskDelay() >= maxDelay) {
+                maxDelay = host.taskDelay();
+            }
         }
-
         scheduler.addHost(hv);
         host.addListener(hostListener);
     }
@@ -311,6 +432,9 @@ public final class ComputeService implements AutoCloseable {
             availableHosts.remove(view);
             scheduler.removeHost(view);
             host.removeListener(hostListener);
+            if (maxDelay == host.taskDelay()) {
+                updateMaxDelay();
+            }
         }
     }
 
@@ -378,6 +502,7 @@ public final class ComputeService implements AutoCloseable {
 
         isClosed = true;
         pacer.cancel();
+        timer.shutdown();
     }
 
     /**
@@ -451,6 +576,19 @@ public final class ComputeService implements AutoCloseable {
 
                 this.setTaskToBeRemoved(task);
                 continue;
+            }
+
+            if (scheduler instanceof UniformProgressionScheduler) {
+
+                if (SafetyNetRuleApplies(task)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
+
+                if (HysteriaRuleApplies(task)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
             }
 
             final ServiceFlavor flavor = task.getFlavor();
@@ -668,6 +806,7 @@ public final class ComputeService implements AutoCloseable {
 
         @Nullable
         public void rescheduleTask(@NotNull ServiceTask task, @NotNull Workload workload) {
+            LOGGER.warn("Rescheduling task {}", task.getUid());
             ServiceTask internalTask = findTask(task.getUid());
             //            SimHost from = service.lookupHost(internalTask);
 
@@ -677,6 +816,7 @@ public final class ComputeService implements AutoCloseable {
 
             internalTask.setWorkload(workload);
             internalTask.start();
+//            service.taskQueue.add(task);
         }
     }
 

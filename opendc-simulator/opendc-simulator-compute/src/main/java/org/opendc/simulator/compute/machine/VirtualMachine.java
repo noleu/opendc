@@ -26,17 +26,17 @@ import java.util.function.Consumer;
 import org.opendc.simulator.compute.cpu.SimCpu;
 import org.opendc.simulator.compute.workload.SimWorkload;
 import org.opendc.simulator.compute.workload.Workload;
-import org.opendc.simulator.engine.FlowConsumer;
-import org.opendc.simulator.engine.FlowEdge;
-import org.opendc.simulator.engine.FlowGraph;
-import org.opendc.simulator.engine.FlowNode;
-import org.opendc.simulator.engine.FlowSupplier;
+import org.opendc.simulator.engine.graph.FlowConsumer;
+import org.opendc.simulator.engine.graph.FlowEdge;
+import org.opendc.simulator.engine.graph.FlowGraph;
+import org.opendc.simulator.engine.graph.FlowNode;
+import org.opendc.simulator.engine.graph.FlowSupplier;
 
 /*
   A virtual Machine created to run a single workload
 */
 public class VirtualMachine extends FlowNode implements FlowConsumer, FlowSupplier {
-    private SimMachine machine;
+    private final SimMachine machine;
 
     private SimWorkload activeWorkload;
 

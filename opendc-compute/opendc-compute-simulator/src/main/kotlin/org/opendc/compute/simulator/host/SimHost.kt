@@ -33,12 +33,16 @@ import org.opendc.compute.simulator.telemetry.GuestSystemStats
 import org.opendc.compute.simulator.telemetry.HostCpuStats
 import org.opendc.compute.simulator.telemetry.HostSystemStats
 import org.opendc.compute.simulator.price.PriceModel
-import org.opendc.simulator.Multiplexer
+import org.opendc.compute.simulator.price.PriceState
+import org.opendc.compute.simulator.service.ComputeService
 import org.opendc.simulator.compute.cpu.CpuPowerModel
 import org.opendc.simulator.compute.machine.SimMachine
 import org.opendc.simulator.compute.models.MachineModel
 import org.opendc.simulator.compute.models.MemoryUnit
-import org.opendc.simulator.engine.FlowGraph
+import org.opendc.simulator.engine.graph.FlowDistributor
+import org.opendc.simulator.engine.graph.FlowGraph
+import org.opendc.simulator.compute.workload.Workload
+//import org.opendc.simulator.engine.FlowGraph
 import java.time.Duration
 import java.time.Instant
 import java.time.InstantSource
@@ -63,10 +67,11 @@ public class SimHost(
     private val clock: InstantSource,
     private val graph: FlowGraph,
     private val machineModel: MachineModel,
-    private val powerModel: CpuPowerModel,
-    private val powerMux: Multiplexer,
+    private val cpuPowerModel: CpuPowerModel,
+    private val powerMux: FlowDistributor,
     private val priceFragments: List<PriceFragment>,
-    private val startTime: Long
+    private val startTime: Long,
+    private val computeClient: ComputeService.ComputeClient
 ) : AutoCloseable {
     /**
      * The event listeners registered with this host.
@@ -89,8 +94,8 @@ public class SimHost(
 
     private val model: HostModel =
         HostModel(
-            machineModel.cpu.totalCapacity,
-            machineModel.cpu.coreCount,
+            machineModel.cpuModel.totalCapacity,
+            machineModel.cpuModel.coreCount,
             machineModel.memory.size,
         )
 
@@ -122,7 +127,12 @@ public class SimHost(
     private var totalUptime = 0L
     private var totalDowntime = 0L
     private var bootTime: Instant? = null
-    private val cpuLimit = machineModel.cpu.totalCapacity
+    private val cpuLimit = machineModel.cpuModel.totalCapacity
+    private var taskDelay = 0L
+
+    private var priceState: PriceState = PriceState.ON_DEMAND
+    private var onDemandPrice: Double = 0.0
+    private var spotPrice: Double = 0.0
 
     private var price: Double = 0.0
 
@@ -145,8 +155,8 @@ public class SimHost(
             SimMachine(
                 this.graph,
                 this.machineModel,
-                this.powerModel,
                 this.powerMux,
+                this.cpuPowerModel,
             ) { cause ->
                 hostState = if (cause != null) HostState.ERROR else HostState.DOWN
             }
@@ -212,8 +222,24 @@ public class SimHost(
         return this.guests
     }
 
-    public fun getPrice(): Double {
-        return price
+    public fun getPriceState(): PriceState {
+        return priceState
+    }
+
+    public fun getCurrentPrice(): Double {
+        return if (priceState == PriceState.ON_DEMAND) {
+            onDemandPrice
+        } else {
+            spotPrice
+        }
+    }
+
+    public fun getPrice(state: PriceState): Double {
+        return if (state == PriceState.ON_DEMAND) {
+            onDemandPrice
+        } else {
+            spotPrice
+        }
     }
 
     public fun canFit(task: ServiceTask): Boolean {
@@ -224,8 +250,27 @@ public class SimHost(
         return sufficientMemory && enoughCpus && canFit
     }
 
-    public fun updatePrice(price: Double) {
-        this.price = price
+    public fun updatePriceState(newState: PriceState) {
+        // All tasks started while the pricing state was spot will get kicked out when the state switched to on demand
+        if (newState == PriceState.ON_DEMAND && priceState == PriceState.SPOT) {
+            val spotGuests = guests.filter { it.priceState == PriceState.SPOT }
+            val snapshots = spotGuests.map { it.virtualMachine!!.activeWorkload.getSnapshot() }
+            val tasks = spotGuests.map { it.task }
+
+            spotGuests.forEach { it.fail() } // TODO: This shouldn't be fail but a nicer way to stop the guest
+
+            for ((task, snapshot) in tasks.zip(snapshots)) {
+                computeClient.rescheduleTask(task, snapshot)
+            }
+        }
+
+        priceState = newState
+    }
+
+    public fun updatePrice(newOnDemandPrice: Double, newSpotPrice: Double) {
+        this.onDemandPrice = newOnDemandPrice
+        this.spotPrice = newSpotPrice
+
     }
 
     /**
@@ -245,6 +290,7 @@ public class SimHost(
                 guestListener,
                 task,
                 simMachine!!,
+                priceState
             )
 
         guests.add(newGuest)
@@ -282,6 +328,17 @@ public class SimHost(
 
         taskToGuestMap.remove(task)
         guests.remove(guest)
+    }
+
+    public fun removeTaskWithSnapshot(task: ServiceTask) : Workload? {
+        val guest = taskToGuestMap[task] ?: return null
+        val snapshot = guest.virtualMachine!!.activeWorkload.getSnapshot()
+        val task = guest.task
+
+        taskToGuestMap.remove(task)
+        guests.remove(guest)
+        return snapshot
+
     }
 
     public fun addListener(listener: HostListener) {
@@ -326,7 +383,9 @@ public class SimHost(
             running,
             failed,
             invalid,
-            price
+            priceState.toString(),
+            getCurrentPrice()
+
         )
     }
 
@@ -363,13 +422,17 @@ public class SimHost(
         return other is SimHost && uid == other.uid
     }
 
+    public fun taskDelay() : Long {
+        return this.taskDelay
+    }
+
     override fun toString(): String = "SimHost[uid=$uid,name=$name,model=$model]"
 
     /**
      * Convert flavor to machine model.
      */
     private fun Flavor.toMachineModel(): MachineModel {
-        return MachineModel(simMachine!!.machineModel.cpu, MemoryUnit("Generic", "Generic", 3200.0, memorySize))
+        return MachineModel(simMachine!!.machineModel.cpuModel, MemoryUnit("Generic", "Generic", 3200.0, memorySize))
     }
 
     /**

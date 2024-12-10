@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.engine;
+package org.opendc.simulator.engine.graph;
 
 /**
  * An edge that connects two FlowStages.
@@ -31,6 +31,9 @@ package org.opendc.simulator.engine;
 public class FlowEdge {
     private FlowConsumer consumer;
     private FlowSupplier supplier;
+
+    private int consumerIndex = -1;
+    private int supplierIndex = -1;
 
     private double demand = 0.0;
     private double supply = 0.0;
@@ -86,23 +89,43 @@ public class FlowEdge {
         return this.supply;
     }
 
+    public int getConsumerIndex() {
+        return consumerIndex;
+    }
+
+    public void setConsumerIndex(int consumerIndex) {
+        this.consumerIndex = consumerIndex;
+    }
+
+    public int getSupplierIndex() {
+        return supplierIndex;
+    }
+
+    public void setSupplierIndex(int supplierIndex) {
+        this.supplierIndex = supplierIndex;
+    }
+
     /**
      * Push new demand from the Consumer to the Supplier
      */
     public void pushDemand(double newDemand) {
+        if (newDemand == this.demand) {
+            return;
+        }
 
         this.demand = newDemand;
         this.supplier.handleDemand(this, newDemand);
-        ((FlowNode) this.supplier).invalidate();
     }
 
     /**
      * Push new supply from the Supplier to the Consumer
      */
     public void pushSupply(double newSupply) {
+        if (newSupply == this.supply) {
+            return;
+        }
 
         this.supply = newSupply;
         this.consumer.handleSupply(this, newSupply);
-        ((FlowNode) this.consumer).invalidate();
     }
 }

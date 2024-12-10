@@ -1,0 +1,51 @@
+{
+    "clusters":
+    [
+        {
+            "name": "C01 - On-demand",
+            "hosts" :
+            [
+                {
+                    "name": "H01",
+                    "count": 3,
+                    "cpu":
+                    {
+                        "coreCount": 12,
+                        "coreSpeed": 3300
+                    },
+                    "memory": {
+                        "memorySize": 140457600000
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/price.parquet"
+                },
+                {
+                    "name": "H02 - Spot",
+                    "count": 15,
+                    "cpu":
+                    {
+                        "coreCount": 12,
+                        "coreSpeed": 3300
+                    },
+                    "memory": {
+                        "memorySize": 164576000006
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/price.parquet"
+                }
+            ,
+                {
+                    "name": "H03",
+                    "count": 5,
+                    "cpu":
+                    {
+                        "coreCount": 32,
+                        "coreSpeed": 3300
+                    },
+                    "memory": {
+                        "memorySize": 324576000006
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/price.parquet"
+                }
+            ]
+        }
+    ]
+}

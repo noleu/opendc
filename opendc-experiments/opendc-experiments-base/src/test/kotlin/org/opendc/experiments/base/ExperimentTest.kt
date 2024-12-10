@@ -54,7 +54,7 @@ import java.util.Random
 /**
  * An integration test suite for the Scenario experiments.
  */
-class ScenarioIntegrationTest {
+class ExperimentTest {
     /**
      * The monitor used to keep track of the metrics.
      */
@@ -70,6 +70,8 @@ class ScenarioIntegrationTest {
      */
     private lateinit var workloadLoader: ComputeWorkloadLoader
 
+    private val basePath = "src/test/resources/Experiment"
+
     /**
      * Set up the experimental environment.
      */
@@ -81,7 +83,7 @@ class ScenarioIntegrationTest {
                 filters = listOf(ComputeFilter(), VCpuFilter(16.0), RamFilter(1.0)),
                 weighers = listOf(CoreRamWeigher(multiplier = 1.0)),
             )
-        workloadLoader = ComputeWorkloadLoader(File("src/test/resources/traces"), 0L, 0L, 0.0)
+        workloadLoader = ComputeWorkloadLoader(File("$basePath/traces"), 0L, 0L, 0.0)
     }
 
     /**
@@ -135,7 +137,11 @@ class ScenarioIntegrationTest {
             val workload = createTestWorkload("single_task", 1.0, seed)
             val topology = createTopology("single.json")
             val monitor = monitor
-            val failureModelSpec = TraceBasedFailureModelSpec("src/test/resources/failureTraces/single_failure.parquet")
+            val failureModelSpec =
+                TraceBasedFailureModelSpec(
+                    "$basePath/failureTraces/single_failure.parquet",
+                    repeat = false,
+                )
 
             Provisioner(dispatcher, seed).use { provisioner ->
                 provisioner.runSteps(
@@ -145,6 +151,8 @@ class ScenarioIntegrationTest {
                 )
 
                 val service = provisioner.registry.resolve("compute.opendc.org", ComputeService::class.java)!!
+                service.setTasksExpected(workload.size)
+
                 service.replay(timeSource, workload, failureModelSpec = failureModelSpec, seed = seed)
             }
 
@@ -177,7 +185,7 @@ class ScenarioIntegrationTest {
             val workload = createTestWorkload("single_task", 1.0, seed)
             val topology = createTopology("single.json")
             val monitor = monitor
-            val failureModelSpec = TraceBasedFailureModelSpec("src/test/resources/failureTraces/11_failures.parquet")
+            val failureModelSpec = TraceBasedFailureModelSpec("$basePath/failureTraces/11_failures.parquet")
 
             Provisioner(dispatcher, seed).use { provisioner ->
                 provisioner.runSteps(
@@ -217,11 +225,11 @@ class ScenarioIntegrationTest {
     fun testSingleTaskCheckpoint() =
         runSimulation {
             val seed = 1L
-            workloadLoader = ComputeWorkloadLoader(File("src/test/resources/traces"), 1000000L, 1000L, 1.0)
+            workloadLoader = ComputeWorkloadLoader(File("$basePath/traces"), 1000000L, 1000L, 1.0)
             val workload = createTestWorkload("single_task", 1.0, seed)
             val topology = createTopology("single.json")
             val monitor = monitor
-            val failureModelSpec = TraceBasedFailureModelSpec("src/test/resources/failureTraces/11_failures.parquet")
+            val failureModelSpec = TraceBasedFailureModelSpec("$basePath/failureTraces/11_failures.parquet")
 
             Provisioner(dispatcher, seed).use { provisioner ->
                 provisioner.runSteps(
@@ -247,9 +255,9 @@ class ScenarioIntegrationTest {
             assertAll(
                 { assertEquals(0, monitor.tasksTerminated) { "Idle time incorrect" } },
                 { assertEquals(1, monitor.tasksCompleted) { "Idle time incorrect" } },
-                { assertEquals(4297000, monitor.idleTime) { "Idle time incorrect" } },
-                { assertEquals(5003000, monitor.activeTime) { "Active time incorrect" } },
-                { assertEquals(0, monitor.stealTime) { "Steal time incorrect" } },
+                { assertEquals(4296000, monitor.idleTime) { "Idle time incorrect" } },
+                { assertEquals(5004000, monitor.activeTime) { "Active time incorrect" } },
+                { assertEquals(14824, monitor.stealTime) { "Steal time incorrect" } },
                 { assertEquals(0, monitor.lostTime) { "Lost time incorrect" } },
                 { assertEquals(2860800.0, monitor.energyUsage, 1E4) { "Incorrect energy usage" } },
             )
@@ -288,8 +296,8 @@ class ScenarioIntegrationTest {
 
             // Note that these values have been verified beforehand
             assertAll(
-                { assertEquals(1803918472, monitor.idleTime) { "Idle time incorrect" } },
-                { assertEquals(787181528, monitor.activeTime) { "Active time incorrect" } },
+                { assertEquals(1803918432, monitor.idleTime) { "Idle time incorrect" } },
+                { assertEquals(787181568, monitor.activeTime) { "Active time incorrect" } },
                 { assertEquals(0, monitor.stealTime) { "Steal time incorrect" } },
                 { assertEquals(0, monitor.lostTime) { "Lost time incorrect" } },
                 { assertEquals(6.7565629E8, monitor.energyUsage, 1E4) { "Incorrect energy usage" } },
@@ -335,8 +343,8 @@ class ScenarioIntegrationTest {
                 { assertEquals(0, monitor.tasksActive, "All VMs should finish after a run") },
                 { assertEquals(0, monitor.attemptsFailure, "No VM should be unscheduled") },
                 { assertEquals(0, monitor.tasksPending, "No VM should not be in the queue") },
-                { assertEquals(43101793092, monitor.idleTime) { "Incorrect idle time" } },
-                { assertEquals(3489406908, monitor.activeTime) { "Incorrect active time" } },
+                { assertEquals(43101787447, monitor.idleTime) { "Incorrect idle time" } },
+                { assertEquals(3489412553, monitor.activeTime) { "Incorrect active time" } },
                 { assertEquals(0, monitor.stealTime) { "Incorrect steal time" } },
                 { assertEquals(0, monitor.lostTime) { "Incorrect lost time" } },
                 { assertEquals(1.0016123392181786E10, monitor.energyUsage, 1E4) { "Incorrect energy usage" } },
@@ -359,7 +367,7 @@ class ScenarioIntegrationTest {
      * Obtain the topology factory for the test.
      */
     private fun createTopology(name: String): List<ClusterSpec> {
-        val stream = checkNotNull(object {}.javaClass.getResourceAsStream("/topologies/$name"))
+        val stream = checkNotNull(object {}.javaClass.getResourceAsStream("/Experiment/topologies/$name"))
         return stream.use { clusterTopology(stream) }
     }
 

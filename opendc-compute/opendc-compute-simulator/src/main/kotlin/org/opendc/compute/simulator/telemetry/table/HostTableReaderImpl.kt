@@ -63,6 +63,7 @@ public class HostTableReaderImpl(
         _downtime = table.downtime
         _bootTime = table.bootTime
         _bootTimeAbsolute = table.bootTimeAbsolute
+        _priceState = table.priceState
         _price = table.price
     }
 
@@ -75,8 +76,7 @@ public class HostTableReaderImpl(
             "x86",
             host.getModel().coreCount,
             host.getModel().cpuCapacity,
-            host.getModel().memoryCapacity,
-            host.getPrice()
+            host.getModel().memoryCapacity
         )
 
     override val timestamp: Instant
@@ -166,9 +166,13 @@ public class HostTableReaderImpl(
         get() = _bootTimeAbsolute
     private var _bootTimeAbsolute: Instant? = null
 
+    override val priceState: String
+        get() = _priceState
+    private var _priceState = ""
+
     override val price: Double
         get() = _price
-    private var _price: Double = 0.0
+    private var _price = 0.0
 
     /**
      * Record the next cycle.
@@ -198,6 +202,8 @@ public class HostTableReaderImpl(
         _downtime = hostSysStats.downtime.toMillis()
         _bootTime = hostSysStats.bootTime
         _bootTime = hostSysStats.bootTime + startTime
+        _priceState = hostSysStats.priceState
+
         _price = hostSysStats.price
     }
 
