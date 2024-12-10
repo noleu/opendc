@@ -51,6 +51,7 @@ import org.opendc.compute.simulator.host.HostState;
 import org.opendc.compute.simulator.host.SimHost;
 import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.scheduler.ComputeScheduler;
+import org.opendc.compute.simulator.scheduler.GreedyPriceScheduler;
 import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
@@ -262,7 +263,7 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
-        if (this.scheduler instanceof UniformProgressionScheduler) {
+        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof GreedyPriceScheduler) {
             startPeriodicReevaluation();
         }
     }
@@ -275,64 +276,77 @@ public final class ComputeService implements AutoCloseable {
         if (activeTasks.isEmpty()) {
             return;
         }
-        long now = clock.millis();
 
         for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
             ServiceTask task = activeTask.getKey();
             SimHost host = activeTask.getValue();
+            Boolean swticHost = false;
 
             if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task)) {
                 task.requiresOnDemand(true);
                 task.requiresSpot(false);
+                swticHost = true;
             }
+//            else if (!SafetyNetRuleApplies(task) && task.requiresOnDemand()) {
+//                task.requiresOnDemand(false);
+//                task.requiresSpot(true);
+//                swticHost = true;
+//            }
 
-            if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task)) {
+            if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task) && this.scheduler instanceof UniformProgressionScheduler ) {
                 task.requiresOnDemand(false);
                 task.requiresSpot(true);
+                swticHost = true;
             }
 
-            HostView newHostView = scheduler.select(task);
-            SimHost newHost = newHostView.getHost();
-            HostView currentHostView = hostToView.get(host);
-
-            Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
-            task.setWorkload(remainingWorkload);
-
-            ServiceFlavor flavor = task.getFlavor();
-            currentHostView.provisionedCores -= flavor.getCoreCount();
-            currentHostView.instanceCount--;
-            currentHostView.availableMemory += flavor.getMemorySize();
-            if (activeTasks.remove(task) != null) {
-                tasksActive--;
+            if (swticHost) {
+                switchHost(task, host);
             }
+        }
+    }
 
-            if (newHostView == null || !newHost.canFit(task)) {
-                LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
+    private void switchHost(ServiceTask task,SimHost host){
+        HostView newHostView = scheduler.select(task);
+        SimHost newHost = newHostView.getHost();
+        HostView currentHostView = hostToView.get(host);
 
-                task.host = null;
-                SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
-                taskQueue.addFirst(request);
-                tasksPending++;
-                requestSchedulingCycle();
+        Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
+        task.setWorkload(remainingWorkload);
 
-            } else {
-                try {
-                    task.host = newHost;
+        ServiceFlavor flavor = task.getFlavor();
+        currentHostView.provisionedCores -= flavor.getCoreCount();
+        currentHostView.instanceCount--;
+        currentHostView.availableMemory += flavor.getMemorySize();
+        if (activeTasks.remove(task) != null) {
+            tasksActive--;
+        }
 
-                    newHost.spawn(task);
+        if (newHostView == null || !newHost.canFit(task)) {
+            LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
 
-                    tasksActive++;
-                    attemptsSuccess++;
+            task.host = null;
+            SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
+            taskQueue.addFirst(request);
+            tasksPending++;
+            requestSchedulingCycle();
 
-                    newHostView.instanceCount++;
-                    newHostView.provisionedCores += flavor.getCoreCount();
-                    newHostView.availableMemory -= flavor.getMemorySize();
+        } else {
+            try {
+                task.host = newHost;
 
-                    activeTasks.put(task, host);
-                } catch (Exception cause) {
-                    LOGGER.error("Failed to deploy VM", cause);
-                    attemptsFailure++;
-                }
+                newHost.spawn(task);
+
+                tasksActive++;
+                attemptsSuccess++;
+
+                newHostView.instanceCount++;
+                newHostView.provisionedCores += flavor.getCoreCount();
+                newHostView.availableMemory -= flavor.getMemorySize();
+
+                activeTasks.put(task, host);
+            } catch (Exception cause) {
+                LOGGER.error("Failed to deploy VM", cause);
+                attemptsFailure++;
             }
         }
     }
@@ -604,6 +618,13 @@ public final class ComputeService implements AutoCloseable {
                 }
 
                 if (HysteriaRuleApplies(task)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
+            }
+
+            if (scheduler instanceof GreedyPriceScheduler) {
+                if (SafetyNetRuleApplies(task)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }

@@ -49,7 +49,8 @@ public enum class ComputeSchedulerEnum {
     Replay,
     Price,
     RadicalPrice,
-    UniformProgression
+    UniformProgression,
+    GreedyPrice
 }
 
 public fun createComputeScheduler(
@@ -125,11 +126,13 @@ public fun createComputeScheduler(
             )
         ComputeSchedulerEnum.RadicalPrice ->
             FilterScheduler(
-                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio), PriceFilter(300.0)),
+                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio), PriceFilter(0.0015)),
                 weighers = listOf(PriceWeigher(multiplier = -1.0))
             )
         ComputeSchedulerEnum.UniformProgression ->
             UniformProgressionScheduler()
+        ComputeSchedulerEnum.GreedyPrice ->
+            GreedyPriceScheduler()
 
         ComputeSchedulerEnum.Replay -> ReplayScheduler(placements)
     }
