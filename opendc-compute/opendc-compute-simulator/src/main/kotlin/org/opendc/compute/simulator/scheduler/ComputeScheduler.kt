@@ -46,4 +46,6 @@ public interface ComputeScheduler {
      * @return The host to schedule the server on or `null` if no server is available.
      */
     public fun select(task: ServiceTask): HostView?
+
+    public fun updateHost(host: HostView)
 }

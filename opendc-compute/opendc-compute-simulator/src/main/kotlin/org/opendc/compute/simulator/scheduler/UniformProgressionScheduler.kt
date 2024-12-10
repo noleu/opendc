@@ -36,4 +36,8 @@ public class UniformProgressionScheduler : ComputeScheduler{
             .minByOrNull { it.price }
         return host
     }
+
+    override fun updateHost(host: HostView) {
+        return
+    }
 }
