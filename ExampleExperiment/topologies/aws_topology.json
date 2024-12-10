@@ -1,0 +1,56 @@
+{
+    "clusters": [
+        {
+            "name": "Cluster One",
+            "hosts": [
+                {
+                    "name": "R7g_2xlarge_Host",
+                    "cpu": {
+                        "coreCount": 8,
+                        "coreSpeed": 3200
+                    },
+                    "memory": {
+                        "memorySize": 64000
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/pricing/r7g.2xlarge.parquet"
+                },
+                {
+                    "name": "M7g_xlarge_Host",
+                    "count": 6,
+                    "cpu": {
+                        "coreCount": 4,
+                        "coreSpeed": 2930
+                    },
+                    "memory": {
+                        "memorySize": 16000
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/pricing/m7g.xlarge.parquet"
+                },
+                {
+                    "name": "M7g_medium_Host",
+                    "count": 10,
+                    "cpu": {
+                        "coreCount": 1,
+                        "coreSpeed": 2930
+                    },
+                    "memory": {
+                        "memorySize": 4000
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/pricing/m7g.medium.parquet"
+                },
+                {
+                    "name": "C7g_2xlarge_Host",
+                    "count": 2,
+                    "cpu": {
+                        "coreCount": 8,
+                        "coreSpeed": 3200
+                    },
+                    "memory": {
+                        "memorySize": 16000
+                    },
+                    "priceTracePath": "/home/niels/Uni/opendc/ExampleExperiment/topologies/pricing/c7g.2xlarge.parquet"
+                }
+            ]
+        }
+    ]
+}
