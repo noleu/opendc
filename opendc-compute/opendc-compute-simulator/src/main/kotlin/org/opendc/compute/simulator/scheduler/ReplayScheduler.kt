@@ -62,4 +62,10 @@ public class ReplayScheduler(private val vmPlacements: Map<String, String>) : Co
         return machinesInCluster.maxByOrNull { it.availableMemory }
             ?: throw IllegalStateException("Cloud not find any machine and could not randomly assign")
     }
+
+    override fun updateHost(host: HostView) {
+        return
+    }
+
+
 }
