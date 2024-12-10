@@ -56,7 +56,6 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
                 schema.fields.map { type ->
                     when (type.name) {
                         PRICE_TIMESTAMP ->
-                        "timestamp" ->
                             object : PrimitiveConverter() {
                                 override fun addLong(value: Long) {
                                     localTimestamp = Instant.ofEpochMilli(value)
