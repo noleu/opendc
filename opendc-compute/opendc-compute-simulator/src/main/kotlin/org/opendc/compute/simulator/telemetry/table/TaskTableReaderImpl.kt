@@ -72,6 +72,7 @@ public class TaskTableReaderImpl(
 
         _taskState = table.taskState
         _priceState = table.priceState
+
         _price = table.price
     }
 
@@ -216,6 +217,7 @@ public class TaskTableReaderImpl(
 
         _priceState = sysStats?.priceState ?: ""
         _price = sysStats?.price ?: 0.0
+
 
         _taskState = task.state
 

@@ -85,6 +85,7 @@ public class HostsProvisioningStep internal constructor(
                         priceFragments!!,
                         startTime,
                         service.newClient()
+
                     )
 
                 require(simHosts.add(simHost)) { "Host with uid ${hostSpec.uid} already exists" }

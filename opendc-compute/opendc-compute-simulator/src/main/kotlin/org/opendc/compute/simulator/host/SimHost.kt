@@ -134,6 +134,8 @@ public class SimHost(
     private var onDemandPrice: Double = 0.0
     private var spotPrice: Double = 0.0
 
+    private var price: Double = 0.0
+
     init {
         launch()
     }
@@ -268,6 +270,7 @@ public class SimHost(
     public fun updatePrice(newOnDemandPrice: Double, newSpotPrice: Double) {
         this.onDemandPrice = newOnDemandPrice
         this.spotPrice = newSpotPrice
+
     }
 
     /**
@@ -382,6 +385,7 @@ public class SimHost(
             invalid,
             priceState.toString(),
             getCurrentPrice()
+
         )
     }
 

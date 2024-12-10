@@ -35,3 +35,4 @@ public const val PRICE_TIMESTAMP: String = "timestamp"
 public const val PRICE_ON_DEMAND: String = "on_demand_price"
 
 public const val PRICE_SPOT: String = "spot_price"
+

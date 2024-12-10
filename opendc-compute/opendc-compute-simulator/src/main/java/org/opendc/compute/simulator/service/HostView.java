@@ -36,6 +36,7 @@ public class HostView {
     double price = 0.0;
     PriceState priceState = PriceState.ON_DEMAND;
 
+
     /**
      * Construct a {@link HostView} instance.
      *
@@ -85,5 +86,33 @@ public class HostView {
     @Override
     public String toString() {
         return "HostView[host=" + host + "]";
+    }
+
+//    /**
+//     * On demand price is defaulting to 0.0
+//     * @return On demand Price
+//     */
+//    public double getOnDemandPrice() {
+//        return onDemandPrice;
+//    }
+//
+//    /**
+//     * On demand price is defaulting to 0.0
+//     * @return Spot Price of the host
+//     */
+//    public double getSpotPrice() {
+//        return spotPrice;
+//    }
+//
+//    /**
+//     * Favors onDemandPrice, if both are equal
+//     * @return Cheapest Price value
+//     */
+//    public double getCheapestPrice(){
+//        return Math.min(onDemandPrice, spotPrice);
+//    }
+
+    public double getPrice(){
+        return this.price;
     }
 }

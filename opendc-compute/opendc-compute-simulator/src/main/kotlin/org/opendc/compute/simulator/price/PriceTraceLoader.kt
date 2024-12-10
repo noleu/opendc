@@ -62,6 +62,7 @@ public class PriceTraceLoader {
                 val spotPrice = reader.getDouble(spotPriceCol)
 
                 builder.add(startTime, onDemandPrice, spotPrice)
+
             }
 
             // Make sure the virtual machines are ordered by start time
@@ -111,6 +112,7 @@ public class PriceTraceLoader {
             startTime: Instant,
             onDemandPrice: Double,
             spotPrice: Double
+
         ) {
             fragments.add(
                 PriceFragment(
@@ -118,6 +120,7 @@ public class PriceTraceLoader {
                     Long.MAX_VALUE,
                     onDemandPrice,
                     spotPrice
+
                 ),
             )
         }

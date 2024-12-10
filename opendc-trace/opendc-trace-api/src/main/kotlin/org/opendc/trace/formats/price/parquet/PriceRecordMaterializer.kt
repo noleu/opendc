@@ -32,6 +32,7 @@ import org.opendc.trace.conv.PRICE_TIMESTAMP
 import org.opendc.trace.conv.PRICE_ON_DEMAND
 import org.opendc.trace.conv.PRICE_SPOT
 
+
 /**
  * A [RecordMaterializer] for [Task] records.
  */
@@ -55,11 +56,13 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
                 schema.fields.map { type ->
                     when (type.name) {
                         PRICE_TIMESTAMP ->
+                        "timestamp" ->
                             object : PrimitiveConverter() {
                                 override fun addLong(value: Long) {
                                     localTimestamp = Instant.ofEpochMilli(value)
                                 }
                             }
+
                         PRICE_SPOT ->
                             object : PrimitiveConverter() {
                                 override fun addDouble(value: Double) {
@@ -92,6 +95,7 @@ internal class PriceRecordMaterializer(schema: MessageType) : RecordMaterializer
             localTimestamp,
             localSpotPrice,
             localOnDemandPrice
+
         )
 
     override fun getRootConverter(): GroupConverter = root

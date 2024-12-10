@@ -63,8 +63,10 @@ public class PriceModel extends FlowNode {
 
         this.fragment_index = 0;
         this.current_fragment = this.fragments.get(this.fragment_index);
+
         this.pushPriceState(this.current_fragment.getOnDemandPrice(), this.current_fragment.getSpotPrice());
         this.pushPrice(this.current_fragment.getOnDemandPrice(), this.current_fragment.getSpotPrice());
+
     }
 
     public void close() {
@@ -116,6 +118,7 @@ public class PriceModel extends FlowNode {
 
             pushPriceState(current_fragment.getOnDemandPrice(), current_fragment.getSpotPrice());
             pushPrice(current_fragment.getOnDemandPrice(), current_fragment.getSpotPrice());
+
         }
 
         // Update again at the end of this fragment

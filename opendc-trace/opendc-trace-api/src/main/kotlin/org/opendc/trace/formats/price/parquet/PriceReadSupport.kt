@@ -34,6 +34,7 @@ import org.opendc.trace.conv.PRICE_TIMESTAMP
 import org.opendc.trace.conv.PRICE_ON_DEMAND
 import org.opendc.trace.conv.PRICE_SPOT
 
+
 /**
  * A [ReadSupport] instance for [Task] objects.
  *

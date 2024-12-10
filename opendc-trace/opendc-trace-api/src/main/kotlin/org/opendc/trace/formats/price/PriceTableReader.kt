@@ -62,12 +62,14 @@ internal class PriceTableReader(private val reader: LocalParquetReader<PriceFrag
             PRICE_TIMESTAMP -> colTimestamp
             PRICE_ON_DEMAND -> colOnDemandPrice
             PRICE_SPOT -> colSpotPrice
+
             else -> -1
         }
     }
 
     override fun isNull(index: Int): Boolean {
         require(index in colTimestamp..colSpotPrice) { "Invalid column index" }
+
         return false
     }
 

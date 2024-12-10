@@ -203,6 +203,7 @@ public class HostTableReaderImpl(
         _bootTime = hostSysStats.bootTime
         _bootTime = hostSysStats.bootTime + startTime
         _priceState = hostSysStats.priceState
+
         _price = hostSysStats.price
     }
 
@@ -231,5 +232,7 @@ public class HostTableReaderImpl(
 
         _powerDraw = 0.0
         _energyUsage = 0.0
+
+        _price = 0.0
     }
 }

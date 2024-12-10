@@ -29,6 +29,7 @@ package org.opendc.compute.simulator.price;
 public class PriceFragment {
     private long startTime;
     private long endTime;
+
     private double onDemandPrice;
     private double spotPrice;
 
