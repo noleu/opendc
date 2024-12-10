@@ -177,6 +177,24 @@ public final class ComputeService implements AutoCloseable {
         }
 
         @Override
+        public void onPriceStateChanged(@NotNull SimHost host, @NotNull PriceState newPriceState) {
+            LOGGER.debug("Host {} priceState changed: {}", host, newPriceState);
+
+            final HostView hv = hostToView.get(host);
+
+            if (hv != null) {
+                if (newPriceState != hv.priceState) {
+                    hv.priceState = newPriceState;
+                    availableHosts.remove(hv);
+                    availableHosts.add(hv);
+                    hostToView.put(host, hv);
+                    scheduler.updateHost(hv);
+                }
+            }
+
+        }
+
+        @Override
         public void onStateChanged(@NotNull SimHost host, @NotNull ServiceTask task, @NotNull TaskState newState) {
             if (task.getHost() != host) {
                 // This can happen when a task is rescheduled and started on another machine, while being deleted from
