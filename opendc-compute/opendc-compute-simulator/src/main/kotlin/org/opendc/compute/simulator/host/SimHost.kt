@@ -130,7 +130,13 @@ public class SimHost(
     private val cpuLimit = machineModel.cpuModel.totalCapacity
     private var taskDelay = 0L
 
-    private var priceState: PriceState = PriceState.ON_DEMAND
+    private var priceState: PriceState = PriceState.SPOT
+        set(value) {
+            if (value != field) {
+                hostListeners.forEach { it.onPriceStateChanged(this, value) }
+            }
+            field = value
+}
     private var onDemandPrice: Double = 0.0
     private var spotPrice: Double = 0.0
 
