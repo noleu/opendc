@@ -13,7 +13,8 @@
     ],
     "allocationPolicies":  [
         {
-            "policyType": "RadicalPrice"
+            "policyType": "RadicalPrice",
+            "priceThreshold": 1500.0
         }
     ],
     "exportModels": [
