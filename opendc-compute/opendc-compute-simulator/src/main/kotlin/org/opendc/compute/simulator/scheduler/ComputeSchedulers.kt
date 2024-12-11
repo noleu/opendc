@@ -56,8 +56,9 @@ public fun createComputeScheduler(
     name: String,
     seeder: RandomGenerator,
     placements: Map<String, String> = emptyMap(),
+    priceFilterThreshold: Double
 ): ComputeScheduler {
-    return createComputeScheduler(ComputeSchedulerEnum.valueOf(name.uppercase()), seeder, placements)
+    return createComputeScheduler(ComputeSchedulerEnum.valueOf(name.uppercase()), seeder, placements, priceFilterThreshold)
 }
 
 /**
@@ -67,6 +68,7 @@ public fun createComputeScheduler(
     name: ComputeSchedulerEnum,
     seeder: RandomGenerator,
     placements: Map<String, String> = emptyMap(),
+    priceFilterThreshold: Double
 ): ComputeScheduler {
     val cpuAllocationRatio = 1.0
     val ramAllocationRatio = 1.5
@@ -125,7 +127,7 @@ public fun createComputeScheduler(
             )
         ComputeSchedulerEnum.RadicalPrice ->
             FilterScheduler(
-                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio), PriceFilter(300.0)),
+                filters = listOf(ComputeFilter(), VCpuFilter(cpuAllocationRatio), RamFilter(ramAllocationRatio), PriceFilter(priceFilterThreshold)),
                 weighers = listOf(PriceWeigher(multiplier = -1.0))
             )
         ComputeSchedulerEnum.UniformProgression ->

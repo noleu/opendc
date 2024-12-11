@@ -39,4 +39,5 @@ public data class Scenario(
     val topology: Topology,
     val phenomena: OperationalPhenomena,
     val schedulerName: String,
+    val priceThreshold: Double
 )
