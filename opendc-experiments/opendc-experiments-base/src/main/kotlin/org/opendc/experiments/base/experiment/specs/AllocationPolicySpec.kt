@@ -35,6 +35,7 @@ import org.opendc.compute.simulator.scheduler.ComputeSchedulerEnum
 @Serializable
 public data class AllocationPolicySpec(
     val policyType: ComputeSchedulerEnum = ComputeSchedulerEnum.Mem,
+    val priceThreshold: Double = -1.0
 ) {
     public val name: String = policyType.toString()
 }
