@@ -1,15 +1,15 @@
 package org.opendc.compute.simulator.scheduler
 
+import org.opendc.compute.simulator.price.PriceState
 import org.opendc.compute.simulator.scheduler.filters.ComputeFilter
-import org.opendc.compute.simulator.scheduler.filters.HostFilter
-import org.opendc.compute.simulator.scheduler.filters.RamFilter
-import org.opendc.compute.simulator.scheduler.filters.VCpuFilter
 import org.opendc.compute.simulator.scheduler.filters.OnDemandInstanceFilter
+import org.opendc.compute.simulator.scheduler.filters.RamFilter
 import org.opendc.compute.simulator.scheduler.filters.SpotInstanceFilter
+import org.opendc.compute.simulator.scheduler.filters.VCpuFilter
 import org.opendc.compute.simulator.service.HostView
 import org.opendc.compute.simulator.service.ServiceTask
 
-public class UniformProgressionScheduler : ComputeScheduler{
+public class IntelligentBiddingScheduler : ComputeScheduler{
 
     private val hosts = mutableListOf<HostView>()
     private val filters = mutableListOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.5))

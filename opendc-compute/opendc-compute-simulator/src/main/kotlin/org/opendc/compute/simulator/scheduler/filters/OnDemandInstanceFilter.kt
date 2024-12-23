@@ -10,7 +10,7 @@ import org.opendc.compute.simulator.service.ServiceTask
  */
 public class OnDemandInstanceFilter : HostFilter {
     override fun test(host: HostView, task: ServiceTask): Boolean {
-        return host.priceState == PriceState.ON_DEMAND
+        return host.host.getPriceState() == PriceState.ON_DEMAND
     }
 
     override fun toString(): String = "OnDemandFilter"

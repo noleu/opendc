@@ -33,8 +33,6 @@ public class HostView {
     int instanceCount;
     long availableMemory;
     int provisionedCores;
-    double price = 0.0;
-    PriceState priceState = PriceState.ON_DEMAND;
 
 
     /**
@@ -45,8 +43,6 @@ public class HostView {
     public HostView(SimHost host) {
         this.host = host;
         this.availableMemory = host.getModel().memoryCapacity();
-        this.priceState = host.getPriceState();
-        this.price = host.getCurrentPrice();
     }
 
     /**
@@ -76,12 +72,6 @@ public class HostView {
     public int getProvisionedCores() {
         return provisionedCores;
     }
-
-    public double getPrice(){
-        return this.price;
-    }
-
-    public PriceState getPriceState() { return this.priceState; }
 
     @Override
     public String toString() {

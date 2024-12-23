@@ -6,7 +6,7 @@ import org.opendc.compute.simulator.service.ServiceTask
 
 public class SpotInstanceFilter : HostFilter {
     override fun test(host: HostView, task: ServiceTask): Boolean {
-        return host.priceState == PriceState.SPOT
+        return host.host.getPriceState() == PriceState.SPOT
     }
 
     override fun toString(): String = "SpotInstanceFilter"

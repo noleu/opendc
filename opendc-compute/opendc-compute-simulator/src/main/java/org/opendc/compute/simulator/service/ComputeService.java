@@ -52,6 +52,7 @@ import org.opendc.compute.simulator.host.SimHost;
 import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.scheduler.ComputeScheduler;
 import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
+import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
 import org.opendc.simulator.compute.power.SimPowerSource;
@@ -151,6 +152,8 @@ public final class ComputeService implements AutoCloseable {
 
     private ComputeMetricReader metricReader;
 
+    private final Double reschedulePenalty = 0.05;
+
     /**
      * A [HostListener] used to track the active tasks.
      */
@@ -244,7 +247,7 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
-        if (this.scheduler instanceof UniformProgressionScheduler) {
+        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof IntelligentBiddingScheduler) {
             startPeriodicReevaluation();
         }
     }
@@ -263,14 +266,22 @@ public final class ComputeService implements AutoCloseable {
             ServiceTask task = activeTask.getKey();
             SimHost host = activeTask.getValue();
 
-            if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task)) {
-                task.requiresOnDemand(true);
-                task.requiresSpot(false);
-            }
+            if (this.scheduler instanceof UniformProgressionScheduler)
+            {
+                double delay = task.getCurrentProgress() * reschedulePenalty;
+                if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
 
-            if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task)) {
-                task.requiresOnDemand(false);
-                task.requiresSpot(true);
+                if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task, delay)) {
+                    task.requiresOnDemand(false);
+                    task.requiresSpot(true);
+                }
+            }
+            else if (this.scheduler instanceof IntelligentBiddingScheduler)
+            {
+                intelligentBiddingSchedule(task);
             }
 
             HostView newHostView = scheduler.select(task);
@@ -320,14 +331,13 @@ public final class ComputeService implements AutoCloseable {
     }
 
     // could be moved to task
-    private boolean SafetyNetRuleApplies(ServiceTask task) {
+    private boolean SafetyNetRuleApplies(ServiceTask task, double delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
         long computationTime = task.duration;
 
         // R(t) ≥ C(t) + 2
         // Wu et. al Safety Net Rule
-        // in paper it is delay of the host, but this might be unknown, so we're using upper bound
-        return remainingTime < computationTime + 2 * maxDelay;
+        return remainingTime < computationTime + 2 * delay;
     }
 
     private void updateMaxDelay() {
@@ -341,7 +351,7 @@ public final class ComputeService implements AutoCloseable {
     }
 
     // could be moved to task
-    private boolean HysteriaRuleApplies(ServiceTask task) {
+    private boolean HysteriaRuleApplies(ServiceTask task, double delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
         long computationTime = task.duration;
         long currentProgress = task.getCurrentProgress(); // not sure if correct
@@ -349,8 +359,55 @@ public final class ComputeService implements AutoCloseable {
 
         // cp(t) ≥ ep(t + 2d).
         // Wu et. al Exploitation + Hysterics Rule
-        // in paper it is delay of the host, but this might be unknown, so we're using upper bound
-        return currentProgress >= expectedProgress + 2 * maxDelay;
+        return currentProgress >= expectedProgress + 2 * delay;
+    }
+
+    private double estimateBidPrice(double onDemandPrice, double spotPrice, double timeToOnDemand) {
+        double alpha = -0.0005;
+        double beta = 0.9;
+        double gamma = alpha * timeToOnDemand;
+
+        return Math.exp(gamma) * onDemandPrice + (1 - Math.exp(gamma) * (beta * onDemandPrice + (1 - beta) * spotPrice));
+    }
+
+    private double getLowestAvailablePrice(ServiceTask task, PriceState priceState) {
+        double lowestPrice = Double.MAX_VALUE;
+
+        for (HostView hv : availableHosts) {
+            SimHost host = hv.getHost();
+            double currentPrice = host.getPrice(priceState);
+            if (host.canFit(task) && currentPrice < lowestPrice) {
+                lowestPrice = currentPrice;;
+            }
+        }
+
+        return lowestPrice;
+    }
+
+    private void intelligentBiddingSchedule(ServiceTask task) {
+        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+        long remainingComputationTime = task.duration - task.getCurrentProgress();
+        long timeToOnDemand = remainingTime - remainingComputationTime;
+
+        long rescheduleTime = (long) (task.getCurrentProgress() * reschedulePenalty);
+
+        double onDemandPrice = getLowestAvailablePrice(task, PriceState.ON_DEMAND);
+        double spotPrice = getLowestAvailablePrice(task, PriceState.SPOT);
+
+        if (timeToOnDemand - rescheduleTime > 0) {
+            double bid = estimateBidPrice(onDemandPrice, spotPrice, timeToOnDemand);
+
+            if (bid >= onDemandPrice) {
+                task.requiresOnDemand(true);
+                task.requiresSpot(false);
+            } else {
+                task.requiresOnDemand(false);
+                task.requiresSpot(true);
+            }
+        } else {
+            task.requiresOnDemand(true);
+            task.requiresSpot(false);
+        }
     }
 
     /**
@@ -579,16 +636,17 @@ public final class ComputeService implements AutoCloseable {
             }
 
             if (scheduler instanceof UniformProgressionScheduler) {
-
-                if (SafetyNetRuleApplies(task)) {
+                if (SafetyNetRuleApplies(task, 0)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }
 
-                if (HysteriaRuleApplies(task)) {
-                    task.requiresOnDemand(true);
-                    task.requiresSpot(false);
+                if (HysteriaRuleApplies(task, 0)) {
+                    task.requiresOnDemand(false);
+                    task.requiresSpot(true);
                 }
+            } else if (scheduler instanceof IntelligentBiddingScheduler) {
+                intelligentBiddingSchedule(task);
             }
 
             final ServiceFlavor flavor = task.getFlavor();

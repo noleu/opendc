@@ -49,7 +49,8 @@ public enum class ComputeSchedulerEnum {
     Replay,
     Price,
     RadicalPrice,
-    UniformProgression
+    UniformProgression,
+    IntelligentBidding
 }
 
 public fun createComputeScheduler(
@@ -130,6 +131,8 @@ public fun createComputeScheduler(
             )
         ComputeSchedulerEnum.UniformProgression ->
             UniformProgressionScheduler()
+        ComputeSchedulerEnum.IntelligentBidding ->
+            IntelligentBiddingScheduler()
 
         ComputeSchedulerEnum.Replay -> ReplayScheduler(placements)
     }
