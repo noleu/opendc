@@ -250,6 +250,14 @@ public class SimHost(
         return sufficientMemory && enoughCpus && canFit
     }
 
+    public fun getPriceState(task: ServiceTask): PriceState {
+        val taskGuest = guests.filter { it.task == task }
+
+        assert(taskGuest.size == 1) { "Task $task is run on multiple guests" }
+
+        return taskGuest[0].priceState
+    }
+
     public fun updatePriceState(newState: PriceState) {
         // All tasks started while the pricing state was spot will get kicked out when the state switched to on demand
         if (newState == PriceState.ON_DEMAND && priceState == PriceState.SPOT) {

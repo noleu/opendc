@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import org.opendc.compute.api.TaskState;
 import org.opendc.compute.simulator.TaskWatcher;
 import org.opendc.compute.simulator.host.SimHost;
+import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,5 +266,9 @@ public class ServiceTask {
 
     public Instant getDeadline() {
         return this.deadline;
+    }
+
+    public PriceState getPriceState() {
+        return host.getPriceState(this);
     }
 }

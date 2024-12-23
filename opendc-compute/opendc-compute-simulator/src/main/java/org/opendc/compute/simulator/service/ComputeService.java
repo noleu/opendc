@@ -284,47 +284,54 @@ public final class ComputeService implements AutoCloseable {
                 intelligentBiddingSchedule(task);
             }
 
-            HostView newHostView = scheduler.select(task);
-            SimHost newHost = newHostView.getHost();
-            HostView currentHostView = hostToView.get(host);
+            PriceState currentPriceState = task.getPriceState();
+            if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
+                task.requiresSpot() && currentPriceState != PriceState.SPOT)
+            {
+                task.currentProgress = (long) (task.currentProgress * (1 - reschedulePenalty));
 
-            Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
-            task.setWorkload(remainingWorkload);
+                HostView newHostView = scheduler.select(task);
+                SimHost newHost = newHostView.getHost();
+                HostView currentHostView = hostToView.get(host);
 
-            ServiceFlavor flavor = task.getFlavor();
-            currentHostView.provisionedCores -= flavor.getCoreCount();
-            currentHostView.instanceCount--;
-            currentHostView.availableMemory += flavor.getMemorySize();
-            if (activeTasks.remove(task) != null) {
-                tasksActive--;
-            }
+                Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
+                task.setWorkload(remainingWorkload);
 
-            if (newHostView == null || !newHost.canFit(task)) {
-                LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
+                ServiceFlavor flavor = task.getFlavor();
+                currentHostView.provisionedCores -= flavor.getCoreCount();
+                currentHostView.instanceCount--;
+                currentHostView.availableMemory += flavor.getMemorySize();
+                if (activeTasks.remove(task) != null) {
+                    tasksActive--;
+                }
 
-                task.host = null;
-                SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
-                taskQueue.addFirst(request);
-                tasksPending++;
-                requestSchedulingCycle();
+                if (newHostView == null || !newHost.canFit(task)) {
+                    LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
 
-            } else {
-                try {
-                    task.host = newHost;
+                    task.host = null;
+                    SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
+                    taskQueue.addFirst(request);
+                    tasksPending++;
+                    requestSchedulingCycle();
 
-                    newHost.spawn(task);
+                } else {
+                    try {
+                        task.host = newHost;
 
-                    tasksActive++;
-                    attemptsSuccess++;
+                        newHost.spawn(task);
 
-                    newHostView.instanceCount++;
-                    newHostView.provisionedCores += flavor.getCoreCount();
-                    newHostView.availableMemory -= flavor.getMemorySize();
+                        tasksActive++;
+                        attemptsSuccess++;
 
-                    activeTasks.put(task, host);
-                } catch (Exception cause) {
-                    LOGGER.error("Failed to deploy VM", cause);
-                    attemptsFailure++;
+                        newHostView.instanceCount++;
+                        newHostView.provisionedCores += flavor.getCoreCount();
+                        newHostView.availableMemory -= flavor.getMemorySize();
+
+                        activeTasks.put(task, host);
+                    } catch (Exception cause) {
+                        LOGGER.error("Failed to deploy VM", cause);
+                        attemptsFailure++;
+                    }
                 }
             }
         }
