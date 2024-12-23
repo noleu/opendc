@@ -268,7 +268,7 @@ public final class ComputeService implements AutoCloseable {
 
             if (this.scheduler instanceof UniformProgressionScheduler)
             {
-                double delay = task.getCurrentProgress() * reschedulePenalty;
+                double delay = task.duration * reschedulePenalty;
                 if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
@@ -288,7 +288,12 @@ public final class ComputeService implements AutoCloseable {
             if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
                 task.requiresSpot() && currentPriceState != PriceState.SPOT)
             {
-                task.currentProgress = (long) (task.currentProgress * (1 - reschedulePenalty));
+                long delay = (long) (task.duration * reschedulePenalty);
+                if (task.lastCheckPoint < task.currentProgress - delay)
+                {
+                    task.currentProgress = task.currentProgress - delay;
+                    task.lastCheckPoint = task.currentProgress;
+                }
 
                 HostView newHostView = scheduler.select(task);
                 SimHost newHost = newHostView.getHost();
@@ -396,7 +401,7 @@ public final class ComputeService implements AutoCloseable {
         long remainingComputationTime = task.duration - task.getCurrentProgress();
         long timeToOnDemand = remainingTime - remainingComputationTime;
 
-        long rescheduleTime = (long) (task.getCurrentProgress() * reschedulePenalty);
+        long rescheduleTime = (long) (task.duration * reschedulePenalty);
 
         double onDemandPrice = getLowestAvailablePrice(task, PriceState.ON_DEMAND);
         double spotPrice = getLowestAvailablePrice(task, PriceState.SPOT);

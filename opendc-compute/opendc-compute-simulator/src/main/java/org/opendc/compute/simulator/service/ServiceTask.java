@@ -69,6 +69,7 @@ public class ServiceTask {
     private int numFailures = 0;
     private boolean requiresOnDemand = false;
     private boolean requiresSpot = false;
+    long lastCheckPoint;
 
     ServiceTask(
             ComputeService service,
