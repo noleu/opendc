@@ -62,7 +62,7 @@ public class ServiceTask {
     Instant finishedAt;
     long currentProgress = 0L;
     SimHost host = null;
-    long duration; // TODO: May be instant
+    private long duration = 0L; // TODO: May be instant
     Instant deadline;
     private ComputeService.SchedulingRequest request = null;
 
@@ -70,6 +70,7 @@ public class ServiceTask {
     private boolean requiresOnDemand = false;
     private boolean requiresSpot = false;
     long lastCheckPoint;
+    private long remainingTime = 0L;
 
     ServiceTask(
             ComputeService service,
@@ -271,5 +272,17 @@ public class ServiceTask {
 
     public PriceState getPriceState() {
         return host.getPriceState(this);
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public long getRemainingTime() {
+        return remainingTime;
+    }
+
+    public void setRemainingTime(long remainingTime) {
+        this.remainingTime = remainingTime;
     }
 }
