@@ -13,8 +13,7 @@
     ],
     "allocationPolicies":  [
         {
-            "policyType": "RadicalPrice",
-            "priceThreshold": 1500.0
+            "policyType": "IntelligentBidding"
         }
     ],
     "exportModels": [

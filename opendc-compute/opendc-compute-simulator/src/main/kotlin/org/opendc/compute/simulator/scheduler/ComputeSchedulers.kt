@@ -50,7 +50,7 @@ public enum class ComputeSchedulerEnum {
     Price,
     RadicalPrice,
     UniformProgression,
-    GreedyPrice
+    GreedyPrice,
     IntelligentBidding
 }
 

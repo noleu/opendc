@@ -286,7 +286,7 @@ public final class ComputeService implements AutoCloseable {
 
             if (this.scheduler instanceof UniformProgressionScheduler) {
 
-                double delay = task.duration * reschedulePenalty;
+                double delay = task.getDuration() * reschedulePenalty;
                 if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
@@ -297,13 +297,13 @@ public final class ComputeService implements AutoCloseable {
                     task.requiresSpot(true);
                 }
             }
-            else if (this.scheduler instanceof IntelligentBiddingScheduler)
+            if (this.scheduler instanceof IntelligentBiddingScheduler)
             {
-                intelligentBiddingSchedule(task);
+                task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
             }
-            else if (this.scheduler instanceof GreedyPriceScheduler) {
+            if (this.scheduler instanceof GreedyPriceScheduler) {
 
-                double delay = task.duration * reschedulePenalty;
+                double delay = task.getDuration() * reschedulePenalty;
 
                 if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
@@ -316,7 +316,7 @@ public final class ComputeService implements AutoCloseable {
             if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
                 task.requiresSpot() && currentPriceState != PriceState.SPOT)
             {
-                long delay = (long) (task.duration * reschedulePenalty);
+                long delay = (long) (task.getDuration() * reschedulePenalty);
                 if (task.lastCheckPoint < task.currentProgress - delay)
                 {
                     task.currentProgress = task.currentProgress - delay;
@@ -373,7 +373,7 @@ public final class ComputeService implements AutoCloseable {
     // could be moved to task
     private boolean SafetyNetRuleApplies(ServiceTask task, double delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.duration;
+        long computationTime = task.getDuration();
 
         // R(t) ≥ C(t) + 2
         // Wu et. al Safety Net Rule
@@ -393,61 +393,13 @@ public final class ComputeService implements AutoCloseable {
     // could be moved to task
     private boolean HysteriaRuleApplies(ServiceTask task, double delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.duration;
+        long computationTime = task.getDuration();
         long currentProgress = task.getCurrentProgress(); // not sure if correct
         long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
 
         // cp(t) ≥ ep(t + 2d).
         // Wu et. al Exploitation + Hysterics Rule
         return currentProgress >= expectedProgress + 2 * delay;
-    }
-
-    private double estimateBidPrice(double onDemandPrice, double spotPrice, double timeToOnDemand) {
-        double alpha = -0.0005;
-        double beta = 0.9;
-        double gamma = alpha * timeToOnDemand;
-
-        return Math.exp(gamma) * onDemandPrice + (1 - Math.exp(gamma) * (beta * onDemandPrice + (1 - beta) * spotPrice));
-    }
-
-    private double getLowestAvailablePrice(ServiceTask task, PriceState priceState) {
-        double lowestPrice = Double.MAX_VALUE;
-
-        for (HostView hv : availableHosts) {
-            SimHost host = hv.getHost();
-            double currentPrice = host.getPrice(priceState);
-            if (host.canFit(task) && currentPrice < lowestPrice) {
-                lowestPrice = currentPrice;;
-            }
-        }
-
-        return lowestPrice;
-    }
-
-    private void intelligentBiddingSchedule(ServiceTask task) {
-        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long remainingComputationTime = task.duration - task.getCurrentProgress();
-        long timeToOnDemand = remainingTime - remainingComputationTime;
-
-        long rescheduleTime = (long) (task.duration * reschedulePenalty);
-
-        double onDemandPrice = getLowestAvailablePrice(task, PriceState.ON_DEMAND);
-        double spotPrice = getLowestAvailablePrice(task, PriceState.SPOT);
-
-        if (timeToOnDemand - rescheduleTime > 0) {
-            double bid = estimateBidPrice(onDemandPrice, spotPrice, timeToOnDemand);
-
-            if (bid >= onDemandPrice) {
-                task.requiresOnDemand(true);
-                task.requiresSpot(false);
-            } else {
-                task.requiresOnDemand(false);
-                task.requiresSpot(true);
-            }
-        } else {
-            task.requiresOnDemand(true);
-            task.requiresSpot(false);
-        }
     }
 
     /**
@@ -685,8 +637,10 @@ public final class ComputeService implements AutoCloseable {
                     task.requiresOnDemand(false);
                     task.requiresSpot(true);
                 }
-            } else if (scheduler instanceof IntelligentBiddingScheduler) {
-                intelligentBiddingSchedule(task);
+            }
+
+            if (scheduler instanceof IntelligentBiddingScheduler) {
+                task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
             }
 
             if (scheduler instanceof GreedyPriceScheduler) {
