@@ -13,7 +13,7 @@
     ],
     "allocationPolicies":  [
         {
-            "policyType": "UniformProgression"
+            "policyType": "IntelligentBidding"
         }
     ],
     "exportModels": [
