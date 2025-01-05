@@ -33,6 +33,7 @@ public class HostView {
     int instanceCount;
     long availableMemory;
     int provisionedCores;
+    PriceState priceState;
 
 
     /**
@@ -43,6 +44,7 @@ public class HostView {
     public HostView(SimHost host) {
         this.host = host;
         this.availableMemory = host.getModel().memoryCapacity();
+        this.priceState = host.getPriceState();
     }
 
     /**

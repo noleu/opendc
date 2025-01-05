@@ -23,6 +23,7 @@
 package org.opendc.compute.simulator.host;
 
 import org.opendc.compute.api.TaskState;
+import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.service.ServiceTask;
 
 /**
@@ -38,4 +39,6 @@ public interface HostListener {
      * This method is invoked when the state of a {@link SimHost} has changed.
      */
     default void onStateChanged(SimHost host, HostState newState) {}
+
+    default void onPriceStateChanged(SimHost host, PriceState newPriceState) {}
 }

@@ -51,6 +51,7 @@ import org.opendc.compute.simulator.host.HostState;
 import org.opendc.compute.simulator.host.SimHost;
 import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.scheduler.ComputeScheduler;
+import org.opendc.compute.simulator.scheduler.GreedyPriceScheduler;
 import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
 import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
@@ -177,6 +178,24 @@ public final class ComputeService implements AutoCloseable {
         }
 
         @Override
+        public void onPriceStateChanged(@NotNull SimHost host, @NotNull PriceState newPriceState) {
+            LOGGER.debug("Host {} priceState changed: {}", host, newPriceState);
+
+            final HostView hv = hostToView.get(host);
+
+            if (hv != null) {
+                if (newPriceState != hv.priceState) {
+                    hv.priceState = newPriceState;
+                    availableHosts.remove(hv);
+                    availableHosts.add(hv);
+                    hostToView.put(host, hv);
+                    scheduler.updateHost(hv);
+                }
+            }
+
+        }
+
+        @Override
         public void onStateChanged(@NotNull SimHost host, @NotNull ServiceTask task, @NotNull TaskState newState) {
             if (task.getHost() != host) {
                 // This can happen when a task is rescheduled and started on another machine, while being deleted from
@@ -247,7 +266,7 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
-        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof IntelligentBiddingScheduler) {
+        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof GreedyPriceScheduler) {
             startPeriodicReevaluation();
         }
     }
@@ -260,14 +279,13 @@ public final class ComputeService implements AutoCloseable {
         if (activeTasks.isEmpty()) {
             return;
         }
-        long now = clock.millis();
 
         for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
             ServiceTask task = activeTask.getKey();
             SimHost host = activeTask.getValue();
 
-            if (this.scheduler instanceof UniformProgressionScheduler)
-            {
+            if (this.scheduler instanceof UniformProgressionScheduler) {
+
                 double delay = task.duration * reschedulePenalty;
                 if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
@@ -283,6 +301,16 @@ public final class ComputeService implements AutoCloseable {
             {
                 intelligentBiddingSchedule(task);
             }
+            else if (this.scheduler instanceof GreedyPriceScheduler) {
+
+                double delay = task.duration * reschedulePenalty;
+
+                if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
+            }
+
 
             PriceState currentPriceState = task.getPriceState();
             if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
@@ -659,6 +687,13 @@ public final class ComputeService implements AutoCloseable {
                 }
             } else if (scheduler instanceof IntelligentBiddingScheduler) {
                 intelligentBiddingSchedule(task);
+            }
+
+            if (scheduler instanceof GreedyPriceScheduler) {
+                if (SafetyNetRuleApplies(task, 0)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
             }
 
             final ServiceFlavor flavor = task.getFlavor();
