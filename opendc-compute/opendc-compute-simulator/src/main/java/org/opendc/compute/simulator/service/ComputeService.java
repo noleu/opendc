@@ -266,8 +266,7 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
-        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof GreedyPriceScheduler) {
-        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof IntelligentBiddingScheduler) {
+        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof GreedyPriceScheduler) {
             startPeriodicReevaluation();
         }
     }
@@ -284,20 +283,14 @@ public final class ComputeService implements AutoCloseable {
         for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
             ServiceTask task = activeTask.getKey();
             SimHost host = activeTask.getValue();
-            Boolean swticHost = false;
 
-            if (this.scheduler instanceof UniformProgressionScheduler)
-            {
+            if (this.scheduler instanceof UniformProgressionScheduler) {
+
                 double delay = task.duration * reschedulePenalty;
                 if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }
-            if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task)) {
-                task.requiresOnDemand(true);
-                task.requiresSpot(false);
-                swticHost = true;
-            }
 
                 if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task, delay)) {
                     task.requiresOnDemand(false);
@@ -308,6 +301,16 @@ public final class ComputeService implements AutoCloseable {
             {
                 intelligentBiddingSchedule(task);
             }
+            else if (this.scheduler instanceof GreedyPriceScheduler) {
+
+                double delay = task.duration * reschedulePenalty;
+
+                if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
+                    task.requiresOnDemand(true);
+                    task.requiresSpot(false);
+                }
+            }
+
 
             PriceState currentPriceState = task.getPriceState();
             if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
@@ -687,7 +690,7 @@ public final class ComputeService implements AutoCloseable {
             }
 
             if (scheduler instanceof GreedyPriceScheduler) {
-                if (SafetyNetRuleApplies(task)) {
+                if (SafetyNetRuleApplies(task, 0)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }
