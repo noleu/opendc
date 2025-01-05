@@ -31,7 +31,7 @@ public class GreedyPriceScheduler : ComputeScheduler {
         }
 
         val host = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
-            .minByOrNull { it.price }
+            .minByOrNull { it.host.getCurrentPrice() }
         return host
     }
 
