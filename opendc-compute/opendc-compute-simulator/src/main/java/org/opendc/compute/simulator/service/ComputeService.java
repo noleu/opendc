@@ -276,6 +276,10 @@ public final class ComputeService implements AutoCloseable {
     }
 
     private void reevaluateTasks() {
+        if (!taskQueue.isEmpty()) {
+            requestSchedulingCycle();
+        }
+
         if (activeTasks.isEmpty()) {
             return;
         }
@@ -669,6 +673,7 @@ public final class ComputeService implements AutoCloseable {
                     this.setTaskToBeRemoved(task);
                     continue;
                 } else {
+                    LOGGER.info("MY NAME IS JEFF");
                     break;
                 }
             }
