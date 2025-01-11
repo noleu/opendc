@@ -266,9 +266,8 @@ public final class ComputeService implements AutoCloseable {
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
-        if (this.scheduler instanceof UniformProgressionScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof GreedyPriceScheduler) {
-            startPeriodicReevaluation();
-        }
+
+        startPeriodicReevaluation();
     }
 
     private void startPeriodicReevaluation() {
