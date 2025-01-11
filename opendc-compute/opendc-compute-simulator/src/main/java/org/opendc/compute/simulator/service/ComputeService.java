@@ -673,7 +673,6 @@ public final class ComputeService implements AutoCloseable {
                     this.setTaskToBeRemoved(task);
                     continue;
                 } else {
-                    LOGGER.info("MY NAME IS JEFF");
                     break;
                 }
             }
