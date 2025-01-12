@@ -285,6 +285,7 @@ public class SimHost(
         this.onDemandPrice = newOnDemandPrice
         this.spotPrice = newSpotPrice
 
+        hostListeners.forEach { it.onPriceChanged(this, getCurrentPrice()) }
     }
 
     /**

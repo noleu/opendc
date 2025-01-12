@@ -47,7 +47,7 @@ public class IntelligentBiddingScheduler(private val reschedulePenalty: Double =
         }
 
         val host = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
-            .minByOrNull { it.host.getCurrentPrice() }
+            .minByOrNull { it.price }
         return host
     }
 
@@ -57,7 +57,7 @@ public class IntelligentBiddingScheduler(private val reschedulePenalty: Double =
 
         for (hv in hosts) {
             val host = hv.host
-            val currentPrice = host.getPrice(priceState)
+            val currentPrice = hv.price
             if (host.canFit(task) && currentPrice < lowestPrice) {
                 lowestPrice = currentPrice
             }

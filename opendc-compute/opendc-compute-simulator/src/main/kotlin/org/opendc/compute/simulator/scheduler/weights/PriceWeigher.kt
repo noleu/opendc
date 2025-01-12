@@ -12,7 +12,7 @@ import org.opendc.compute.simulator.service.ServiceTask
  */
 public class PriceWeigher(override val multiplier: Double = 1.0) : HostWeigher{
     override fun getWeight(host: HostView, task: ServiceTask): Double {
-        return host.host.getCurrentPrice();
+        return host.price;
     }
 
     override fun toString(): String = javaClass.name;

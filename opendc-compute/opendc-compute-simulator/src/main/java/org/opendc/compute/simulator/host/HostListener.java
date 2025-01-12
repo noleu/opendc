@@ -41,4 +41,6 @@ public interface HostListener {
     default void onStateChanged(SimHost host, HostState newState) {}
 
     default void onPriceStateChanged(SimHost host, PriceState newPriceState) {}
+
+    default void onPriceChanged(SimHost host, Double newPrice) {}
 }

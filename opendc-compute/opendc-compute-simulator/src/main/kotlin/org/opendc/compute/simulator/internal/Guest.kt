@@ -219,7 +219,7 @@ public class Guest(
             Duration.ofMillis(downtime),
             bootTime,
             priceState.toString(),
-            host.getPrice(priceState)
+            host.getCurrentPrice()
         )
     }
 

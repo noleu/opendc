@@ -5,6 +5,6 @@ import org.opendc.compute.simulator.service.ServiceTask
 
 public class PriceFilter (private val priceThreshold: Double) : HostFilter{
     override fun test(host: HostView, task: ServiceTask): Boolean {
-        return host.host.getCurrentPrice() <= priceThreshold
+        return host.price <= priceThreshold
     }
 }

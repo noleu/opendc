@@ -192,7 +192,20 @@ public final class ComputeService implements AutoCloseable {
                     scheduler.updateHost(hv);
                 }
             }
+        }
 
+        @Override
+        public void onPriceChanged(SimHost host, Double newPrice) {
+            final HostView hv = hostToView.get(host);
+            if (hv != null) {
+                    hv.price = newPrice;
+                    availableHosts.remove(hv);
+                    availableHosts.add(hv);
+                    hostToView.put(host, hv);
+                    scheduler.updateHost(hv);
+            }
+
+            requestSchedulingCycle();
         }
 
         @Override
@@ -267,7 +280,9 @@ public final class ComputeService implements AutoCloseable {
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.maxNumFailures = maxNumFailures;
 
-        startPeriodicReevaluation();
+        if (this.scheduler instanceof GreedyPriceScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof UniformProgressionScheduler) {
+            startPeriodicReevaluation();
+        }
     }
 
     private void startPeriodicReevaluation() {
@@ -275,10 +290,6 @@ public final class ComputeService implements AutoCloseable {
     }
 
     private void reevaluateTasks() {
-        if (!taskQueue.isEmpty()) {
-            requestSchedulingCycle();
-        }
-
         if (activeTasks.isEmpty()) {
             return;
         }

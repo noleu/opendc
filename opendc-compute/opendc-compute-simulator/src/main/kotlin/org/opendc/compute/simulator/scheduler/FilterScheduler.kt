@@ -110,6 +110,9 @@ public class FilterScheduler(
     }
 
     override fun updateHost(host: HostView) {
-        return
+        if(hosts.contains(host)){
+            hosts.remove(host)
+            hosts.add(host)
+        }
     }
 }

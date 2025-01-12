@@ -34,6 +34,7 @@ public class HostView {
     long availableMemory;
     int provisionedCores;
     PriceState priceState;
+    Double price;
 
 
     /**
@@ -45,6 +46,7 @@ public class HostView {
         this.host = host;
         this.availableMemory = host.getModel().memoryCapacity();
         this.priceState = host.getPriceState();
+        this.price = host.getCurrentPrice();
     }
 
     /**
@@ -73,6 +75,10 @@ public class HostView {
      */
     public int getProvisionedCores() {
         return provisionedCores;
+    }
+
+    public double getPrice() {
+        return price;
     }
 
     @Override
