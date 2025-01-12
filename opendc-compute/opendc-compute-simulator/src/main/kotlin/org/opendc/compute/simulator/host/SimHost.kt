@@ -271,7 +271,7 @@ public class SimHost(
             val snapshots = spotGuests.map { it.virtualMachine!!.activeWorkload.getSnapshot() }
             val tasks = spotGuests.map { it.task }
 
-            spotGuests.forEach { it.fail() } // TODO: This shouldn't be fail but a nicer way to stop the guest
+            spotGuests.forEach { it.kick() }
 
             for ((task, snapshot) in tasks.zip(snapshots)) {
                 computeClient.rescheduleTask(task, snapshot)
@@ -372,6 +372,7 @@ public class SimHost(
         var running = 0
         var failed = 0
         var invalid = 0
+        var kicked = 0
         var completed = 0
 
         val guests = guests.listIterator()
@@ -381,6 +382,11 @@ public class SimHost(
                 TaskState.COMPLETED, TaskState.FAILED, TaskState.TERMINATED -> {
                     failed++
                     // Remove guests that have been deleted
+                    this.taskToGuestMap.remove(guest.task)
+                    guests.remove()
+                }
+                TaskState.KICKED -> {
+                    kicked++
                     this.taskToGuestMap.remove(guest.task)
                     guests.remove()
                 }

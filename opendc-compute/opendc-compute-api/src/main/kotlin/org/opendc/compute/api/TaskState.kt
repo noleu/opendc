@@ -65,4 +65,10 @@ public enum class TaskState {
      * @constructor Create empty Deleted
      */
     DELETED,
+
+
+    /**
+     * Task has been kicked out, because instance switched from spot to on-demand pricing
+     */
+    KICKED,
 }

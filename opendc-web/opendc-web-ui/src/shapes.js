@@ -139,7 +139,7 @@ export const ScenarioSummary = PropTypes.shape({
     results: PropTypes.object,
 })
 
-export const JobState = PropTypes.oneOf(['PENDING', 'CLAIMED', 'RUNNING', 'FAILED', 'FINISHED'])
+export const JobState = PropTypes.oneOf(['PENDING', 'CLAIMED', 'RUNNING', 'FAILED', 'FINISHED', 'KICKED'])
 
 export const Job = PropTypes.shape({
     id: PropTypes.number.isRequired,

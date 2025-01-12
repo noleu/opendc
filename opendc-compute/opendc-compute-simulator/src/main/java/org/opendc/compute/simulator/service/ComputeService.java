@@ -218,7 +218,7 @@ public final class ComputeService implements AutoCloseable {
 
             task.setState(newState);
 
-            if (newState == TaskState.COMPLETED || newState == TaskState.TERMINATED || newState == TaskState.FAILED) {
+            if (newState == TaskState.COMPLETED || newState == TaskState.TERMINATED || newState == TaskState.FAILED || newState == TaskState.KICKED) {
                 LOGGER.info("task {} {} {} finished", task.getUid(), task.getName(), task.getFlavor());
 
                 if (activeTasks.remove(task) != null) {

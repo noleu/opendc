@@ -172,6 +172,11 @@ public class ServiceTask {
                 setState(TaskState.PROVISIONING);
                 request = service.schedule(this);
                 break;
+            case KICKED:
+                LOGGER.info("User requested to start task after it was kicked {}", uid);
+                setState(TaskState.PROVISIONING);
+                request = service.schedule(this);
+                break;
         }
     }
 
