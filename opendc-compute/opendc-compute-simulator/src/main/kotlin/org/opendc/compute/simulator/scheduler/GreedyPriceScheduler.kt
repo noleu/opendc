@@ -30,9 +30,15 @@ public class GreedyPriceScheduler : ComputeScheduler {
             filters.add(SpotInstanceFilter())
         }
 
-        val host = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
+        var selectedHost = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
             .minByOrNull { it.price }
-        return host
+
+        if (selectedHost == null && task.requiresOnDemand()) {
+            filters.remove(OnDemandInstanceFilter())
+            selectedHost = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
+                .minByOrNull { it.onDemandPrice }
+        }
+        return selectedHost
     }
 
     override fun updateHost(host: HostView) {

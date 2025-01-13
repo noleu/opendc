@@ -305,7 +305,7 @@ public class SimHost(
                 guestListener,
                 task,
                 simMachine!!,
-                priceState
+                if (task.requiresOnDemand()) PriceState.ON_DEMAND else priceState
             )
 
         guests.add(newGuest)

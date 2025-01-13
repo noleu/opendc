@@ -81,6 +81,10 @@ public class HostView {
         return price;
     }
 
+    public double getOnDemandPrice() {
+        return host.getPrice(PriceState.ON_DEMAND);
+    }
+
     @Override
     public String toString() {
         return "HostView[host=" + host + "]";
