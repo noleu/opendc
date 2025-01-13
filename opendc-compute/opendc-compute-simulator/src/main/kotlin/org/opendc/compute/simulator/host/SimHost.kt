@@ -130,7 +130,7 @@ public class SimHost(
     private val cpuLimit = machineModel.cpuModel.totalCapacity
     private var taskDelay = 0L
 
-    private var priceState: PriceState = PriceState.SPOT
+    private var priceState: PriceState = PriceState.ON_DEMAND
         set(value) {
             if (value != field) {
                 hostListeners.forEach { it.onPriceStateChanged(this, value) }
@@ -268,13 +268,12 @@ public class SimHost(
         // All tasks started while the pricing state was spot will get kicked out when the state switched to on demand
         if (newState == PriceState.ON_DEMAND && priceState == PriceState.SPOT) {
             val spotGuests = guests.filter { it.priceState == PriceState.SPOT }
-            val snapshots = spotGuests.map { it.virtualMachine!!.activeWorkload.getSnapshot() }
             val tasks = spotGuests.map { it.task }
 
             spotGuests.forEach { it.kick() }
 
-            for ((task, snapshot) in tasks.zip(snapshots)) {
-                computeClient.rescheduleTask(task, snapshot)
+            for (task in tasks) {
+                computeClient.rescheduleTask(task, task.workload)
             }
         }
 

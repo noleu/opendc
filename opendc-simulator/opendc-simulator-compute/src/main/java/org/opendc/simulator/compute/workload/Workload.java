@@ -33,4 +33,10 @@ public interface Workload {
     double getCheckpointIntervalScaling();
 
     SimWorkload startWorkload(FlowSupplier supplier, long now);
+
+    long getRemainingTime();
+
+    long getCurrentProgress();
+
+    long getDelay();
 }

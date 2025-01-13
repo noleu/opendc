@@ -31,6 +31,7 @@ public class TraceWorkload implements Workload {
     private final long checkpointInterval;
     private final long checkpointDuration;
     private final double checkpointIntervalScaling;
+    private long currentProgress;
 
     public TraceWorkload(
             ArrayList<TraceFragment> fragments,
@@ -41,6 +42,7 @@ public class TraceWorkload implements Workload {
         this.checkpointInterval = checkpointInterval;
         this.checkpointDuration = checkpointDuration;
         this.checkpointIntervalScaling = checkpointIntervalScaling;
+        this.currentProgress = 0;
     }
 
     public TraceWorkload(ArrayList<TraceFragment> fragments) {
@@ -80,6 +82,39 @@ public class TraceWorkload implements Workload {
     @Override
     public SimWorkload startWorkload(FlowSupplier supplier, long now) {
         return new SimTraceWorkload(supplier, this, now);
+    }
+
+    public void increaseCurrentProgress(long progress) {
+        this.currentProgress += progress;
+    }
+
+    @Override
+    public long getRemainingTime() {
+        // Add duration of first fragment twice as fragment progress gets lost when switching host.
+        long remainingTime = fragments.get(0).duration();
+
+        for (TraceFragment fragment : fragments) {
+            remainingTime += fragment.duration();
+        }
+
+        // Add the expected checkpointing time to remainingTime
+        return remainingTime + ((remainingTime / checkpointInterval) * checkpointDuration);
+    }
+
+    @Override
+    public long getCurrentProgress() {
+        return currentProgress;
+    }
+
+    @Override
+    public long getDelay() {
+        long totalDuration = 0;
+
+        for (TraceFragment fragment : fragments) {
+            totalDuration += fragment.duration();
+        }
+
+        return totalDuration / fragments.size() + checkpointDuration;
     }
 
     public static Builder builder() {

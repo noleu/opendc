@@ -107,6 +107,8 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         long passedTime = getPassedTime(now);
         long duration = this.currentFragment.duration();
 
+        this.snapshot.increaseCurrentProgress(passedTime);
+
         // The current Fragment has not yet been finished, continue
         if (passedTime < duration) {
             return now + (duration - passedTime);

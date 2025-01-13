@@ -268,7 +268,7 @@ public class ServiceTask {
     }
 
     public long getCurrentProgress() {
-        return this.currentProgress;
+        return workload.getCurrentProgress();
     }
 
     public Instant getDeadline() {
@@ -284,7 +284,7 @@ public class ServiceTask {
     }
 
     public long getRemainingTime() {
-        return remainingTime;
+        return workload.getRemainingTime();
     }
 
     public void setRemainingTime(long remainingTime) {

@@ -290,18 +290,18 @@ public final class ComputeService implements AutoCloseable {
     }
 
     private void reevaluateTasks() {
-        if (activeTasks.isEmpty()) {
+        if (activeTasks.isEmpty() && taskQueue.isEmpty()) {
             return;
         }
 
         for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
             ServiceTask task = activeTask.getKey();
             SimHost host = activeTask.getValue();
+            long delay = task.workload.getDelay();
 
             if (this.scheduler instanceof UniformProgressionScheduler) {
 
-                double delay = task.getDuration() * reschedulePenalty;
-                if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
+                if (SafetyNetRuleUniformProgressionApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }
@@ -317,9 +317,7 @@ public final class ComputeService implements AutoCloseable {
             }
             if (this.scheduler instanceof GreedyPriceScheduler) {
 
-                double delay = task.getDuration() * reschedulePenalty;
-
-                if (host.getPriceState() == PriceState.SPOT && SafetyNetRuleApplies(task, delay)) {
+                if (SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }
@@ -327,10 +325,8 @@ public final class ComputeService implements AutoCloseable {
 
 
             PriceState currentPriceState = task.getPriceState();
-            if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
-                task.requiresSpot() && currentPriceState != PriceState.SPOT)
+            if (task.requiresSpot() && currentPriceState != PriceState.SPOT)
             {
-                long delay = (long) (task.getDuration() * reschedulePenalty);
                 if (task.lastCheckPoint < task.currentProgress - delay)
                 {
                     task.currentProgress = task.currentProgress - delay;
@@ -382,12 +378,25 @@ public final class ComputeService implements AutoCloseable {
                 }
             }
         }
+
+        requestSchedulingCycle();
+    }
+
+    private boolean SafetyNetRuleUniformProgressionApplies(ServiceTask task, long delay) {
+        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+        long computationTime = task.getRemainingTime();
+        long currentProgress = task.getCurrentProgress(); // not sure if correct
+        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
+
+        // cp(t) < ep(t).
+        // Wu et. al
+        return currentProgress <= expectedProgress;
     }
 
     // could be moved to task
-    private boolean SafetyNetRuleApplies(ServiceTask task, double delay) {
+    private boolean SafetyNetRuleApplies(ServiceTask task, long delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getDuration();
+        long computationTime = task.getRemainingTime();
 
         // R(t) ≥ C(t) + 2
         // Wu et. al Safety Net Rule
@@ -405,15 +414,15 @@ public final class ComputeService implements AutoCloseable {
     }
 
     // could be moved to task
-    private boolean HysteriaRuleApplies(ServiceTask task, double delay) {
+    private boolean HysteriaRuleApplies(ServiceTask task, long delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getDuration();
+        long computationTime = task.getRemainingTime();
         long currentProgress = task.getCurrentProgress(); // not sure if correct
         long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
 
         // cp(t) ≥ ep(t + 2d).
         // Wu et. al Exploitation + Hysterics Rule
-        return currentProgress >= expectedProgress + 2 * delay;
+        return currentProgress > expectedProgress + 2 * delay;
     }
 
     /**
@@ -641,13 +650,14 @@ public final class ComputeService implements AutoCloseable {
                 continue;
             }
 
+            long delay = task.workload.getDelay();
             if (scheduler instanceof UniformProgressionScheduler) {
-                if (SafetyNetRuleApplies(task, 0)) {
+                if (SafetyNetRuleUniformProgressionApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }
 
-                if (HysteriaRuleApplies(task, 0)) {
+                if (HysteriaRuleApplies(task, delay)) {
                     task.requiresOnDemand(false);
                     task.requiresSpot(true);
                 }
@@ -658,7 +668,7 @@ public final class ComputeService implements AutoCloseable {
             }
 
             if (scheduler instanceof GreedyPriceScheduler) {
-                if (SafetyNetRuleApplies(task, 0)) {
+                if (SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }

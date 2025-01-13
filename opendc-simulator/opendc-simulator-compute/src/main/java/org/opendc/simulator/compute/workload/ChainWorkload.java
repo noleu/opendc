@@ -69,4 +69,19 @@ public class ChainWorkload implements Workload {
     public SimWorkload startWorkload(FlowSupplier supplier, long now) {
         return new SimChainWorkload(supplier, this, now);
     }
+
+    @Override
+    public long getRemainingTime() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public long getCurrentProgress() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public long getDelay() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

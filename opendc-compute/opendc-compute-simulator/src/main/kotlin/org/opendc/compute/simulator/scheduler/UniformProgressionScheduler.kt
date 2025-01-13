@@ -40,6 +40,14 @@ public class UniformProgressionScheduler : ComputeScheduler{
             selectedHost = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
                 .minByOrNull { it.onDemandPrice }
         }
+
+        // Remove the OnDemand/SpotInstance filters that have been added
+        // Otherwise they will pile up
+        while (filters.size > 3)
+        {
+            filters.removeLast()
+        }
+
         return selectedHost
     }
 
