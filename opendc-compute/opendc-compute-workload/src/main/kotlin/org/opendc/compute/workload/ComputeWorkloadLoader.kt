@@ -107,10 +107,10 @@ public class ComputeWorkloadLoader(
         val idCol = reader.resolve(resourceID)
         val submissionTimeCol = reader.resolve(resourceSubmissionTime)
         val durationCol = reader.resolve(resourceDuration)
-        val deadlineCol = reader.resolve(resourceDeadline)
         val cpuCountCol = reader.resolve(resourceCpuCount)
         val cpuCapacityCol = reader.resolve(resourceCpuCapacity)
         val memCol = reader.resolve(resourceMemCapacity)
+        val deadlineCol = reader.resolve(resourceDeadline)
 
         var counter = 0
         val entries = mutableListOf<Task>()

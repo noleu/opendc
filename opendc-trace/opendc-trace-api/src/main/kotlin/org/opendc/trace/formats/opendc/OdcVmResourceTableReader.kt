@@ -25,6 +25,7 @@ package org.opendc.trace.formats.opendc
 import org.opendc.trace.TableReader
 import org.opendc.trace.conv.resourceCpuCapacity
 import org.opendc.trace.conv.resourceCpuCount
+import org.opendc.trace.conv.resourceDeadline
 import org.opendc.trace.conv.resourceDuration
 import org.opendc.trace.conv.resourceID
 import org.opendc.trace.conv.resourceMemCapacity
@@ -62,6 +63,7 @@ internal class OdcVmResourceTableReader(private val reader: LocalParquetReader<R
     private val colCpuCount = 3
     private val colCpuCapacity = 4
     private val colMemCapacity = 5
+    private val colDeadline = 6
 
     override fun resolve(name: String): Int {
         return when (name) {
@@ -71,6 +73,7 @@ internal class OdcVmResourceTableReader(private val reader: LocalParquetReader<R
             resourceCpuCount -> colCpuCount
             resourceCpuCapacity -> colCpuCapacity
             resourceMemCapacity -> colMemCapacity
+            resourceDeadline -> colDeadline
             else -> -1
         }
     }
@@ -133,6 +136,7 @@ internal class OdcVmResourceTableReader(private val reader: LocalParquetReader<R
 
         return when (index) {
             colSubmissionTime -> record.submissionTime
+            colDeadline -> record.deadline
             else -> throw IllegalArgumentException("Invalid column")
         }
     }

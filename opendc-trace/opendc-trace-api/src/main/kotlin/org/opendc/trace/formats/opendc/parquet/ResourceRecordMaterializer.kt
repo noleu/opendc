@@ -43,6 +43,7 @@ internal class ResourceRecordMaterializer(schema: MessageType) : RecordMateriali
     private var localCpuCount = 0
     private var localCpuCapacity = 0.0
     private var localMemCapacity = 0.0
+    private var localDeadline = Instant.MIN
 
     /**
      * Root converter for the record.
@@ -65,6 +66,12 @@ internal class ResourceRecordMaterializer(schema: MessageType) : RecordMateriali
                             object : PrimitiveConverter() {
                                 override fun addLong(value: Long) {
                                     localSubmissionTime = Instant.ofEpochMilli(value)
+                                }
+                            }
+                        "deadline" ->
+                            object : PrimitiveConverter() {
+                                override fun addLong(value: Long) {
+                                    localDeadline = Instant.ofEpochMilli(value)
                                 }
                             }
                         "duration" ->
@@ -106,6 +113,7 @@ internal class ResourceRecordMaterializer(schema: MessageType) : RecordMateriali
                 localCpuCount = 0
                 localCpuCapacity = 0.0
                 localMemCapacity = 0.0
+                localDeadline = Instant.MIN
             }
 
             override fun end() {}
@@ -121,6 +129,7 @@ internal class ResourceRecordMaterializer(schema: MessageType) : RecordMateriali
             localCpuCount,
             localCpuCapacity,
             localMemCapacity,
+            localDeadline,
         )
 
     override fun getRootConverter(): GroupConverter = root
