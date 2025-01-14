@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -290,109 +291,128 @@ public final class ComputeService implements AutoCloseable {
     }
 
     private void reevaluateTasks() {
-        if (activeTasks.isEmpty() && taskQueue.isEmpty()) {
-            return;
-        }
+        try{
 
-        for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
-            ServiceTask task = activeTask.getKey();
-            SimHost host = activeTask.getValue();
-            long delay = task.workload.getDelay();
-
-            if (this.scheduler instanceof UniformProgressionScheduler) {
-
-                if (SafetyNetRuleUniformProgressionApplies(task, delay)) {
-                    task.requiresOnDemand(true);
-                    task.requiresSpot(false);
-                }
-
-                if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task, delay)) {
-                    task.requiresOnDemand(false);
-                    task.requiresSpot(true);
-                }
-            }
-            if (this.scheduler instanceof IntelligentBiddingScheduler)
-            {
-                task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
-            }
-            if (this.scheduler instanceof GreedyPriceScheduler) {
-
-                if (SafetyNetRuleApplies(task, delay)) {
-                    task.requiresOnDemand(true);
-                    task.requiresSpot(false);
-                }
+            if (activeTasks.isEmpty() && taskQueue.isEmpty()) {
+                return;
             }
 
+//            for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
 
-            PriceState currentPriceState = task.getPriceState();
-            if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
-                task.requiresSpot() && currentPriceState != PriceState.SPOT)
-            {
-                if (task.lastCheckPoint < task.currentProgress - delay)
+            Iterator<Map.Entry<ServiceTask, SimHost>> iterator = activeTasks.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<ServiceTask, SimHost> activeTask = iterator.next();
+                ServiceTask task = activeTask.getKey();
+                SimHost host = activeTask.getValue();
+                long delay = 0;
+                if (task.workload != null) {
+                    delay = task.workload.getDelay();
+                }
+
+                task.requiresSpot(false);
+                task.requiresOnDemand(false);
+                if (this.scheduler instanceof UniformProgressionScheduler) {
+
+                    if (SafetyNetRuleApplies(task, delay)) {
+                        task.requiresOnDemand(true);
+                        task.requiresSpot(false);
+                    }
+
+                    if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task, delay)) {
+                        task.requiresOnDemand(false);
+                        task.requiresSpot(true);
+                    }
+                }
+                if (this.scheduler instanceof IntelligentBiddingScheduler)
                 {
-                    task.currentProgress = task.currentProgress - delay;
-                    task.lastCheckPoint = task.currentProgress;
+                    task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
+                }
+                if (this.scheduler instanceof GreedyPriceScheduler) {
+
+                    if (SafetyNetRuleApplies(task, delay)) {
+                        task.requiresOnDemand(true);
+                        task.requiresSpot(false);
+                    }
                 }
 
-                HostView newHostView = scheduler.select(task);
-                SimHost newHost = newHostView.getHost();
-                HostView currentHostView = hostToView.get(host);
 
-                Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
-                task.setWorkload(remainingWorkload);
+                PriceState currentPriceState = task.getPriceState();
+                if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
+                    task.requiresSpot() && currentPriceState != PriceState.SPOT)
+                {
+                    if (task.lastCheckPoint < task.currentProgress - delay)
+                    {
+                        task.currentProgress = task.currentProgress - delay;
+                        task.lastCheckPoint = task.currentProgress;
+                    }
 
-                ServiceFlavor flavor = task.getFlavor();
-                currentHostView.provisionedCores -= flavor.getCoreCount();
-                currentHostView.instanceCount--;
-                currentHostView.availableMemory += flavor.getMemorySize();
-                if (activeTasks.remove(task) != null) {
-                    tasksActive--;
-                }
+                    HostView newHostView = scheduler.select(task);
+                    SimHost newHost = null;
 
-                if (newHostView == null || !newHost.canFit(task)) {
-                    LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
+                    if (newHostView != null) {
+                        newHost = newHostView.getHost();
+                    }
+                    HostView currentHostView = hostToView.get(host);
 
-                    task.host = null;
-                    SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
-                    taskQueue.addFirst(request);
-                    tasksPending++;
-                    requestSchedulingCycle();
+                    Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
+                    task.setWorkload(remainingWorkload);
 
-                } else {
-                    try {
-                        task.host = newHost;
+                    ServiceFlavor flavor = task.getFlavor();
+                    currentHostView.provisionedCores -= flavor.getCoreCount();
+                    currentHostView.instanceCount--;
+                    currentHostView.availableMemory += flavor.getMemorySize();
+                    if (activeTasks.remove(task) != null) {
+                        tasksActive--;
+                    }
 
-                        newHost.spawn(task);
+                    if (newHostView == null || !newHost.canFit(task)) {
+                        LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
 
-                        tasksActive++;
-                        attemptsSuccess++;
+                        task.host = null;
+                        SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
+                        taskQueue.addFirst(request);
+                        tasksPending++;
+//                    requestSchedulingCycle();
 
-                        newHostView.instanceCount++;
-                        newHostView.provisionedCores += flavor.getCoreCount();
-                        newHostView.availableMemory -= flavor.getMemorySize();
+                    } else {
+                        try {
+                            task.host = newHost;
 
-                        activeTasks.put(task, host);
-                    } catch (Exception cause) {
-                        LOGGER.error("Failed to deploy VM", cause);
-                        attemptsFailure++;
+                            newHost.spawn(task);
+
+                            tasksActive++;
+                            attemptsSuccess++;
+
+                            newHostView.instanceCount++;
+                            newHostView.provisionedCores += flavor.getCoreCount();
+                            newHostView.availableMemory -= flavor.getMemorySize();
+
+                            activeTasks.put(task, host);
+                        } catch (Exception cause) {
+                            LOGGER.error("Failed to deploy VM", cause);
+                            attemptsFailure++;
+                        }
                     }
                 }
             }
+
+            requestSchedulingCycle();
+        }catch (Exception e){
+            LOGGER.error("Error in reevaluateTasks: {}", e);
         }
-
-        requestSchedulingCycle();
     }
 
-    private boolean SafetyNetRuleUniformProgressionApplies(ServiceTask task, long delay) {
-        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getRemainingTime();
-        long currentProgress = task.getCurrentProgress(); // not sure if correct
-        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
 
-        // cp(t) < ep(t).
-        // Wu et. al
-        return currentProgress <= expectedProgress;
-    }
+//    private boolean SafetyNetRuleUniformProgressionApplies(ServiceTask task, long delay) {
+//        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
+//        long computationTime = task.getRemainingTime();
+//        long currentProgress = task.getCurrentProgress(); // not sure if correct
+//        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
+//
+//        // cp(t) < ep(t).
+//        // Wu et. al
+//        return currentProgress <= expectedProgress;
+//    }
 
     // could be moved to task
     private boolean SafetyNetRuleApplies(ServiceTask task, long delay) {
@@ -652,8 +672,11 @@ public final class ComputeService implements AutoCloseable {
             }
 
             long delay = task.workload.getDelay();
+            task.requiresOnDemand(false);
+            task.requiresSpot(false);
             if (scheduler instanceof UniformProgressionScheduler) {
-                if (SafetyNetRuleUniformProgressionApplies(task, delay)) {
+//                if (SafetyNetRuleUniformProgressionApplies(task, delay)) {
+                if (SafetyNetRuleApplies(task, delay)) {
                     task.requiresOnDemand(true);
                     task.requiresSpot(false);
                 }

@@ -24,10 +24,13 @@ package org.opendc.simulator.compute.workload;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.opendc.simulator.engine.graph.FlowSupplier;
 
 public class TraceWorkload implements Workload {
-    private ArrayList<TraceFragment> fragments;
+//    private ArrayList<TraceFragment> fragments;
+    private CopyOnWriteArrayList<TraceFragment> fragments;
     private final long checkpointInterval;
     private final long checkpointDuration;
     private final double checkpointIntervalScaling;
@@ -38,7 +41,7 @@ public class TraceWorkload implements Workload {
             long checkpointInterval,
             long checkpointDuration,
             double checkpointIntervalScaling) {
-        this.fragments = fragments;
+        this.fragments = new CopyOnWriteArrayList<>(fragments) ;
         this.checkpointInterval = checkpointInterval;
         this.checkpointDuration = checkpointDuration;
         this.checkpointIntervalScaling = checkpointIntervalScaling;
@@ -49,7 +52,8 @@ public class TraceWorkload implements Workload {
         this(fragments, 0L, 0L, 1.0);
     }
 
-    public ArrayList<TraceFragment> getFragments() {
+//    public ArrayList<TraceFragment> getFragments() {
+    public CopyOnWriteArrayList<TraceFragment> getFragments() {
         return fragments;
     }
 
@@ -108,13 +112,16 @@ public class TraceWorkload implements Workload {
 
     @Override
     public long getDelay() {
-        long totalDuration = 0;
+        synchronized (this) {
 
-        for (TraceFragment fragment : fragments) {
-            totalDuration += fragment.duration();
+            long totalDuration = 0;
+
+            for (TraceFragment fragment : fragments) {
+                totalDuration += fragment.duration();
+            }
+
+            return totalDuration / fragments.size() + checkpointDuration;
         }
-
-        return totalDuration / fragments.size() + checkpointDuration;
     }
 
     public static Builder builder() {
