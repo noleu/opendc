@@ -346,12 +346,11 @@ public class SimHost(
 
     public fun removeTaskWithSnapshot(task: ServiceTask) : Workload? {
         val guest = taskToGuestMap[task] ?: return null
-        val snapshot = guest.virtualMachine!!.activeWorkload.getSnapshot()
+
         val task = guest.task
 
-        taskToGuestMap.remove(task)
-        guests.remove(guest)
-        return snapshot
+        guest.kick()
+        return task.workload
 
     }
 
