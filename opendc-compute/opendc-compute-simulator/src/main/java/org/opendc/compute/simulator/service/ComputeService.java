@@ -297,10 +297,14 @@ public final class ComputeService implements AutoCloseable {
                 return;
             }
 
-//            for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
+            Map<ServiceTask, SimHost> tasksToRemove = new HashMap<>();
+            Map<ServiceTask, SimHost> newActiveTasks = new HashMap<>();
 
+
+//            for (Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
             Iterator<Map.Entry<ServiceTask, SimHost>> iterator = activeTasks.entrySet().iterator();
             while (iterator.hasNext()) {
+//            for (Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
                 Map.Entry<ServiceTask, SimHost> activeTask = iterator.next();
                 ServiceTask task = activeTask.getKey();
                 SimHost host = activeTask.getValue();
@@ -323,8 +327,7 @@ public final class ComputeService implements AutoCloseable {
                         task.requiresSpot(true);
                     }
                 }
-                if (this.scheduler instanceof IntelligentBiddingScheduler)
-                {
+                if (this.scheduler instanceof IntelligentBiddingScheduler) {
                     task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
                 }
                 if (this.scheduler instanceof GreedyPriceScheduler) {
@@ -338,10 +341,8 @@ public final class ComputeService implements AutoCloseable {
 
                 PriceState currentPriceState = task.getPriceState();
                 if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
-                    task.requiresSpot() && currentPriceState != PriceState.SPOT)
-                {
-                    if (task.lastCheckPoint < task.currentProgress - delay)
-                    {
+                    task.requiresSpot() && currentPriceState != PriceState.SPOT) {
+                    if (task.lastCheckPoint < task.currentProgress - delay) {
                         task.currentProgress = task.currentProgress - delay;
                         task.lastCheckPoint = task.currentProgress;
                     }
@@ -361,9 +362,13 @@ public final class ComputeService implements AutoCloseable {
                     currentHostView.provisionedCores -= flavor.getCoreCount();
                     currentHostView.instanceCount--;
                     currentHostView.availableMemory += flavor.getMemorySize();
-                    if (activeTasks.remove(task) != null) {
-                        tasksActive--;
-                    }
+//                    tasksToRemove.put(task, host);
+//                    if (activeTasks.remove(task) != null) {
+//                        tasksActive--;
+//                        iterator.remove();
+//                    }
+                    iterator.remove();
+                    tasksActive--;
 
                     if (newHostView == null || !newHost.canFit(task)) {
                         LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
@@ -388,6 +393,7 @@ public final class ComputeService implements AutoCloseable {
                             newHostView.availableMemory -= flavor.getMemorySize();
 
                             activeTasks.put(task, host);
+//                            newActiveTasks.put(task, newHost);
                         } catch (Exception cause) {
                             LOGGER.error("Failed to deploy VM", cause);
                             attemptsFailure++;
@@ -395,7 +401,16 @@ public final class ComputeService implements AutoCloseable {
                     }
                 }
             }
-
+//            for (Map.Entry<ServiceTask, SimHost> taskToRemove : tasksToRemove.entrySet()) {
+//                ServiceTask task = taskToRemove.getKey();
+//                SimHost host = taskToRemove.getValue();
+//                activeTasks.remove(task);
+//            }
+//            for (Map.Entry<ServiceTask, SimHost> newActiveTask : newActiveTasks.entrySet()) {
+//                ServiceTask task = newActiveTask.getKey();
+//                SimHost host = newActiveTask.getValue();
+//                activeTasks.put(task, host);
+//            }
             requestSchedulingCycle();
         }catch (Exception e){
             LOGGER.error("Error in reevaluateTasks: {}", e);

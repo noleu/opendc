@@ -122,26 +122,41 @@ public class Guest(
 
             virtualMachine =
                 simMachine.startWorkload(newChainWorkload) { cause ->
-                    onStop(if (cause != null) TaskState.FAILED else TaskState.COMPLETED)
+                    if (cause != null && cause.message == "Task is kicked") {
+                        onStop(TaskState.KICKED)
+                    } else if (cause != null) {
+                        onStop(TaskState.FAILED)
+                    }
+                    else {
+                        onStop(TaskState.COMPLETED)
+                    }
                 }
+
+//            virtualMachine =
+//                simMachine.startWorkload(newChainWorkload) { cause ->
+//                    onStop(if (cause != null) TaskState.FAILED else TaskState.COMPLETED)
+//                }
         } else {
+//            virtualMachine =
+//                simMachine.startWorkload(task.workload) { cause ->
+//                    onStop(if (cause != null) TaskState.FAILED else TaskState.COMPLETED)
+//                }
+
             virtualMachine =
                 simMachine.startWorkload(task.workload) { cause ->
-                    onStop(if (cause != null) TaskState.FAILED else TaskState.COMPLETED)
+                    if (cause != null && cause.message == "Task is kicked") {
+                        onStop(TaskState.KICKED)
+                    } else if (cause != null) {
+                        onStop(TaskState.FAILED)
+                    }
+                    else {
+                        onStop(TaskState.COMPLETED)
+                    }
                 }
+
         }
         // fix (below is old)
-        virtualMachine =
-            simMachine.startWorkload(newChainWorkload) { cause ->
-                if (cause != null && cause.message == "Task is kicked") {
-                    onStop(TaskState.KICKED)
-                } else if (cause != null) {
-                    onStop(TaskState.FAILED)
-                }
-                else {
-                    onStop(TaskState.COMPLETED)
-                }
-            }
+
     }
 
     /**
