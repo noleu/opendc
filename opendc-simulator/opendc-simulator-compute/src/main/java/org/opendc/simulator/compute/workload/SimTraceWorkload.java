@@ -179,7 +179,11 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         this.snapshot.removeFragments(this.fragmentIndex);
         this.snapshot.addFirst(newFragment);
 
+        if (this.remainingFragments == null) {
+            return;
+        }
         this.remainingFragments.addFirst(newFragment);
+
 
         // Create and add a fragment for processing the snapshot process
         // TODO: improve the implementation of cpuUsage and coreCount
