@@ -37,14 +37,14 @@ import org.opendc.simulator.engine.graph.FlowNode;
  */
 public final class FlowEngine implements Runnable {
     /**
-     * The queue of {@link FlowNode} updates that are scheduled for immediate execution.
+     * The queue of {@link FlowNode} updates that need to be updated in the current cycle.
      */
-    private final FlowNodeQueue queue = new FlowNodeQueue(256);
+    private final FlowCycleQueue cycleQueue = new FlowCycleQueue(256);
 
     /**
      * A priority queue containing the {@link FlowNode} updates to be scheduled in the future.
      */
-    private final FlowTimerQueue timerQueue = new FlowTimerQueue(256);
+    private final FlowEventQueue eventQueue = new FlowEventQueue(256);
 
     /**
      * The stack of engine invocations to occur in the future.
@@ -112,7 +112,7 @@ public final class FlowEngine implements Runnable {
      * This method should only be invoked while inside an engine cycle.
      */
     public void scheduleImmediateInContext(FlowNode ctx) {
-        queue.add(ctx);
+        cycleQueue.add(ctx);
     }
 
     /**
@@ -127,7 +127,7 @@ public final class FlowEngine implements Runnable {
             return;
         }
 
-        long deadline = timerQueue.peekDeadline();
+        long deadline = eventQueue.peekDeadline();
         if (deadline != Long.MAX_VALUE) {
             trySchedule(futureInvocations, clock.millis(), deadline);
         }
@@ -139,7 +139,7 @@ public final class FlowEngine implements Runnable {
      * This method should only be invoked while inside an engine cycle.
      */
     public void scheduleDelayedInContext(FlowNode ctx) {
-        FlowTimerQueue timerQueue = this.timerQueue;
+        FlowEventQueue timerQueue = this.eventQueue;
         timerQueue.enqueue(ctx);
     }
 
@@ -147,8 +147,8 @@ public final class FlowEngine implements Runnable {
      * Run all the enqueued actions for the specified timestamp (<code>now</code>).
      */
     private void doRunEngine(long now) {
-        final FlowNodeQueue queue = this.queue;
-        final FlowTimerQueue timerQueue = this.timerQueue;
+        final FlowCycleQueue queue = this.cycleQueue;
+        final FlowEventQueue timerQueue = this.eventQueue;
 
         try {
             // Mark the engine as active to prevent concurrent calls to this method

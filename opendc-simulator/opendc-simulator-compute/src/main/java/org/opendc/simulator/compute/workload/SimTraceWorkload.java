@@ -94,7 +94,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         graph.addEdge(this, supplier);
 
         this.currentFragment = this.getNextFragment();
-        pushDemand(machineEdge, this.currentFragment.cpuUsage());
+        pushOutgoingDemand(machineEdge, this.currentFragment.cpuUsage());
         this.startOfFragment = now;
     }
 
@@ -133,7 +133,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         this.startOfFragment = now - passedTime;
 
         // Change the cpu Usage to the new Fragment
-        pushDemand(machineEdge, this.currentFragment.cpuUsage());
+        pushOutgoingDemand(machineEdge, this.currentFragment.cpuUsage());
 
         // Return the time when the current fragment will complete
         return this.startOfFragment + duration;
@@ -141,6 +141,10 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
 
     @Override
     public void stopWorkload() {
+        if (this.machineEdge == null) {
+            return;
+        }
+
         this.closeNode();
 
         this.machineEdge = null;
@@ -171,6 +175,11 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         long passedTime = getPassedTime(now);
         long remainingTime = currentFragment.duration() - passedTime;
 
+        // If this is the end of the Task, don't make a snapshot
+        if (remainingTime <= 0 && remainingFragments.isEmpty()) {
+            return;
+        }
+
         // Create a new fragment based on the current fragment and remaining duration
         TraceFragment newFragment =
                 new TraceFragment(remainingTime, currentFragment.cpuUsage(), currentFragment.coreCount());
@@ -192,7 +201,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
 
         this.fragmentIndex = -1;
         this.currentFragment = getNextFragment();
-        pushDemand(this.machineEdge, this.currentFragment.cpuUsage());
+        pushOutgoingDemand(this.machineEdge, this.currentFragment.cpuUsage());
         this.startOfFragment = now;
 
         this.invalidate();
@@ -209,7 +218,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
      * @param newSupply The new demand that needs to be sent to the VM
      */
     @Override
-    public void handleSupply(FlowEdge supplierEdge, double newSupply) {
+    public void handleIncomingSupply(FlowEdge supplierEdge, double newSupply) {
         if (newSupply == this.currentSupply) {
             return;
         }
@@ -224,7 +233,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
      * @param newDemand The new demand that needs to be sent to the VM
      */
     @Override
-    public void pushDemand(FlowEdge supplierEdge, double newDemand) {
+    public void pushOutgoingDemand(FlowEdge supplierEdge, double newDemand) {
         if (newDemand == this.currentDemand) {
             return;
         }
@@ -251,6 +260,9 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
      */
     @Override
     public void removeSupplierEdge(FlowEdge supplierEdge) {
+        if (this.machineEdge == null) {
+            return;
+        }
         this.stopWorkload();
     }
 }

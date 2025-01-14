@@ -24,7 +24,7 @@ package org.opendc.simulator.engine.graph;
 
 import java.time.InstantSource;
 import org.opendc.simulator.engine.engine.FlowEngine;
-import org.opendc.simulator.engine.engine.FlowTimerQueue;
+import org.opendc.simulator.engine.engine.FlowEventQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +58,14 @@ public abstract class FlowNode {
 
     public void setTimerIndex(int index) {
         this.timerIndex = index;
+    }
+
+    public Boolean getInCycleQueue() {
+        return inCycleQueue;
+    }
+
+    public void setInCycleQueue(Boolean inCycleQueue) {
+        this.inCycleQueue = inCycleQueue;
     }
 
     public InstantSource getClock() {
@@ -101,9 +109,11 @@ public abstract class FlowNode {
     private long deadline = Long.MAX_VALUE;
 
     /**
-     * The index of the timer in the {@link FlowTimerQueue}.
+     * The index of the timer in the {@link FlowEventQueue}.
      */
     private int timerIndex = -1;
+
+    private Boolean inCycleQueue = false;
 
     protected InstantSource clock;
     protected FlowGraph parentGraph;
@@ -139,9 +149,9 @@ public abstract class FlowNode {
     public void invalidate(long now) {
         // If there is already an update running,
         // notify the update, that a next update should be run after
-        if (this.nodeState == NodeState.UPDATING) {
+
+        if (this.nodeState != NodeState.CLOSING && this.nodeState != NodeState.CLOSED) {
             this.nodeState = NodeState.INVALIDATED;
-        } else {
             engine.scheduleImmediate(now, this);
         }
     }
@@ -157,6 +167,11 @@ public abstract class FlowNode {
      * Update the state of the stage.
      */
     public void update(long now) {
+        if (this.nodeState == NodeState.CLOSED) {
+            this.deadline = Long.MAX_VALUE;
+            return;
+        }
+
         this.nodeState = NodeState.UPDATING;
 
         long newDeadline = this.deadline;
@@ -167,12 +182,13 @@ public abstract class FlowNode {
             doFail(e);
         }
 
-        // Check whether the stage is marked as closing.
-        if (this.nodeState == NodeState.INVALIDATED) {
-            newDeadline = now;
-        }
         if (this.nodeState == NodeState.CLOSING) {
             closeNode();
+            return;
+        }
+
+        // Check whether the stage is marked as closing.
+        if ((this.nodeState == NodeState.INVALIDATED) || (this.nodeState == NodeState.CLOSED)) {
             return;
         }
 
@@ -206,14 +222,6 @@ public abstract class FlowNode {
      */
     public void closeNode() {
         if (this.nodeState == NodeState.CLOSED) {
-            //            LOGGER.warn("Flowstage:doClose() => Tried closing a stage that was already closed");
-            return;
-        }
-
-        // If this stage is running an update, notify it that is should close after.
-        if (this.nodeState == NodeState.UPDATING) {
-            //            LOGGER.warn("Flowstage:doClose() => Tried closing a stage, but update was active");
-            this.nodeState = NodeState.CLOSING;
             return;
         }
 
