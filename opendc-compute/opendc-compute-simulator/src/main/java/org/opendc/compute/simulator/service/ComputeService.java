@@ -325,7 +325,8 @@ public final class ComputeService implements AutoCloseable {
 
 
             PriceState currentPriceState = task.getPriceState();
-            if (task.requiresSpot() && currentPriceState != PriceState.SPOT)
+            if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
+                task.requiresSpot() && currentPriceState != PriceState.SPOT)
             {
                 if (task.lastCheckPoint < task.currentProgress - delay)
                 {
