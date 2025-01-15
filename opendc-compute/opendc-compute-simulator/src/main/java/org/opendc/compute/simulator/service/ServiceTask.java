@@ -36,6 +36,9 @@ import org.opendc.compute.api.TaskState;
 import org.opendc.compute.simulator.TaskWatcher;
 import org.opendc.compute.simulator.host.SimHost;
 import org.opendc.compute.simulator.price.PriceState;
+import org.opendc.compute.simulator.scheduler.GreedyPriceScheduler;
+import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
+import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,7 +271,10 @@ public class ServiceTask {
     }
 
     public long getCurrentProgress() {
+        long progress = workload.getCurrentProgress();
+        LOGGER.warn("Current Progress: {}", progress);
         return workload.getCurrentProgress();
+//        return this.currentProgress;
     }
 
     public Instant getDeadline() {
@@ -289,5 +295,87 @@ public class ServiceTask {
 
     public void setRemainingTime(long remainingTime) {
         this.remainingTime = remainingTime;
+    }
+
+    public void reevaluate() {
+        long delay = 0;
+        if (workload != null) {
+            delay = workload.getDelay();
+        }
+
+        requiresOnDemand(false);
+        requiresSpot(false);
+
+        if (service.getScheduler() instanceof UniformProgressionScheduler) {
+//            if (SafetyNetRuleApplies(delay)) {
+//                requiresOnDemand(true);
+//                requiresSpot(false);
+//            }
+//
+//            if (HysteriaRuleApplies(delay)) {
+//                requiresOnDemand(false);
+//                requiresSpot(true);
+//            }
+            if (HysteriaRuleApplies(delay)) LOGGER.warn("Hysteria Rule applies at reevaluation");
+            SafetyNetRuleApplies(delay);
+        }
+
+        if (service.getScheduler() instanceof IntelligentBiddingScheduler) {
+            setRemainingTime(deadline.toEpochMilli() - service.getClock().millis());
+        }
+
+        if (service.getScheduler() instanceof GreedyPriceScheduler) {
+//            if (SafetyNetRuleApplies(delay)) {
+//                requiresOnDemand(true);
+//                requiresSpot(false);
+//            }
+            SafetyNetRuleApplies(delay);
+        }
+
+        PriceState currentPriceState = getPriceState();
+        if ((requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND) ||
+            (requiresSpot() && currentPriceState != PriceState.SPOT)) {
+            if (lastCheckPoint < currentProgress - delay) {
+                currentProgress = currentProgress - delay;
+                lastCheckPoint = currentProgress;
+            }
+
+            setState(TaskState.KICKED);
+        }
+    }
+
+    public boolean SafetyNetRuleApplies(long delay) {
+        long remainingTime = deadline.toEpochMilli() - service.getClock().millis();
+        long computationTime = getRemainingTime();
+        if (remainingTime < computationTime + 2 * delay) {
+            LOGGER.warn("Safety Net Rule applies for task {}", uid);
+            this.requiresOnDemand(true);
+            this.requiresSpot(false);
+            return true;
+        }
+        return false;
+//        return remainingTime < computationTime + 2 * delay;
+    }
+
+    public boolean HysteriaRuleApplies(long delay) {
+        long remainingTime = deadline.toEpochMilli() - service.getClock().millis();
+        long computationTime = getRemainingTime();
+        long currentProgress = getCurrentProgress();
+        long expectedProgress = 0;
+        if (remainingTime > 0) {
+            expectedProgress = service.getClock().millis() * computationTime / remainingTime;
+        }
+        LOGGER.warn("remainingTime: {}, computationTime: {}, Task Name: {}", remainingTime, computationTime, name);
+        LOGGER.warn("currentProgress: {}, expectedProgress: {}, Task Name: {}", currentProgress, expectedProgress, name);
+        if (currentProgress > expectedProgress + 2 * delay) {
+//        if (currentProgress > expectedProgress - 4 * delay) {
+            LOGGER.warn("Hysteria Rule applies for task {}", uid);
+            this.requiresOnDemand(false);
+            this.requiresSpot(true);
+            return true;
+
+        }
+        return false;
+//        return currentProgress > expectedProgress + 2 * delay;
     }
 }
