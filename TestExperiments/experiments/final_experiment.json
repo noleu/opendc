@@ -10,6 +10,17 @@
     ],
     "workloads": [
         {
+            "pathToFile": "TestExperiments/traces/validate/1task",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "TestExperiments/traces/validate/1longtask",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "TestExperiments/traces/validate/10tasks",
+            "type": "ComputeWorkload"
+        },{
             "pathToFile": "TestExperiments/traces/validate/100tasks",
             "type": "ComputeWorkload"
         }

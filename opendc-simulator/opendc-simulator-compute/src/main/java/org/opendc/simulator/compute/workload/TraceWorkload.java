@@ -27,9 +27,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.opendc.simulator.engine.graph.FlowSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TraceWorkload implements Workload {
-//    private ArrayList<TraceFragment> fragments;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraceWorkload.class);
+
     private CopyOnWriteArrayList<TraceFragment> fragments;
     private final long checkpointInterval;
     private final long checkpointDuration;
@@ -52,7 +55,6 @@ public class TraceWorkload implements Workload {
         this(fragments, 0L, 0L, 1.0);
     }
 
-//    public ArrayList<TraceFragment> getFragments() {
     public CopyOnWriteArrayList<TraceFragment> getFragments() {
         return fragments;
     }
@@ -107,7 +109,8 @@ public class TraceWorkload implements Workload {
 
     @Override
     public long getCurrentProgress() {
-        return currentProgress;
+        LOGGER.warn("workload current progress {}", this.currentProgress);
+        return this.currentProgress;
     }
 
     @Override
