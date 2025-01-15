@@ -1,5 +1,5 @@
 {
-    "name": "Uniform Progress Validation",
+    "name": "Final Uniform Progress Validation",
     "topologies": [
         {
             "pathToFile": "TestExperiments/topologies/uniform_progress_validate-small.json"
@@ -20,8 +20,13 @@
         {
             "pathToFile": "TestExperiments/traces/validate/10tasks",
             "type": "ComputeWorkload"
-        },{
+        },
+        {
             "pathToFile": "TestExperiments/traces/validate/100tasks",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "TestExperiments/traces/validate/1000tasks",
             "type": "ComputeWorkload"
         }
     ],
