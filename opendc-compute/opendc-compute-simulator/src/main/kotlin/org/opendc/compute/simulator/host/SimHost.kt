@@ -259,8 +259,6 @@ public class SimHost(
     public fun getPriceState(task: ServiceTask): PriceState {
         val taskGuest = guests.filter { it.task == task }
 
-        assert(taskGuest.size == 1) { "Task $task is run on multiple guests" }
-
         return taskGuest[0].priceState
     }
 
