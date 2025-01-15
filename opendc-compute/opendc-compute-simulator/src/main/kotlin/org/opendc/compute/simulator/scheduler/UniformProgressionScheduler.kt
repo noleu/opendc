@@ -36,7 +36,7 @@ public class UniformProgressionScheduler : ComputeScheduler{
             .minByOrNull { it.price }
 
         if (selectedHost == null && task.requiresOnDemand()) {
-            filters.remove(OnDemandInstanceFilter())
+            filters.removeLast()
             selectedHost = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
                 .minByOrNull { it.onDemandPrice }
         }
