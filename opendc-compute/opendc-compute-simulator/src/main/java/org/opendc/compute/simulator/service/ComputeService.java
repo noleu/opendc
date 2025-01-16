@@ -257,9 +257,6 @@ public final class ComputeService implements AutoCloseable {
                 requestSchedulingCycle();
             }
         }
-
-//        @Override
-//        public void onStateChanged(@NotNull SimHost host, @NotNull ServiceTask task, @NotNull clock)
     };
 
     private int maxCores = 0;
@@ -285,9 +282,9 @@ public final class ComputeService implements AutoCloseable {
         this.reevaluatePacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> reevaluateTasks());
         this.maxNumFailures = maxNumFailures;
 
-        if (this.scheduler instanceof GreedyPriceScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof UniformProgressionScheduler) {
-            startPeriodicReevaluation();
-        }
+//        if (this.scheduler instanceof GreedyPriceScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof UniformProgressionScheduler) {
+//            startPeriodicReevaluation();
+//        }
     }
 
     public double getLowestAvailablePrice(ServiceTask task, PriceState priceState) {
@@ -337,141 +334,6 @@ public final class ComputeService implements AutoCloseable {
         }
     }
 
-//    private void reevaluateTasks() {
-//        try{
-//
-//            if (activeTasks.isEmpty() && taskQueue.isEmpty()) {
-//                return;
-//            }
-//
-////            for( Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
-//
-//            Iterator<Map.Entry<ServiceTask, SimHost>> iterator = activeTasks.entrySet().iterator();
-//            while (iterator.hasNext()) {
-//                Map.Entry<ServiceTask, SimHost> activeTask = iterator.next();
-//                ServiceTask task = activeTask.getKey();
-//                SimHost host = activeTask.getValue();
-//                long delay = 0;
-//                if (task.workload != null) {
-//                    delay = task.workload.getDelay();
-//                }
-//
-//                task.requiresSpot(false);
-//                task.requiresOnDemand(false);
-//                if (this.scheduler instanceof UniformProgressionScheduler) {
-//
-//                    if (SafetyNetRuleApplies(task, delay)) {
-//                        task.requiresOnDemand(true);
-//                        task.requiresSpot(false);
-//                    }
-//
-//                    if (host.getPriceState() == PriceState.ON_DEMAND && HysteriaRuleApplies(task, delay)) {
-//                        task.requiresOnDemand(false);
-//                        task.requiresSpot(true);
-//                    }
-//                }
-//                if (this.scheduler instanceof IntelligentBiddingScheduler)
-//                {
-//                    task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
-//                }
-//                if (this.scheduler instanceof GreedyPriceScheduler) {
-//
-//                    if (SafetyNetRuleApplies(task, delay)) {
-//                        task.requiresOnDemand(true);
-//                        task.requiresSpot(false);
-//                    }
-//                }
-//
-//
-//                PriceState currentPriceState = task.getPriceState();
-//                if (task.requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND ||
-//                    task.requiresSpot() && currentPriceState != PriceState.SPOT)
-//                {
-//                    if (task.lastCheckPoint < task.currentProgress - delay)
-//                    {
-//                        task.currentProgress = task.currentProgress - delay;
-//                        task.lastCheckPoint = task.currentProgress;
-//                    }
-//
-//                    task.setState(TaskState.KICKED);
-////                    HostView newHostView = scheduler.select(task);
-////                    SimHost newHost = null;
-////
-////                    if (newHostView != null) {
-////                        newHost = newHostView.getHost();
-////                    }
-////                    HostView currentHostView = hostToView.get(host);
-////
-////                    Workload remainingWorkload = task.host.removeTaskWithSnapshot(task);
-////                    task.setWorkload(remainingWorkload);
-////
-////                    ServiceFlavor flavor = task.getFlavor();
-////                    currentHostView.provisionedCores -= flavor.getCoreCount();
-////                    currentHostView.instanceCount--;
-////                    currentHostView.availableMemory += flavor.getMemorySize();
-////                    if (activeTasks.remove(task) != null) {
-////                        tasksActive--;
-////                    }
-////
-////                    if (newHostView == null || !newHost.canFit(task)) {
-////                        LOGGER.warn("Task {} selected for re-scheduling but no capacity available for it at the moment", task.getUid());
-////
-////                        task.host = null;
-////                        SchedulingRequest request = new SchedulingRequest(task, task.launchedAt.toEpochMilli());
-////                        taskQueue.addFirst(request);
-////                        tasksPending++;
-//////                    requestSchedulingCycle();
-////
-////                    } else {
-////                        try {
-////                            task.host = newHost;
-////
-////                            newHost.spawn(task);
-////
-////                            tasksActive++;
-////                            attemptsSuccess++;
-////
-////                            newHostView.instanceCount++;
-////                            newHostView.provisionedCores += flavor.getCoreCount();
-////                            newHostView.availableMemory -= flavor.getMemorySize();
-////
-////                            activeTasks.put(task, host);
-////                        } catch (Exception cause) {
-////                            LOGGER.error("Failed to deploy VM", cause);
-////                            attemptsFailure++;
-////                        }
-////                    }
-//                }
-//            }
-//
-//            requestSchedulingCycle();
-//        }catch (Exception e){
-//            LOGGER.error("Error in reevaluateTasks: {}", e);
-//        }
-//    }
-
-
-//    private boolean SafetyNetRuleUniformProgressionApplies(ServiceTask task, long delay) {
-//        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-//        long computationTime = task.getRemainingTime();
-//        long currentProgress = task.getCurrentProgress(); // not sure if correct
-//        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
-//
-//        // cp(t) < ep(t).
-//        // Wu et. al
-//        return currentProgress <= expectedProgress;
-//    }
-
-    // could be moved to task
-    private boolean SafetyNetRuleApplies(ServiceTask task, long delay) {
-        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getRemainingComputationTime();
-
-        // R(t) ≥ C(t) + 2
-        // Wu et. al Safety Net Rule
-        return remainingTime < computationTime + 2 * delay;
-    }
-
     private void updateMaxDelay() {
 
         for (HostView hv : availableHosts) {
@@ -480,22 +342,6 @@ public final class ComputeService implements AutoCloseable {
                 maxDelay = delay;
             }
         }
-    }
-
-    // could be moved to task
-    private boolean HysteriaRuleApplies(ServiceTask task, long delay) {
-        long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getRemainingComputationTime();
-        long currentProgress = task.getCurrentProgress(); // not sure if correct
-        long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
-
-        // cp(t) ≥ ep(t + 2d).
-        // Wu et. al Exploitation + Hysterics Rule
-        if (currentProgress > expectedProgress + 2 * delay) {
-            LOGGER.warn("Hysteria Rule applies");
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -729,18 +575,10 @@ public final class ComputeService implements AutoCloseable {
             task.requiresOnDemand(false);
             task.requiresSpot(false);
             if (scheduler instanceof UniformProgressionScheduler) {
-//                if (SafetyNetRuleUniformProgressionApplies(task, delay)) {
-//                if (SafetyNetRuleApplies(task, delay)) {
-//                    task.requiresOnDemand(true);
-//                    task.requiresSpot(false);
-//                }
 
                 task.HysteriaRuleApplies(delay);
                 task.SafetyNetRuleApplies(delay);
-//                if (HysteriaRuleApplies(task, delay)) {
-//                    task.requiresOnDemand(false);
-//                    task.requiresSpot(true);
-//                }
+
             }
 
             if (scheduler instanceof IntelligentBiddingScheduler) {
@@ -767,10 +605,7 @@ public final class ComputeService implements AutoCloseable {
             }
 
             if (scheduler instanceof GreedyPriceScheduler) {
-                if (SafetyNetRuleApplies(task, delay)) {
-                    task.requiresOnDemand(true);
-                    task.requiresSpot(false);
-                }
+                task.SafetyNetRuleApplies(delay);
             }
 
             final ServiceFlavor flavor = task.getFlavor();
@@ -994,11 +829,17 @@ public final class ComputeService implements AutoCloseable {
         @Nullable
         public void rescheduleTask(@NotNull ServiceTask task, @NotNull Workload workload) {
             LOGGER.warn("Rescheduling task {}", task.getUid());
+
             ServiceTask internalTask = findTask(task.getUid());
             //            SimHost from = service.lookupHost(internalTask);
 
             //            from.delete(internalTask);
 
+
+//            assert internalTask != null;
+            if (internalTask == null){
+                LOGGER.warn("Internal Task with id {} and name is null",task.getUid(), task.getName());
+            }
             internalTask.host = null;
 
             internalTask.setWorkload(workload);
