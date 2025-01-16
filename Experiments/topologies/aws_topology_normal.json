@@ -1,0 +1,56 @@
+{
+    "clusters": [
+        {
+            "name": "Cluster One",
+            "hosts": [
+                {
+                    "name": "R7g_2xlarge_Host",
+                    "cpu": {
+                        "coreCount": 8,
+                        "coreSpeed": 3200
+                    },
+                    "memory": {
+                        "memorySize": 64000
+                    },
+                    "priceTracePath": "Experiments/topologies/price_traces/r7g.2xlarge.normal.parquet"
+                },
+                {
+                    "name": "M7g_xlarge_Host",
+                    "count": 1,
+                    "cpu": {
+                        "coreCount": 4,
+                        "coreSpeed": 2930
+                    },
+                    "memory": {
+                        "memorySize": 16000
+                    },
+                    "priceTracePath": "Experiments/topologies/price_traces/m7g.xlarge.normal.parquet"
+                },
+                {
+                    "name": "M7g_medium_Host",
+                    "count": 1,
+                    "cpu": {
+                        "coreCount": 1,
+                        "coreSpeed": 2930
+                    },
+                    "memory": {
+                        "memorySize": 4000
+                    },
+                    "priceTracePath": "Experiments/topologies/price_traces/m7g.medium.normal.parquet"
+                },
+                {
+                    "name": "C7g_2xlarge_Host",
+                    "count": 1,
+                    "cpu": {
+                        "coreCount": 8,
+                        "coreSpeed": 3200
+                    },
+                    "memory": {
+                        "memorySize": 16000
+                    },
+                    "priceTracePath": "Experiments/topologies/price_traces/c7g.2xlarge.normal.parquet"
+                }
+            ]
+        }
+    ]
+}
