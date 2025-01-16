@@ -71,7 +71,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         return 0;
     }
 
-    public TraceFragment getNextFragment() {
+    public synchronized TraceFragment getNextFragment() {
         this.currentFragment = this.remainingFragments.pop();
         this.fragmentIndex++;
 
@@ -103,7 +103,14 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public long onUpdate(long now) {
+    public synchronized long onUpdate(long now) {
+        if (this.currentFragment == null) {
+            if (this.remainingFragments == null || this.remainingFragments.isEmpty()) {
+                this.stopWorkload();
+                return Long.MAX_VALUE;
+            }
+            this.currentFragment = this.getNextFragment();
+        }
         long passedTime = getPassedTime(now);
         long duration = this.currentFragment.duration();
 
@@ -163,7 +170,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
      * Create a new snapshot based on the current status of the workload.
      * @param now Moment on which the snapshot is made in milliseconds
      */
-    public void makeSnapshot(long now) {
+    public synchronized void makeSnapshot(long now) {
 
         // Check if fragments is empty
 
