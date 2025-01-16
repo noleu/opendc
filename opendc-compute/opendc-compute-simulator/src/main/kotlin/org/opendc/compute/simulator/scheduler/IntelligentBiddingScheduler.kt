@@ -10,7 +10,7 @@ import org.opendc.compute.simulator.service.HostView
 import org.opendc.compute.simulator.service.ServiceTask
 import kotlin.math.exp
 
-public class IntelligentBiddingScheduler(private val reschedulePenalty: Double = 0.05) : ComputeScheduler{
+public class IntelligentBiddingScheduler : ComputeScheduler{
 
     private val hosts = mutableListOf<HostView>()
     private val filters = mutableListOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.5))
@@ -25,53 +25,31 @@ public class IntelligentBiddingScheduler(private val reschedulePenalty: Double =
     }
 
     override fun select(task: ServiceTask): HostView? {
-
-        val remainingComputationTime = task.duration - task.currentProgress
-        val timeToOnDemand = task.remainingTime - remainingComputationTime
-
-        val rescheduleTime: Long = (task.duration * reschedulePenalty).toLong()
-
-        val onDemandPrice: Double = getLowestAvailablePrice(task, PriceState.ON_DEMAND)
-        val spotPrice: Double = getLowestAvailablePrice(task, PriceState.SPOT)
-
-        if (timeToOnDemand - rescheduleTime > 0) {
-            val bid: Double = estimateBidPrice(onDemandPrice, spotPrice, timeToOnDemand.toDouble())
-
-            if (bid >= onDemandPrice) {
-                filters.add(OnDemandInstanceFilter())
-            } else {
-                filters.add(SpotInstanceFilter())
-            }
-        } else {
+        if (task.requiresOnDemand()) {
+            // only use on demand hosts
             filters.add(OnDemandInstanceFilter())
         }
-
-        val host = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
-            .minByOrNull { it.price }
-        return host
-    }
-
-
-    private fun getLowestAvailablePrice(task: ServiceTask, priceState: PriceState): Double {
-        var lowestPrice = Double.MAX_VALUE
-
-        for (hv in hosts) {
-            val host = hv.host
-            val currentPrice = hv.price
-            if (host.canFit(task) && currentPrice < lowestPrice) {
-                lowestPrice = currentPrice
-            }
+        if (task.requiresSpot()) {
+            filters.add(SpotInstanceFilter())
         }
 
-        return lowestPrice
-    }
+        var selectedHost = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
+            .minByOrNull { it.price }
 
-    private fun estimateBidPrice(onDemandPrice: Double, spotPrice: Double, timeToOnDemand: Double): Double {
-        val alpha = -0.0005
-        val beta = 0.9
-        val gamma = alpha * timeToOnDemand
+        if (selectedHost == null && task.requiresOnDemand()) {
+            filters.removeLast()
+            selectedHost = hosts.filter { host -> filters.all { filter -> filter.test(host, task) } }
+                .minByOrNull { it.onDemandPrice }
+        }
 
-        return exp(gamma) * onDemandPrice + (1 - exp(gamma) * (beta * onDemandPrice + (1 - beta) * spotPrice))
+        // Remove the OnDemand/SpotInstance filters that have been added
+        // Otherwise they will pile up
+        while (filters.size > 3)
+        {
+            filters.removeLast()
+        }
+
+        return selectedHost
     }
 
     override fun updateHost(host: HostView) {

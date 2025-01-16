@@ -34,7 +34,7 @@ public interface Workload {
 
     SimWorkload startWorkload(FlowSupplier supplier, long now);
 
-    long getRemainingTime();
+    long getRemainingComputationTime();
 
     long getCurrentProgress();
 

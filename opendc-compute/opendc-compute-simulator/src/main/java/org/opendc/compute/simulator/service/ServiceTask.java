@@ -74,14 +74,15 @@ public class ServiceTask {
     private boolean requiresSpot = false;
     long lastCheckPoint;
     private long remainingTime = 0L;
+    private ComputeService.ComputeClient computeClient;
 
     ServiceTask(
-            ComputeService service,
-            UUID uid,
-            String name,
-            ServiceFlavor flavor,
-            Workload workload,
-            Map<String, ?> meta) {
+        ComputeService service,
+        UUID uid,
+        String name,
+        ServiceFlavor flavor,
+        Workload workload,
+        Map<String, ?> meta) {
         this.service = service;
         this.uid = uid;
         this.name = name;
@@ -92,6 +93,7 @@ public class ServiceTask {
         this.deadline = (Instant) meta.get("deadline");
 
         this.createdAt = this.service.getClock().instant();
+        this.computeClient = service.newClient();
     }
 
     @NotNull
@@ -282,6 +284,10 @@ public class ServiceTask {
     }
 
     public PriceState getPriceState() {
+        if (host == null) {
+            return PriceState.UNKNOWN;
+        }
+
         return host.getPriceState(this);
     }
 
@@ -289,8 +295,12 @@ public class ServiceTask {
         return duration;
     }
 
-    public long getRemainingTime() {
-        return workload.getRemainingTime();
+    public long getTimeToDeadline() {
+        return deadline.toEpochMilli() - this.service.getClock().millis();
+    }
+
+    public long getRemainingComputationTime() {
+        return workload.getRemainingComputationTime();
     }
 
     public void setRemainingTime(long remainingTime) {
@@ -298,6 +308,11 @@ public class ServiceTask {
     }
 
     public void reevaluate() {
+        if (this.host == null)
+        {
+            return;
+        }
+
         long delay = 0;
         if (workload != null) {
             delay = workload.getDelay();
@@ -321,7 +336,29 @@ public class ServiceTask {
         }
 
         if (service.getScheduler() instanceof IntelligentBiddingScheduler) {
-            setRemainingTime(deadline.toEpochMilli() - service.getClock().millis());
+            long timeToOnDemand = this.getTimeToDeadline() - this.getRemainingComputationTime();
+
+            long rescheduleTime = this.workload.getDelay();
+
+            double onDemandPrice = service.getLowestAvailablePrice(this, PriceState.ON_DEMAND);
+            double spotPrice = service.getLowestAvailablePrice(this, PriceState.SPOT);
+
+            if (timeToOnDemand - rescheduleTime > 0) {
+                double bid = service.estimateBidPrice(onDemandPrice, spotPrice, (double) timeToOnDemand);
+
+                if (bid >= onDemandPrice) {
+                    this.requiresOnDemand(true);
+                    this.requiresSpot(false);
+                } else if (bid <= spotPrice) {
+                    this.requiresOnDemand(false);
+                    this.requiresSpot(true);
+                } else {
+                    this.requiresOnDemand(true);
+                    this.requiresSpot(true);
+                }
+            } else {
+                this.requiresOnDemand();
+            }
         }
 
         if (service.getScheduler() instanceof GreedyPriceScheduler) {
@@ -340,13 +377,15 @@ public class ServiceTask {
                 lastCheckPoint = currentProgress;
             }
 
-            setState(TaskState.KICKED);
+            Workload snapshot = host.removeTaskWithSnapshot(this);
+            assert snapshot != null;
+            computeClient.rescheduleTask(this, snapshot);
         }
     }
 
     public boolean SafetyNetRuleApplies(long delay) {
-        long remainingTime = deadline.toEpochMilli() - service.getClock().millis();
-        long computationTime = getRemainingTime();
+        long remainingTime = getTimeToDeadline();
+        long computationTime = getRemainingComputationTime();
         if (remainingTime < computationTime + 2 * delay) {
             LOGGER.warn("Safety Net Rule applies for task {}", uid);
             this.requiresOnDemand(true);
@@ -358,8 +397,8 @@ public class ServiceTask {
     }
 
     public boolean HysteriaRuleApplies(long delay) {
-        long remainingTime = deadline.toEpochMilli() - service.getClock().millis();
-        long computationTime = getRemainingTime();
+        long remainingTime = getTimeToDeadline();
+        long computationTime = getRemainingComputationTime();
         long currentProgress = getCurrentProgress();
         long expectedProgress = 0;
         if (remainingTime > 0) {

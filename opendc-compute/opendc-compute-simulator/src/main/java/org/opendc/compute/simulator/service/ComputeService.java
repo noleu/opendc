@@ -58,6 +58,7 @@ import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
 import org.opendc.simulator.compute.power.SimPowerSource;
+import org.opendc.simulator.compute.workload.TraceFragment;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,8 @@ public final class ComputeService implements AutoCloseable {
      * The {@link Pacer} used to pace the scheduling requests.
      */
     private final Pacer pacer;
+
+    private final Pacer reevaluatePacer;
 
     /**
      * The {@link SplittableRandom} used to generate the unique identifiers for the service resources.
@@ -279,11 +282,34 @@ public final class ComputeService implements AutoCloseable {
         this.clock = dispatcher.getTimeSource();
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
+        this.reevaluatePacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> reevaluateTasks());
         this.maxNumFailures = maxNumFailures;
 
         if (this.scheduler instanceof GreedyPriceScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof UniformProgressionScheduler) {
             startPeriodicReevaluation();
         }
+    }
+
+    public double getLowestAvailablePrice(ServiceTask task, PriceState priceState) {
+        double lowestPrice = Double.MAX_VALUE;
+
+        for (HostView hv : availableHosts) {
+            SimHost host = hv.getHost();
+            double currentPrice = hv.getHost().getPrice(priceState);
+            if (host.canFit(task) && currentPrice < lowestPrice) {
+                lowestPrice = currentPrice;
+            }
+        }
+
+        return lowestPrice;
+    }
+
+    public double estimateBidPrice(double onDemandPrice, double spotPrice, double timeToOnDemand) {
+        double alpha = 0.0005;
+        double beta = 0.9;
+        double gamma = -alpha * 10;// timeToOnDemand;
+
+        return Math.exp(gamma) * onDemandPrice + (1 - Math.exp(gamma) * (beta * onDemandPrice + (1 - beta) * spotPrice));
     }
 
     private void startPeriodicReevaluation() {
@@ -296,11 +322,13 @@ public final class ComputeService implements AutoCloseable {
                 return;
             }
 
-            Iterator<Map.Entry<ServiceTask, SimHost>> iterator = activeTasks.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<ServiceTask, SimHost> activeTask = iterator.next();
-                ServiceTask task = activeTask.getKey();
-                task.reevaluate();
+            synchronized (this) {
+                Iterator<Map.Entry<ServiceTask, SimHost>> iterator = activeTasks.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<ServiceTask, SimHost> activeTask = iterator.next();
+                    ServiceTask task = activeTask.getKey();
+                    task.reevaluate();
+                }
             }
 
             requestSchedulingCycle();
@@ -437,7 +465,7 @@ public final class ComputeService implements AutoCloseable {
     // could be moved to task
     private boolean SafetyNetRuleApplies(ServiceTask task, long delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getRemainingTime();
+        long computationTime = task.getRemainingComputationTime();
 
         // R(t) ≥ C(t) + 2
         // Wu et. al Safety Net Rule
@@ -457,7 +485,7 @@ public final class ComputeService implements AutoCloseable {
     // could be moved to task
     private boolean HysteriaRuleApplies(ServiceTask task, long delay) {
         long remainingTime = task.getDeadline().toEpochMilli() - clock.millis();
-        long computationTime = task.getRemainingTime();
+        long computationTime = task.getRemainingComputationTime();
         long currentProgress = task.getCurrentProgress(); // not sure if correct
         long expectedProgress = clock.millis() * computationTime/remainingTime; // not sure if correct
 
@@ -659,11 +687,13 @@ public final class ComputeService implements AutoCloseable {
      */
     private void requestSchedulingCycle() {
         // Bail out in case the queue is empty.
-        if (taskQueue.isEmpty()) {
-            return;
+        if (!taskQueue.isEmpty()) {
+            pacer.enqueue();
         }
 
-        pacer.enqueue();
+        if (!activeTasks.isEmpty()) {
+            reevaluatePacer.enqueue();
+        }
     }
 
     /**
@@ -714,7 +744,26 @@ public final class ComputeService implements AutoCloseable {
             }
 
             if (scheduler instanceof IntelligentBiddingScheduler) {
-                task.setRemainingTime(task.getDeadline().toEpochMilli() - clock.millis());
+                long timeToOnDemand = task.getTimeToDeadline() - task.getRemainingComputationTime();
+
+                long rescheduleTime = task.workload.getDelay();
+
+                double onDemandPrice = getLowestAvailablePrice(task, PriceState.ON_DEMAND);
+                double spotPrice = getLowestAvailablePrice(task, PriceState.SPOT);
+
+                if (timeToOnDemand - rescheduleTime > 0) {
+                    double bid = estimateBidPrice(onDemandPrice, spotPrice, (double) timeToOnDemand);
+
+                    if (bid >= onDemandPrice) {
+                        task.requiresOnDemand(true);
+                        task.requiresSpot(false);
+                    } else {
+                        task.requiresOnDemand(false);
+                        task.requiresSpot(true);
+                    }
+                } else {
+                    task.requiresOnDemand();
+                }
             }
 
             if (scheduler instanceof GreedyPriceScheduler) {

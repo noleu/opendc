@@ -71,7 +71,7 @@ public class ChainWorkload implements Workload {
     }
 
     @Override
-    public long getRemainingTime() {
+    public long getRemainingComputationTime() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

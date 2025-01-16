@@ -95,7 +95,7 @@ public class TraceWorkload implements Workload {
     }
 
     @Override
-    public long getRemainingTime() {
+    public long getRemainingComputationTime() {
         // Add duration of first fragment twice as fragment progress gets lost when switching host.
         long remainingTime = fragments.get(0).duration();
 

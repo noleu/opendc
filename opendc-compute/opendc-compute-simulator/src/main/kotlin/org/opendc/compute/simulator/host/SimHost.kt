@@ -256,6 +256,10 @@ public class SimHost(
         return sufficientMemory && enoughCpus && canFit
     }
 
+    public fun getGuest(task: ServiceTask): Guest? {
+        return taskToGuestMap[task]
+    }
+
     public fun getPriceState(task: ServiceTask): PriceState {
         val taskGuest = guests.filter { it.task == task }
 

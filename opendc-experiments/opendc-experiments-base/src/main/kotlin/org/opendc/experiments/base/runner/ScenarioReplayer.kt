@@ -122,7 +122,7 @@ public suspend fun ComputeService.replay(
                 val meta = mutableMapOf<String, Any>("workload" to workload)
                 // if deadline is not set, set it to the submissionTime + duration plus 10% tolerance
 
-                val deadLine = entry.deadline ?: Instant.ofEpochMilli((entry.submissionTime.toEpochMilli() + 1.1 * entry.duration).roundToLong())
+                val deadLine = entry.deadline ?: Instant.ofEpochMilli(((entry.duration - entry.submissionTime.toEpochMilli()) * 1.1).roundToLong())
                 meta["deadline"] = deadLine
                 meta["duration"] = entry.duration
 

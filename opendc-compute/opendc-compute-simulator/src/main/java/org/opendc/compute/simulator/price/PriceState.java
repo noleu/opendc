@@ -24,5 +24,6 @@ package org.opendc.compute.simulator.price;
 
 public enum PriceState {
     SPOT,
-    ON_DEMAND
+    ON_DEMAND,
+    UNKNOWN,
 }
