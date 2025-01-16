@@ -28,6 +28,10 @@
             "type": "ComputeWorkload"
         },
         {
+            "pathToFile": "Experiments/workloads/large-low-resources",
+            "type": "ComputeWorkload"
+        },
+        {
             "pathToFile": "Experiments/workloads/large-varying-resources",
             "type": "ComputeWorkload"
         },
