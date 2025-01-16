@@ -274,7 +274,7 @@ public class ServiceTask {
 
     public long getCurrentProgress() {
         long progress = workload.getCurrentProgress();
-        LOGGER.warn("Current Progress: {}", progress);
+//        LOGGER.warn("Current Progress: {}", progress);
         return workload.getCurrentProgress();
 //        return this.currentProgress;
     }
@@ -331,7 +331,7 @@ public class ServiceTask {
 //                requiresOnDemand(false);
 //                requiresSpot(true);
 //            }
-            if (HysteriaRuleApplies(delay)) LOGGER.warn("Hysteria Rule applies at reevaluation");
+            HysteriaRuleApplies(delay);
             SafetyNetRuleApplies(delay);
         }
 
@@ -387,7 +387,7 @@ public class ServiceTask {
         long remainingTime = getTimeToDeadline();
         long computationTime = getRemainingComputationTime();
         if (remainingTime < computationTime + 2 * delay) {
-            LOGGER.warn("Safety Net Rule applies for task {}", uid);
+//            LOGGER.warn("Safety Net Rule applies for task {}", uid);
             this.requiresOnDemand(true);
             this.requiresSpot(false);
             return true;
@@ -404,11 +404,11 @@ public class ServiceTask {
         if (remainingTime > 0) {
             expectedProgress = service.getClock().millis() * computationTime / remainingTime;
         }
-        LOGGER.warn("remainingTime: {}, computationTime: {}, Task Name: {}", remainingTime, computationTime, name);
-        LOGGER.warn("currentProgress: {}, expectedProgress: {}, Task Name: {}", currentProgress, expectedProgress, name);
+//        LOGGER.warn("remainingTime: {}, computationTime: {}, Task Name: {}", remainingTime, computationTime, name);
+//        LOGGER.warn("currentProgress: {}, expectedProgress: {}, Task Name: {}", currentProgress, expectedProgress, name);
         if (currentProgress > expectedProgress + 2 * delay) {
 //        if (currentProgress > expectedProgress - 4 * delay) {
-            LOGGER.warn("Hysteria Rule applies for task {}", uid);
+//            LOGGER.warn("Hysteria Rule applies for task {}", uid);
             this.requiresOnDemand(false);
             this.requiresSpot(true);
             return true;

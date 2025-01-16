@@ -109,7 +109,7 @@ public class TraceWorkload implements Workload {
 
     @Override
     public long getCurrentProgress() {
-        LOGGER.warn("workload current progress {}", this.currentProgress);
+//        LOGGER.warn("workload current progress {}", this.currentProgress);
         return this.currentProgress;
     }
 

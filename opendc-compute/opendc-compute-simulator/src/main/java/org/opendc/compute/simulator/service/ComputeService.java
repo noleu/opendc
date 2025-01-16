@@ -777,8 +777,8 @@ public final class ComputeService implements AutoCloseable {
             final HostView hv = scheduler.select(request.task);
 
             if (hv == null || !hv.getHost().canFit(task)) {
-                LOGGER.warn("Task {} selected for scheduling but no capacity available for it at the moment", task);
-                LOGGER.warn("Task required spot {}, required on-demand {}", task.requiresSpot(), task.requiresOnDemand());
+                LOGGER.trace("Task {} selected for scheduling but no capacity available for it at the moment", task);
+//                LOGGER.warn("Task required spot {}, required on-demand {}", task.requiresSpot(), task.requiresOnDemand());
 
                 if (flavor.getMemorySize() > maxMemory || flavor.getCoreCount() > maxCores) {
                     // Remove the incoming image
