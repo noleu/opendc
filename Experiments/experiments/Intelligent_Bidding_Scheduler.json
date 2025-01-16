@@ -23,7 +23,10 @@
             "pathToFile": "Experiments/workloads/large-medium-resources",
             "type": "ComputeWorkload"
         },
-
+        {
+            "pathToFile": "Experiments/workloads/large-medium-resources",
+            "type": "ComputeWorkload"
+        },
         {
             "pathToFile": "Experiments/workloads/large-varying-resources",
             "type": "ComputeWorkload"

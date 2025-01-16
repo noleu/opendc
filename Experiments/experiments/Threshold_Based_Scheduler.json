@@ -23,7 +23,10 @@
             "pathToFile": "Experiments/workloads/large-medium-resources",
             "type": "ComputeWorkload"
         },
-
+        {
+            "pathToFile": "Experiments/workloads/large-low-resources",
+            "type": "ComputeWorkload"
+        },
         {
             "pathToFile": "Experiments/workloads/large-varying-resources",
             "type": "ComputeWorkload"
@@ -64,7 +67,7 @@
     "allocationPolicies":  [
         {
             "policyType": "RadicalPrice",
-            "priceThreshold": 0.76
+            "priceThreshold": 0.15
         }
     ],
     "checkpointModels": [
