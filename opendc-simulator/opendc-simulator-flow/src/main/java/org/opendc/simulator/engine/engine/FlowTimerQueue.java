@@ -131,7 +131,7 @@ public final class FlowTimerQueue {
     private void update(FlowNode[] es, FlowNode node, int k) {
         if (k > 0) {
             int parent = (k - 1) >>> 1;
-            if (es[parent].getDeadline() > node.getDeadline()) {
+            if (es[parent] == null || es[parent].getDeadline() > node.getDeadline()) {
                 siftUp(k, node, es);
                 return;
             }
@@ -176,7 +176,7 @@ public final class FlowTimerQueue {
         while (k > 0) {
             int parent = (k - 1) >>> 1;
             FlowNode e = es[parent];
-            if (key.getDeadline() >= e.getDeadline()) break;
+            if (e == null || key.getDeadline() >= e.getDeadline()) break;
             es[k] = e;
             e.setTimerIndex(k);
             k = parent;
@@ -191,9 +191,9 @@ public final class FlowTimerQueue {
             int child = (k << 1) + 1; // assume left child is least
             FlowNode c = es[child];
             int right = child + 1;
-            if (right < n && c.getDeadline() > es[right].getDeadline()) c = es[child = right];
+            if (c == null || right < n && c.getDeadline() > es[right].getDeadline()) c = es[child = right];
 
-            if (key.getDeadline() <= c.getDeadline()) break;
+            if (c == null || key.getDeadline() <= c.getDeadline()) break;
 
             es[k] = c;
             c.setTimerIndex(k);
