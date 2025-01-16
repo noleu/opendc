@@ -202,11 +202,11 @@ public final class ComputeService implements AutoCloseable {
         public void onPriceChanged(SimHost host, Double newPrice) {
             final HostView hv = hostToView.get(host);
             if (hv != null) {
-                    hv.price = newPrice;
-                    availableHosts.remove(hv);
-                    availableHosts.add(hv);
-                    hostToView.put(host, hv);
-                    scheduler.updateHost(hv);
+                hv.price = newPrice;
+                availableHosts.remove(hv);
+                availableHosts.add(hv);
+                hostToView.put(host, hv);
+                scheduler.updateHost(hv);
             }
 
             requestSchedulingCycle();
@@ -320,18 +320,16 @@ public final class ComputeService implements AutoCloseable {
             }
 
             synchronized (this) {
-                Iterator<Map.Entry<ServiceTask, SimHost>> iterator = activeTasks.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<ServiceTask, SimHost> activeTask = iterator.next();
+                for (Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
                     ServiceTask task = activeTask.getKey();
                     task.reevaluate();
                 }
-            }
 
-            requestSchedulingCycle();
+            }
         } catch (Exception e) {
-            LOGGER.error("Error in reevaluateTasks: {}", e);
+            LOGGER.info("Error in reevaluateTasks: {}", e);
         }
+        requestSchedulingCycle();
     }
 
     private void updateMaxDelay() {
@@ -828,18 +826,13 @@ public final class ComputeService implements AutoCloseable {
 
         @Nullable
         public void rescheduleTask(@NotNull ServiceTask task, @NotNull Workload workload) {
-            LOGGER.warn("Rescheduling task {}", task.getUid());
+//            LOGGER.warn("Rescheduling task {}", task.getUid());
 
             ServiceTask internalTask = findTask(task.getUid());
             //            SimHost from = service.lookupHost(internalTask);
 
             //            from.delete(internalTask);
 
-
-//            assert internalTask != null;
-            if (internalTask == null){
-                LOGGER.warn("Internal Task with id {} and name is null",task.getUid(), task.getName());
-            }
             internalTask.host = null;
 
             internalTask.setWorkload(workload);
