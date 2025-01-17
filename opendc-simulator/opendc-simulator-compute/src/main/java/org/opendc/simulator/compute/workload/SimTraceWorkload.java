@@ -104,13 +104,6 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
 
     @Override
     public synchronized long onUpdate(long now) {
-        if (this.currentFragment == null) {
-            if (this.remainingFragments == null || this.remainingFragments.isEmpty()) {
-                this.stopWorkload();
-                return Long.MAX_VALUE;
-            }
-            this.currentFragment = this.getNextFragment();
-        }
         long passedTime = getPassedTime(now);
         long duration = this.currentFragment.duration();
 
