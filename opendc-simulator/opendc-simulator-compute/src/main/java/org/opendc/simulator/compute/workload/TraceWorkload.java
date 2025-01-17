@@ -94,6 +94,11 @@ public class TraceWorkload implements Workload {
         this.currentProgress += progress;
     }
 
+    /**
+     * Get the remaining computation time of the workload. It's the sum of the duration of all fragments, plus the time to checkpoint.
+     *
+     * @return The remaining computation time of the workload.
+     */
     @Override
     public long getRemainingComputationTime() {
         // Add duration of first fragment twice as fragment progress gets lost when switching host.
@@ -109,10 +114,14 @@ public class TraceWorkload implements Workload {
 
     @Override
     public long getCurrentProgress() {
-//        LOGGER.warn("workload current progress {}", this.currentProgress);
         return this.currentProgress;
     }
 
+    /**
+     * Get the delay of the workload. It's the normalized duration of the trace plus the checkpoint duration.
+     *
+     * @return The total duration of the trace.
+     */
     @Override
     public long getDelay() {
         synchronized (this) {
