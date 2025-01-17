@@ -346,6 +346,9 @@ public class SimHost(
         guests.remove(guest)
     }
 
+    /**
+     * Remove a task from the host and return the workload that was running on the task.
+     */
     public fun removeTaskWithSnapshot(task: ServiceTask) : Workload? {
         val guest = taskToGuestMap[task] ?: return null
 
