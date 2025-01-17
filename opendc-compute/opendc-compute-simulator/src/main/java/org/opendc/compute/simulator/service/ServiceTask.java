@@ -72,8 +72,6 @@ public class ServiceTask {
     private int numFailures = 0;
     private boolean requiresOnDemand = false;
     private boolean requiresSpot = false;
-    long lastCheckPoint;
-    private long remainingTime = 0L;
     private ComputeService.ComputeClient computeClient;
 
     ServiceTask(
@@ -222,7 +220,6 @@ public class ServiceTask {
     void setState(TaskState newState) {
         if (this.launchedAt != null) {
             long timeSinceLaunch = this.service.getClock().instant().minus(this.launchedAt.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
-//            this.currentProgress = this.duration.toEpochMilli() - timeSinceLaunch;
             this.currentProgress = this.duration - timeSinceLaunch;
         }
         if (this.state == newState) {
@@ -273,10 +270,7 @@ public class ServiceTask {
     }
 
     public long getCurrentProgress() {
-        long progress = workload.getCurrentProgress();
-//        LOGGER.warn("Current Progress: {}", progress);
         return workload.getCurrentProgress();
-//        return this.currentProgress;
     }
 
     public Instant getDeadline() {
@@ -303,10 +297,6 @@ public class ServiceTask {
         return workload.getRemainingComputationTime();
     }
 
-    public void setRemainingTime(long remainingTime) {
-        this.remainingTime = remainingTime;
-    }
-
     public void reevaluate() {
         if (this.host == null)
         {
@@ -322,15 +312,6 @@ public class ServiceTask {
         requiresSpot(false);
 
         if (service.getScheduler() instanceof UniformProgressionScheduler) {
-//            if (SafetyNetRuleApplies(delay)) {
-//                requiresOnDemand(true);
-//                requiresSpot(false);
-//            }
-//
-//            if (HysteriaRuleApplies(delay)) {
-//                requiresOnDemand(false);
-//                requiresSpot(true);
-//            }
             HysteriaRuleApplies(delay);
             SafetyNetRuleApplies(delay);
         }
@@ -362,20 +343,12 @@ public class ServiceTask {
         }
 
         if (service.getScheduler() instanceof GreedyPriceScheduler) {
-//            if (SafetyNetRuleApplies(delay)) {
-//                requiresOnDemand(true);
-//                requiresSpot(false);
-//            }
             SafetyNetRuleApplies(delay);
         }
 
         PriceState currentPriceState = getPriceState();
         if ((requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND) ||
             (requiresSpot() && currentPriceState != PriceState.SPOT)) {
-            if (lastCheckPoint < currentProgress - delay) {
-                currentProgress = currentProgress - delay;
-                lastCheckPoint = currentProgress;
-            }
 
             Workload snapshot = host.removeTaskWithSnapshot(this);
             assert snapshot != null;
@@ -383,20 +356,26 @@ public class ServiceTask {
         }
     }
 
-    public boolean SafetyNetRuleApplies(long delay) {
+    /**
+     * Applies the SafetyNet rule to the task. If time to deadline is required for computing, then switch to on-demand.
+     * Wu et al. 2024 "Can't Be Late: Optimizing Spot Instance Savings under Deadlines"
+     * @param delay The delay to apply to the rule.
+     */
+    public void SafetyNetRuleApplies(long delay) {
         long remainingTime = getTimeToDeadline();
         long computationTime = getRemainingComputationTime();
         if (remainingTime < computationTime + 2 * delay) {
-//            LOGGER.warn("Safety Net Rule applies for task {}", uid);
             this.requiresOnDemand(true);
             this.requiresSpot(false);
-            return true;
         }
-        return false;
-//        return remainingTime < computationTime + 2 * delay;
     }
 
-    public boolean HysteriaRuleApplies(long delay) {
+    /**
+     * Applies the Hysteria rule to the task. If task is faster than expected, then switch to spot.
+     * Wu et al. 2024 "Can't Be Late: Optimizing Spot Instance Savings under Deadlines"
+     * @param delay The delay to apply to the rule.
+     */
+    public void HysteriaRuleApplies(long delay) {
         long remainingTime = getTimeToDeadline();
         long computationTime = getRemainingComputationTime();
         long currentProgress = getCurrentProgress();
@@ -404,17 +383,11 @@ public class ServiceTask {
         if (remainingTime > 0) {
             expectedProgress = service.getClock().millis() * computationTime / remainingTime;
         }
-//        LOGGER.warn("remainingTime: {}, computationTime: {}, Task Name: {}", remainingTime, computationTime, name);
-//        LOGGER.warn("currentProgress: {}, expectedProgress: {}, Task Name: {}", currentProgress, expectedProgress, name);
+
         if (currentProgress > expectedProgress + 2 * delay) {
-//        if (currentProgress > expectedProgress - 4 * delay) {
-//            LOGGER.warn("Hysteria Rule applies for task {}", uid);
             this.requiresOnDemand(false);
             this.requiresSpot(true);
-            return true;
 
         }
-        return false;
-//        return currentProgress > expectedProgress + 2 * delay;
     }
 }
