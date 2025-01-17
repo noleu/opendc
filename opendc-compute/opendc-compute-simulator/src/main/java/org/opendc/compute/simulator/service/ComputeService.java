@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,20 +57,15 @@ import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
 import org.opendc.simulator.compute.power.SimPowerSource;
-import org.opendc.simulator.compute.workload.TraceFragment;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The {@link ComputeService} hosts the API implementation of the OpenDC Compute Engine.
  */
 public final class ComputeService implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputeService.class);
-    private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
     /**
      * The {@link InstantSource} representing the clock tracking the (simulation) time.
@@ -130,7 +124,7 @@ public final class ComputeService implements AutoCloseable {
     /**
      * The active tasks in the system.
      */
-        private final Map<ServiceTask, SimHost> completedTasks = new HashMap<>();
+    private final Map<ServiceTask, SimHost> completedTasks = new HashMap<>();
 
     /**
      * The registered flavors for this compute service.
@@ -157,7 +151,6 @@ public final class ComputeService implements AutoCloseable {
 
     private ComputeMetricReader metricReader;
 
-    private final Double reschedulePenalty = 0.05;
 
     /**
      * A [HostListener] used to track the active tasks.
@@ -281,12 +274,14 @@ public final class ComputeService implements AutoCloseable {
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
         this.reevaluatePacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> reevaluateTasks());
         this.maxNumFailures = maxNumFailures;
-
-//        if (this.scheduler instanceof GreedyPriceScheduler || this.scheduler instanceof IntelligentBiddingScheduler || this.scheduler instanceof UniformProgressionScheduler) {
-//            startPeriodicReevaluation();
-//        }
     }
 
+    /**
+     * Get the price of the host that can fit the task and has the lowest price.
+     * @param task the task to be scheduled
+     * @param priceState the price state to be considered
+     * @return the price of the host that can fit the task and has the lowest price
+     */
     public double getLowestAvailablePrice(ServiceTask task, PriceState priceState) {
         double lowestPrice = Double.MAX_VALUE;
 
@@ -301,6 +296,13 @@ public final class ComputeService implements AutoCloseable {
         return lowestPrice;
     }
 
+    /**
+     * Estimate the bid price for the task. Poola et. al 2014, "Fault-tolerant Workflow Scheduling using Spot Instances on Clouds"
+     * @param onDemandPrice the on-demand price
+     * @param spotPrice the spot price
+     * @param timeToOnDemand the time to the deadline
+     * @return the bid price
+     */
     public double estimateBidPrice(double onDemandPrice, double spotPrice, double timeToOnDemand) {
         double alpha = 0.0005;
         double beta = 0.9;
@@ -309,10 +311,9 @@ public final class ComputeService implements AutoCloseable {
         return Math.exp(gamma) * onDemandPrice + (1 - Math.exp(gamma) * (beta * onDemandPrice + (1 - beta) * spotPrice));
     }
 
-    private void startPeriodicReevaluation() {
-        timer.scheduleAtFixedRate(this::reevaluateTasks, 0, 1000, TimeUnit.MILLISECONDS);
-    }
-
+    /**
+     * Reevaluate the tasks that are currently running.
+     */
     private void reevaluateTasks() {
         try {
             if (activeTasks.isEmpty() && taskQueue.isEmpty()) {
@@ -332,6 +333,9 @@ public final class ComputeService implements AutoCloseable {
         requestSchedulingCycle();
     }
 
+    /**
+     * Update the delay of all hosts.
+     */
     private void updateMaxDelay() {
 
         for (HostView hv : availableHosts) {
@@ -491,7 +495,6 @@ public final class ComputeService implements AutoCloseable {
 
         isClosed = true;
         pacer.cancel();
-        timer.shutdown();
     }
 
     /**
@@ -570,6 +573,7 @@ public final class ComputeService implements AutoCloseable {
             }
 
             long delay = task.workload.getDelay();
+            // reset instance requirements from previous scheduling
             task.requiresOnDemand(false);
             task.requiresSpot(false);
             if (scheduler instanceof UniformProgressionScheduler) {
@@ -579,6 +583,7 @@ public final class ComputeService implements AutoCloseable {
 
             }
 
+            // Poola et. al 2014, "Fault-tolerant Workflow Scheduling using Spot Instances on Clouds"
             if (scheduler instanceof IntelligentBiddingScheduler) {
                 long timeToOnDemand = task.getTimeToDeadline() - task.getRemainingComputationTime();
 
@@ -611,7 +616,6 @@ public final class ComputeService implements AutoCloseable {
 
             if (hv == null || !hv.getHost().canFit(task)) {
                 LOGGER.trace("Task {} selected for scheduling but no capacity available for it at the moment", task);
-//                LOGGER.warn("Task required spot {}, required on-demand {}", task.requiresSpot(), task.requiresOnDemand());
 
                 if (flavor.getMemorySize() > maxMemory || flavor.getCoreCount() > maxCores) {
                     // Remove the incoming image
