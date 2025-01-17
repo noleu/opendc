@@ -45,13 +45,13 @@ public class PriceModel extends FlowNode {
     private int fragment_index;
 
     /**
-     * Construct a CarbonModel
+     * Construct a PriceModel
      *
      * @param parentGraph The active FlowGraph which should be used to make the new FlowNode
      * @param host The Host which should be updated with the price
      * @param priceFragments A list of Price Fragments defining the price at different time frames
      * @param startTime The start time of the simulation. This is used to go from relative time (used by the clock)
-     *                  to absolute time (used by carbon fragments).
+     *                  to absolute time (used by price fragments).
      */
     public PriceModel(
         FlowGraph parentGraph, SimHost host, List<PriceFragment> priceFragments, long startTime) {
