@@ -262,8 +262,6 @@ public final class ComputeService implements AutoCloseable {
     private int tasksActive = 0; // Number of tasks that are currently running
     private int tasksTerminated = 0; // Number of tasks that were terminated due to too much failures
     private int tasksCompleted = 0; // Number of tasks completed successfully
-    private HashMap<SimHost, Long> delayPerHost = new HashMap<SimHost, Long>(); // Average delay of the host
-    private long maxDelay = 0L;
 
     /**
      * Construct a {@link ComputeService} instance.
@@ -334,19 +332,6 @@ public final class ComputeService implements AutoCloseable {
     }
 
     /**
-     * Update the delay of all hosts.
-     */
-    private void updateMaxDelay() {
-
-        for (HostView hv : availableHosts) {
-            long delay = hv.getHost().taskDelay();
-            if (delay > this.maxDelay) {
-                maxDelay = delay;
-            }
-        }
-    }
-
-    /**
      * Create a new {@link Builder} instance.
      */
     public static Builder builder(Dispatcher dispatcher, ComputeScheduler scheduler) {
@@ -399,9 +384,6 @@ public final class ComputeService implements AutoCloseable {
 
         if (host.getState() == HostState.UP) {
             availableHosts.add(hv);
-            if (host.taskDelay() >= maxDelay) {
-                maxDelay = host.taskDelay();
-            }
         }
         scheduler.addHost(hv);
         host.addListener(hostListener);
@@ -425,9 +407,6 @@ public final class ComputeService implements AutoCloseable {
             availableHosts.remove(view);
             scheduler.removeHost(view);
             host.removeListener(hostListener);
-            if (maxDelay == host.taskDelay()) {
-                updateMaxDelay();
-            }
         }
     }
 
