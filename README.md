@@ -41,3 +41,7 @@ Please refer to the [contributing guidelines](CONTRIBUTING.md) for more details.
 ## License
 
 OpenDC is distributed under the MIT license. See [LICENSE.txt](/LICENSE.txt).
+
+## Experiments
+
+The steps to execute the experiments, and all the required information can be found in the [experiments readme](Experiments.README.md)
