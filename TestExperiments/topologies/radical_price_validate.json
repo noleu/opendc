@@ -16,18 +16,6 @@
                         "memorySize": 140457600000
                     },
                     "priceTracePath": "traces/validate/decreasing_price_on_demand.parquet"
-                },
-                {
-                    "name": "H02",
-                    "cpu":
-                    {
-                        "coreCount": 32,
-                        "coreSpeed": 3200
-                    },
-                    "memory": {
-                        "memorySize": 2560000000
-                    },
-                    "priceTracePath": "traces/validate/decreasing_price_on_demand.parquet"
                 }
             ]
         }

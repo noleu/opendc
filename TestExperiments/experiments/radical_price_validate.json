@@ -1,0 +1,26 @@
+{
+    "name": "radical_price_validate",
+    "topologies": [
+        {
+            "pathToFile": "topologies/radical_price_validate.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "traces/validate",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "RadicalPrice",
+            "priceThreshold": 1800
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30
+        }
+    ]
+}
+

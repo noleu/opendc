@@ -1,0 +1,32 @@
+{
+    "name": "uniform_progress_validate",
+    "topologies": [
+        {
+            "pathToFile": "topologies/uniform_progress_validate.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "traces/validate",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "UniformProgression"
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30
+        }
+    ],
+    "checkpointModels": [
+        {
+            "checkpointInterval": 3600,
+            "checkpointDuration": 300,
+            "checkpointIntervalScaling": 1.0
+        }
+    ]
+}
+

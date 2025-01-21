@@ -1,0 +1,32 @@
+{
+    "name": "intelligent_bidding_validate",
+    "topologies": [
+        {
+            "pathToFile": "topologies/intelligent_bidding_validate.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "traces/validate",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "IntelligentBidding"
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30
+        }
+    ],
+    "checkpointModels": [
+        {
+            "checkpointInterval": 3600,
+            "checkpointDuration": 300,
+            "checkpointIntervalScaling": 1.0
+        }
+    ]
+}
+

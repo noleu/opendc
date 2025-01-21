@@ -1,0 +1,25 @@
+{
+    "name": "price_validate",
+    "topologies": [
+        {
+            "pathToFile": "topologies/price_validate.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "traces/validate",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "Price"
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30
+        }
+    ]
+}
+

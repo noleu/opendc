@@ -1,0 +1,35 @@
+{
+    "name": "greedy_validate",
+    "topologies": [
+        {
+            "pathToFile": "topologies/greedy/minimal_spot.json"
+        },
+        {
+            "pathToFile": "topologies/greedy/volatile_price.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "traces/validate",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "GreedyPrice"
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30
+        }
+    ],
+    "checkpointModels": [
+        {
+            "checkpointInterval": 3600,
+            "checkpointDuration": 300,
+            "checkpointIntervalScaling": 1.0
+        }
+    ]
+}
+
