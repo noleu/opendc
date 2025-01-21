@@ -4,7 +4,7 @@ Two types of experiments have been conducted in this project: validation and rep
 The validation experiments are used to evaluate the correct implementation of the scheduling algorithms. The results are described in the `Validation` appendix of the report.
 While the report experiments are used to study the characteristics of the scheduling algorithms. The results are described in the `Experiments` section of the report.
 
-We assume that OpenDC has been downloaded, and compiled. For executing the experiments the IntelliJ idea has been used.
+We assume that OpenDC is compiled. For executing the experiments the IntelliJ idea has been used.
 Executing the binary in the corresponding way should lead to the same results, but is not verified.
 
 The algorithms from the report correspond to the implementation in the following way:
@@ -14,6 +14,12 @@ The algorithms from the report correspond to the implementation in the following
 - Greedy -> Greedy
 - Uniform Progression -> UniformProgression
 - Intelligent Bidding -> IntelligentBidding
+
+## Building and running OpenDC
+
+Install [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) and open the project. Add a new run configuration of type kotlin. 
+Set the main class to `org.opendc.experiments.base.runner.ExperimentCli` and the program arguments to the path of the experiment file. 
+The program argument is --experiment-path <path to experiment file>. The experiment file location depends on the type of experiment.
 
 ## Validation Experiments
 
@@ -54,7 +60,7 @@ To run the experiments, the 'Experiments' folder needs to be the working directo
 Then to validate the correctness of a specific scheduling algorithm, the corresponding experiments files need to be given as input parameter to OpenDC.
 They can be found in the 'experiments' subfolder. The topologies are located in the 'topologies' subfolder.
 With the price_traces as a subfolder of the topologies folder, containing the price traces. The workload are located in the 'workloads' subfolder.
-The results are then stored in the 'output' folder.
+The results are then stored in the 'output' folder and are used across different experiments. 
 
 ### Plotting the results
 
