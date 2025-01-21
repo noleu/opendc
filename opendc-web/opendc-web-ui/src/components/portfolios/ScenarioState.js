@@ -50,6 +50,12 @@ function ScenarioState({ state }) {
                     <ErrorCircleOIcon color="red" /> Failed
                 </span>
             )
+        case 'KICKED':
+            return (
+                <span>
+                    <ErrorCircleOIcon color="red" /> Failed
+                </span>
+            )
     }
 
     return 'Unknown'

@@ -1,0 +1,88 @@
+{
+    "name": "Intelligent Bidding",
+    "topologies": [
+        {
+            "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+        },
+        {
+            "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+        },
+        {
+            "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+        },
+        {
+            "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+        }
+    ],
+    "workloads": [
+        {
+            "pathToFile": "Experiments/workloads/large-high-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/large-medium-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/large-medium-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/large-low-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/large-varying-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/medium-high-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/medium-medium-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/medium-low-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/medium-varying-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/small-high-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/small-medium-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/small-low-resources",
+            "type": "ComputeWorkload"
+        },
+        {
+            "pathToFile": "Experiments/workloads/small-varying-resources",
+            "type": "ComputeWorkload"
+        }
+    ],
+    "allocationPolicies":  [
+        {
+            "policyType": "IntelligentBidding"
+        }
+    ],
+    "checkpointModels": [
+        {
+            "checkpointInterval" : 3600,
+            "checkpointDuration" : 300
+        }
+    ],
+    "exportModels": [
+        {
+            "exportInterval": 30
+        }
+    ]
+}
+

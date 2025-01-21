@@ -108,4 +108,11 @@ public class FilterScheduler(
             else -> subset[random.nextInt(maxSize)]
         }
     }
+
+    override fun updateHost(host: HostView) {
+        if(hosts.contains(host)){
+            hosts.remove(host)
+            hosts.add(host)
+        }
+    }
 }

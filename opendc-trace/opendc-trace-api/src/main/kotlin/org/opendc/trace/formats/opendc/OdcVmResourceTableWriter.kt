@@ -30,6 +30,7 @@ import org.opendc.trace.conv.resourceDuration
 import org.opendc.trace.conv.resourceID
 import org.opendc.trace.conv.resourceMemCapacity
 import org.opendc.trace.conv.resourceSubmissionTime
+import org.opendc.trace.conv.resourceDeadline
 import org.opendc.trace.formats.opendc.parquet.Resource
 import java.time.Duration
 import java.time.Instant
@@ -49,6 +50,7 @@ internal class OdcVmResourceTableWriter(private val writer: ParquetWriter<Resour
     private var localCpuCount: Int = 0
     private var localCpuCapacity: Double = Double.NaN
     private var localMemCapacity: Double = Double.NaN
+    private var localDeadline: Instant = Instant.MIN
 
     override fun startRow() {
         localIsActive = true
@@ -58,12 +60,13 @@ internal class OdcVmResourceTableWriter(private val writer: ParquetWriter<Resour
         localCpuCount = 0
         localCpuCapacity = Double.NaN
         localMemCapacity = Double.NaN
+        localDeadline = Instant.MIN
     }
 
     override fun endRow() {
         check(localIsActive) { "No active row" }
         localIsActive = false
-        writer.write(Resource(localId, localSubmissionTime, localDuration, localCpuCount, localCpuCapacity, localMemCapacity))
+        writer.write(Resource(localId, localSubmissionTime, localDuration, localCpuCount, localCpuCapacity, localMemCapacity, localDeadline))
     }
 
     override fun resolve(name: String): Int {
@@ -74,6 +77,7 @@ internal class OdcVmResourceTableWriter(private val writer: ParquetWriter<Resour
             resourceCpuCount -> colCpuCount
             resourceCpuCapacity -> colCpuCapacity
             resourceMemCapacity -> colMemCapacity
+            resourceDeadline -> colDeadline
             else -> -1
         }
     }
@@ -151,6 +155,7 @@ internal class OdcVmResourceTableWriter(private val writer: ParquetWriter<Resour
         check(localIsActive) { "No active row" }
         when (index) {
             colSubmissionTime -> localSubmissionTime = value
+            colDeadline -> localDeadline = value
             else -> throw IllegalArgumentException("Invalid column index $index")
         }
     }
@@ -197,4 +202,5 @@ internal class OdcVmResourceTableWriter(private val writer: ParquetWriter<Resour
     private val colCpuCount = 3
     private val colCpuCapacity = 4
     private val colMemCapacity = 5
+    private val colDeadline = 6
 }

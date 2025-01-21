@@ -41,4 +41,5 @@ public data class HostSpec(
     val meta: Map<String, Any>,
     val model: MachineModel,
     val cpuPowerModel: CpuPowerModel,
+    val priceTracePath: String? = null,
 )

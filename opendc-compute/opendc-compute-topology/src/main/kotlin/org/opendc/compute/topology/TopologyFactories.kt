@@ -34,6 +34,7 @@ import org.opendc.simulator.compute.cpu.getPowerModel
 import org.opendc.simulator.compute.models.CpuModel
 import org.opendc.simulator.compute.models.MachineModel
 import org.opendc.simulator.compute.models.MemoryUnit
+import org.opendc.trace.formats.price.PriceTraceFormat
 import java.io.File
 import java.io.InputStream
 import java.util.SplittableRandom
@@ -149,6 +150,8 @@ private fun HostJSONSpec.toHostSpec(
         hostName = name
     }
 
+    val hostPriceTracePath = priceTracePath
+
     val hostSpec =
         HostSpec(
             UUID(random.nextLong(), (hostId).toLong()),
@@ -156,6 +159,7 @@ private fun HostJSONSpec.toHostSpec(
             mapOf("cluster" to clusterId),
             machineModel,
             powerModel,
+            hostPriceTracePath
         )
     hostId++
 

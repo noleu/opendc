@@ -25,6 +25,7 @@ package org.opendc.compute.simulator.internal
 import mu.KotlinLogging
 import org.opendc.compute.api.TaskState
 import org.opendc.compute.simulator.host.SimHost
+import org.opendc.compute.simulator.price.PriceState
 import org.opendc.compute.simulator.service.ServiceTask
 import org.opendc.compute.simulator.telemetry.GuestCpuStats
 import org.opendc.compute.simulator.telemetry.GuestSystemStats
@@ -46,6 +47,7 @@ public class Guest(
     private val listener: GuestListener,
     public val task: ServiceTask,
     public val simMachine: SimMachine,
+    public val priceState: PriceState
 ) {
     /**
      * The state of the [Guest].
@@ -72,7 +74,7 @@ public class Guest(
      */
     public fun start() {
         when (state) {
-            TaskState.CREATED, TaskState.FAILED -> {
+            TaskState.CREATED, TaskState.FAILED, TaskState.KICKED -> {
                 LOGGER.info { "User requested to start task ${task.uid}" }
                 doStart()
             }
@@ -109,25 +111,17 @@ public class Guest(
                 0.0,
             )
 
-        if (task.workload is TraceWorkload) {
-            val newChainWorkload =
-                ChainWorkload(
-                    ArrayList(listOf(task.workload)),
-                    task.workload.checkpointInterval,
-                    task.workload.checkpointDuration,
-                    task.workload.checkpointIntervalScaling,
-                )
-
-            virtualMachine =
-                simMachine.startWorkload(newChainWorkload) { cause ->
-                    onStop(if (cause != null) TaskState.FAILED else TaskState.COMPLETED)
+        virtualMachine =
+            simMachine.startWorkload(newChainWorkload) { cause ->
+                if (cause != null && cause.message == "Task is kicked") {
+                    onStop(TaskState.KICKED)
+                } else if (cause != null) {
+                    onStop(TaskState.FAILED)
                 }
-        } else {
-            virtualMachine =
-                simMachine.startWorkload(task.workload) { cause ->
-                    onStop(if (cause != null) TaskState.FAILED else TaskState.COMPLETED)
+                else {
+                    onStop(TaskState.COMPLETED)
                 }
-        }
+            }
     }
 
     /**
@@ -145,7 +139,7 @@ public class Guest(
     public fun stop() {
         when (state) {
             TaskState.RUNNING -> doStop(TaskState.COMPLETED)
-            TaskState.FAILED -> state = TaskState.TERMINATED
+            TaskState.FAILED, TaskState.KICKED -> state = TaskState.TERMINATED
             TaskState.COMPLETED, TaskState.TERMINATED -> return
             else -> assert(false) { "Invalid state transition" }
         }
@@ -157,10 +151,16 @@ public class Guest(
     private fun doStop(target: TaskState) {
         assert(virtualMachine != null) { "Invalid job state" }
         val virtualMachine = this.virtualMachine ?: return
-        if (target == TaskState.FAILED) {
-            virtualMachine.shutdown(Exception("Task has failed"))
-        } else {
-            virtualMachine.shutdown()
+        when (target) {
+            TaskState.FAILED -> {
+                virtualMachine.shutdown(Exception("Task has failed"))
+            }
+            TaskState.KICKED -> {
+                virtualMachine.shutdown(Exception("Task is kicked"))
+            }
+            else -> {
+                virtualMachine.shutdown()
+            }
         }
 
         this.virtualMachine = null
@@ -204,10 +204,21 @@ public class Guest(
     }
 
     /**
+     * This operation forcibly stops the guest and puts the task into an kicked state.
+     */
+    public fun kick() {
+        if (state != TaskState.RUNNING) {
+            return
+        }
+
+        doStop(TaskState.KICKED)
+    }
+
+    /**
      * Recover the guest if it is in an error state.
      */
     public fun recover() {
-        if (state != TaskState.FAILED) {
+        if (state != TaskState.FAILED || state != TaskState.KICKED) {
             return
         }
 
@@ -224,6 +235,8 @@ public class Guest(
             Duration.ofMillis(uptime),
             Duration.ofMillis(downtime),
             bootTime,
+            priceState.toString(),
+            host.getPrice(priceState)
         )
     }
 
@@ -256,7 +269,7 @@ public class Guest(
 
         if (state == TaskState.RUNNING) {
             uptime += duration
-        } else if (state == TaskState.FAILED) {
+        } else if (state == TaskState.FAILED || state == TaskState.KICKED) {
             downtime += duration
         }
     }

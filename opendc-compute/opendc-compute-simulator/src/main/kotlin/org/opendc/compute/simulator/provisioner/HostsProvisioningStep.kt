@@ -23,6 +23,7 @@
 package org.opendc.compute.simulator.provisioner
 
 import org.opendc.compute.carbon.getCarbonFragments
+import org.opendc.compute.simulator.price.getPriceFragments
 import org.opendc.compute.simulator.host.SimHost
 import org.opendc.compute.simulator.service.ComputeService
 import org.opendc.compute.topology.specs.ClusterSpec
@@ -69,6 +70,8 @@ public class HostsProvisioningStep internal constructor(
 
             // Create hosts, they are connected to the powerMux when SimMachine is created
             for (hostSpec in cluster.hostSpecs) {
+                val priceFragments = getPriceFragments(hostSpec.priceTracePath)
+
                 val simHost =
                     SimHost(
                         hostSpec.uid,
@@ -78,7 +81,11 @@ public class HostsProvisioningStep internal constructor(
                         graph,
                         hostSpec.model,
                         hostSpec.cpuPowerModel,
-                        powerDistributor,
+                        powerMux,
+                        priceFragments!!,
+                        startTime,
+                        service.newClient()
+
                     )
 
                 require(simHosts.add(simHost)) { "Host with uid ${hostSpec.uid} already exists" }

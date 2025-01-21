@@ -24,30 +24,38 @@ package org.opendc.simulator.compute.workload;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.opendc.simulator.engine.graph.FlowSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TraceWorkload implements Workload {
-    private ArrayList<TraceFragment> fragments;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraceWorkload.class);
+
+    private CopyOnWriteArrayList<TraceFragment> fragments;
     private final long checkpointInterval;
     private final long checkpointDuration;
     private final double checkpointIntervalScaling;
+    private long currentProgress;
 
     public TraceWorkload(
             ArrayList<TraceFragment> fragments,
             long checkpointInterval,
             long checkpointDuration,
             double checkpointIntervalScaling) {
-        this.fragments = fragments;
+        this.fragments = new CopyOnWriteArrayList<>(fragments) ;
         this.checkpointInterval = checkpointInterval;
         this.checkpointDuration = checkpointDuration;
         this.checkpointIntervalScaling = checkpointIntervalScaling;
+        this.currentProgress = 0;
     }
 
     public TraceWorkload(ArrayList<TraceFragment> fragments) {
         this(fragments, 0L, 0L, 1.0);
     }
 
-    public ArrayList<TraceFragment> getFragments() {
+    public CopyOnWriteArrayList<TraceFragment> getFragments() {
         return fragments;
     }
 
@@ -80,6 +88,52 @@ public class TraceWorkload implements Workload {
     @Override
     public SimWorkload startWorkload(FlowSupplier supplier, long now) {
         return new SimTraceWorkload(supplier, this, now);
+    }
+
+    public void increaseCurrentProgress(long progress) {
+        this.currentProgress += progress;
+    }
+
+    /**
+     * Get the remaining computation time of the workload. It's the sum of the duration of all fragments, plus the time to checkpoint.
+     *
+     * @return The remaining computation time of the workload.
+     */
+    @Override
+    public long getRemainingComputationTime() {
+        // Add duration of first fragment twice as fragment progress gets lost when switching host.
+        long remainingTime = fragments.get(0).duration();
+
+        for (TraceFragment fragment : fragments) {
+            remainingTime += fragment.duration();
+        }
+
+        // Add the expected checkpointing time to remainingTime
+        return remainingTime + ((remainingTime / checkpointInterval) * checkpointDuration);
+    }
+
+    @Override
+    public long getCurrentProgress() {
+        return this.currentProgress;
+    }
+
+    /**
+     * Get the delay of the workload. It's the normalized duration of the trace plus the checkpoint duration.
+     *
+     * @return The total duration of the trace.
+     */
+    @Override
+    public long getDelay() {
+        synchronized (this) {
+
+            long totalDuration = 0;
+
+            for (TraceFragment fragment : fragments) {
+                totalDuration += fragment.duration();
+            }
+
+            return totalDuration / fragments.size() + checkpointDuration;
+        }
     }
 
     public static Builder builder() {

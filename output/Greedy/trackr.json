@@ -1,0 +1,4656 @@
+[{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_guaranteed_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_late_spot.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_normal.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/large-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/medium-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-high-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-medium-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-low-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+},
+{
+    "name": "Greedy",
+    "computeExportConfig": {
+        "hostExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "host_id",
+            "host_name",
+            "core_count",
+            "mem_capacity",
+            "guests_terminated",
+            "guests_running",
+            "guests_error",
+            "guests_invalid",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_utilization",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "power_draw",
+            "energy_usage",
+            "uptime",
+            "downtime",
+            "boot_time",
+            "boot_time_absolute",
+            "price_state",
+            "price"
+        ],
+        "taskExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "task_id",
+            "host_id",
+            "task_name",
+            "cpu_count",
+            "mem_capacity",
+            "cpu_limit",
+            "cpu_usage",
+            "cpu_demand",
+            "cpu_time_active",
+            "cpu_time_idle",
+            "cpu_time_steal",
+            "cpu_time_lost",
+            "uptime",
+            "downtime",
+            "provision_time",
+            "boot_time",
+            "creation_time",
+            "finish_time",
+            "boot_time_absolute",
+            "task_state",
+            "price_state",
+            "price"
+        ],
+        "powerSourceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_connected",
+            "power_draw",
+            "energy_usage",
+            "carbon_intensity",
+            "carbon_emission"
+        ],
+        "serviceExportColumns": [
+            "timestamp",
+            "timestamp_absolute",
+            "hosts_up",
+            "tasks_pending",
+            "tasks_total",
+            "tasks_active",
+            "tasks_completed",
+            "tasks_terminated",
+            "attempts_success",
+            "attempts_failure"
+        ]
+    },
+    "topology": {
+        "pathToFile": "Experiments/topologies/aws_topology_volatile_pricing.json"
+    },
+    "workload": {
+        "pathToFile": "Experiments/workloads/small-varying-resources",
+        "type": "ComputeWorkload"
+    },
+    "allocationPolicy": {
+        "policyType": "GreedyPrice"
+    },
+    "exportModel": {
+        "exportInterval": 30
+    },
+    "checkpointModel": {
+        "checkpointInterval": 3600,
+        "checkpointDuration": 300
+    }
+}]

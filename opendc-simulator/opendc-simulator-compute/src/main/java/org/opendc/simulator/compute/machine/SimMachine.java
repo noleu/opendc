@@ -48,7 +48,7 @@ public class SimMachine {
     private SimPsu psu;
     private Memory memory;
 
-    private final Consumer<Exception> completion;
+    private Consumer<Exception> completion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Basic Getters and Setters

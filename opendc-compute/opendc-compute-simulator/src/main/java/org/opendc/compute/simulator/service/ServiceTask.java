@@ -23,6 +23,7 @@
 package org.opendc.compute.simulator.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,10 @@ import org.jetbrains.annotations.Nullable;
 import org.opendc.compute.api.TaskState;
 import org.opendc.compute.simulator.TaskWatcher;
 import org.opendc.compute.simulator.host.SimHost;
+import org.opendc.compute.simulator.price.PriceState;
+import org.opendc.compute.simulator.scheduler.GreedyPriceScheduler;
+import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
+import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
 import org.opendc.simulator.compute.workload.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,26 +63,35 @@ public class ServiceTask {
     Instant launchedAt = null;
     Instant createdAt;
     Instant finishedAt;
+    long currentProgress = 0L;
     SimHost host = null;
+    private long duration = 0L; // TODO: May be instant
+    Instant deadline;
     private ComputeService.SchedulingRequest request = null;
 
     private int numFailures = 0;
+    private boolean requiresOnDemand = false;
+    private boolean requiresSpot = false;
+    private ComputeService.ComputeClient computeClient;
 
     ServiceTask(
-            ComputeService service,
-            UUID uid,
-            String name,
-            ServiceFlavor flavor,
-            Workload workload,
-            Map<String, ?> meta) {
+        ComputeService service,
+        UUID uid,
+        String name,
+        ServiceFlavor flavor,
+        Workload workload,
+        Map<String, ?> meta) {
         this.service = service;
         this.uid = uid;
         this.name = name;
         this.flavor = flavor;
         this.workload = workload;
         this.meta = meta;
+        this.duration = (long) meta.get("duration");
+        this.deadline = (Instant) meta.get("deadline");
 
         this.createdAt = this.service.getClock().instant();
+        this.computeClient = service.newClient();
     }
 
     @NotNull
@@ -161,6 +175,11 @@ public class ServiceTask {
                 setState(TaskState.PROVISIONING);
                 request = service.schedule(this);
                 break;
+            case KICKED:
+                LOGGER.info("User requested to start task after it was kicked {}", uid);
+                setState(TaskState.PROVISIONING);
+                request = service.schedule(this);
+                break;
         }
     }
 
@@ -199,12 +218,17 @@ public class ServiceTask {
     }
 
     void setState(TaskState newState) {
+        if (this.launchedAt != null) {
+            long timeSinceLaunch = this.service.getClock().instant().minus(this.launchedAt.toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
+            this.currentProgress = this.duration - timeSinceLaunch;
+        }
         if (this.state == newState) {
             return;
         }
 
         for (TaskWatcher watcher : watchers) {
             watcher.onStateChanged(this, newState);
+
         }
         if (newState == TaskState.FAILED) {
             this.numFailures++;
@@ -212,6 +236,7 @@ public class ServiceTask {
 
         if ((newState == TaskState.COMPLETED) || newState == TaskState.FAILED) {
             this.finishedAt = this.service.getClock().instant();
+
         }
 
         this.state = newState;
@@ -225,6 +250,144 @@ public class ServiceTask {
         if (request != null) {
             this.request = null;
             request.isCancelled = true;
+        }
+    }
+
+    public boolean requiresOnDemand() {
+        return requiresOnDemand;
+    }
+
+    public void requiresOnDemand(boolean requiresOnDemand) {
+        this.requiresOnDemand = requiresOnDemand;
+    }
+
+    public boolean requiresSpot() {
+        return requiresSpot;
+    }
+
+    public void requiresSpot(boolean requiresSpot) {
+        this.requiresSpot = requiresSpot;
+    }
+
+    public long getCurrentProgress() {
+        return workload.getCurrentProgress();
+    }
+
+    public Instant getDeadline() {
+        return this.deadline;
+    }
+
+    public PriceState getPriceState() {
+        if (host == null) {
+            return PriceState.UNKNOWN;
+        }
+
+        return host.getPriceState(this);
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public long getTimeToDeadline() {
+        return deadline.toEpochMilli() - this.service.getClock().millis();
+    }
+
+    public long getRemainingComputationTime() {
+        return workload.getRemainingComputationTime();
+    }
+
+    public void reevaluate() {
+        if (this.host == null)
+        {
+            return;
+        }
+
+        long delay = 0;
+        if (workload != null) {
+            delay = workload.getDelay();
+        }
+
+        requiresOnDemand(false);
+        requiresSpot(false);
+
+        if (service.getScheduler() instanceof UniformProgressionScheduler) {
+            HysteriaRuleApplies(delay);
+            SafetyNetRuleApplies(delay);
+        }
+
+        if (service.getScheduler() instanceof IntelligentBiddingScheduler) {
+            long timeToOnDemand = this.getTimeToDeadline() - this.getRemainingComputationTime();
+
+            long rescheduleTime = this.workload.getDelay();
+
+            double onDemandPrice = service.getLowestAvailablePrice(this, PriceState.ON_DEMAND);
+            double spotPrice = service.getLowestAvailablePrice(this, PriceState.SPOT);
+
+            if (timeToOnDemand - rescheduleTime > 0) {
+                double bid = service.estimateBidPrice(onDemandPrice, spotPrice, (double) timeToOnDemand);
+
+                if (bid >= onDemandPrice) {
+                    this.requiresOnDemand(true);
+                    this.requiresSpot(false);
+                } else if (bid <= spotPrice) {
+                    this.requiresOnDemand(false);
+                    this.requiresSpot(true);
+                } else {
+                    this.requiresOnDemand(true);
+                    this.requiresSpot(true);
+                }
+            } else {
+                this.requiresOnDemand();
+            }
+        }
+
+        if (service.getScheduler() instanceof GreedyPriceScheduler) {
+            SafetyNetRuleApplies(delay);
+        }
+
+        PriceState currentPriceState = getPriceState();
+        if ((requiresOnDemand() && currentPriceState != PriceState.ON_DEMAND) ||
+            (requiresSpot() && currentPriceState != PriceState.SPOT)) {
+
+            Workload snapshot = host.removeTaskWithSnapshot(this);
+            assert snapshot != null;
+            computeClient.rescheduleTask(this, snapshot);
+        }
+    }
+
+    /**
+     * Applies the SafetyNet rule to the task. If time to deadline is required for computing, then switch to on-demand.
+     * Wu et al. 2024 "Can't Be Late: Optimizing Spot Instance Savings under Deadlines"
+     * @param delay The delay to apply to the rule.
+     */
+    public void SafetyNetRuleApplies(long delay) {
+        long remainingTime = getTimeToDeadline();
+        long computationTime = getRemainingComputationTime();
+        if (remainingTime < computationTime + 2 * delay) {
+            this.requiresOnDemand(true);
+            this.requiresSpot(false);
+        }
+    }
+
+    /**
+     * Applies the Hysteria rule to the task. If task is faster than expected, then switch to spot.
+     * Wu et al. 2024 "Can't Be Late: Optimizing Spot Instance Savings under Deadlines"
+     * @param delay The delay to apply to the rule.
+     */
+    public void HysteriaRuleApplies(long delay) {
+        long remainingTime = getTimeToDeadline();
+        long computationTime = getRemainingComputationTime();
+        long currentProgress = getCurrentProgress();
+        long expectedProgress = 0;
+        if (remainingTime > 0) {
+            expectedProgress = service.getClock().millis() * computationTime / remainingTime;
+        }
+
+        if (currentProgress > expectedProgress + 2 * delay) {
+            this.requiresOnDemand(false);
+            this.requiresSpot(true);
+
         }
     }
 }

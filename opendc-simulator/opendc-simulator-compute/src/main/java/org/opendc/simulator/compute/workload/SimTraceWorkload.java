@@ -71,7 +71,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         return 0;
     }
 
-    public TraceFragment getNextFragment() {
+    public synchronized TraceFragment getNextFragment() {
         this.currentFragment = this.remainingFragments.pop();
         this.fragmentIndex++;
 
@@ -103,9 +103,11 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public long onUpdate(long now) {
+    public synchronized long onUpdate(long now) {
         long passedTime = getPassedTime(now);
         long duration = this.currentFragment.duration();
+
+        this.snapshot.increaseCurrentProgress(passedTime);
 
         // The current Fragment has not yet been finished, continue
         if (passedTime < duration) {
@@ -165,7 +167,7 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
      * Create a new snapshot based on the current status of the workload.
      * @param now Moment on which the snapshot is made in milliseconds
      */
-    public void makeSnapshot(long now) {
+    public synchronized void makeSnapshot(long now) {
 
         // Check if fragments is empty
 
@@ -186,7 +188,11 @@ public class SimTraceWorkload extends SimWorkload implements FlowConsumer {
         this.snapshot.removeFragments(this.fragmentIndex);
         this.snapshot.addFirst(newFragment);
 
+        if (this.remainingFragments == null) {
+            return;
+        }
         this.remainingFragments.addFirst(newFragment);
+
 
         // Create and add a fragment for processing the snapshot process
         // TODO: improve the implementation of cpuUsage and coreCount

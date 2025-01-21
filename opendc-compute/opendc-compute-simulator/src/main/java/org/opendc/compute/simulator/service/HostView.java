@@ -23,6 +23,7 @@
 package org.opendc.compute.simulator.service;
 
 import org.opendc.compute.simulator.host.SimHost;
+import org.opendc.compute.simulator.price.PriceState;
 
 /**
  * A view of a {@link SimHost} as seen from the {@link ComputeService}.
@@ -32,6 +33,9 @@ public class HostView {
     int instanceCount;
     long availableMemory;
     int provisionedCores;
+    PriceState priceState;
+    Double price;
+
 
     /**
      * Construct a {@link HostView} instance.
@@ -41,6 +45,8 @@ public class HostView {
     public HostView(SimHost host) {
         this.host = host;
         this.availableMemory = host.getModel().memoryCapacity();
+        this.priceState = host.getPriceState();
+        this.price = host.getCurrentPrice();
     }
 
     /**
@@ -71,8 +77,17 @@ public class HostView {
         return provisionedCores;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public double getOnDemandPrice() {
+        return host.getPrice(PriceState.ON_DEMAND);
+    }
+
     @Override
     public String toString() {
         return "HostView[host=" + host + "]";
     }
+
 }

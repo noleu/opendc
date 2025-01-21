@@ -168,7 +168,6 @@ public abstract class FlowNode {
      */
     public void update(long now) {
         if (this.nodeState == NodeState.CLOSED) {
-            this.deadline = Long.MAX_VALUE;
             return;
         }
 

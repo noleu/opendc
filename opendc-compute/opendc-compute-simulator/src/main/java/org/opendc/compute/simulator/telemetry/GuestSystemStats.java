@@ -32,4 +32,4 @@ import java.time.Instant;
  * @param downtime The cumulative downtime of the guest since last boot (in ms).
  * @param bootTime The time at which the guest booted.
  */
-public record GuestSystemStats(Duration uptime, Duration downtime, Instant bootTime) {}
+public record GuestSystemStats(Duration uptime, Duration downtime, Instant bootTime, String priceState, Double price) {}

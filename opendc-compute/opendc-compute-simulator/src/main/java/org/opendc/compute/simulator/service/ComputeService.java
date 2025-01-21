@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.UUID;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.opendc.common.Dispatcher;
@@ -48,7 +49,11 @@ import org.opendc.compute.simulator.host.HostListener;
 import org.opendc.compute.simulator.host.HostModel;
 import org.opendc.compute.simulator.host.HostState;
 import org.opendc.compute.simulator.host.SimHost;
+import org.opendc.compute.simulator.price.PriceState;
 import org.opendc.compute.simulator.scheduler.ComputeScheduler;
+import org.opendc.compute.simulator.scheduler.GreedyPriceScheduler;
+import org.opendc.compute.simulator.scheduler.UniformProgressionScheduler;
+import org.opendc.compute.simulator.scheduler.IntelligentBiddingScheduler;
 import org.opendc.compute.simulator.telemetry.ComputeMetricReader;
 import org.opendc.compute.simulator.telemetry.SchedulerStats;
 import org.opendc.simulator.compute.power.SimPowerSource;
@@ -76,6 +81,8 @@ public final class ComputeService implements AutoCloseable {
      * The {@link Pacer} used to pace the scheduling requests.
      */
     private final Pacer pacer;
+
+    private final Pacer reevaluatePacer;
 
     /**
      * The {@link SplittableRandom} used to generate the unique identifiers for the service resources.
@@ -144,6 +151,7 @@ public final class ComputeService implements AutoCloseable {
 
     private ComputeMetricReader metricReader;
 
+
     /**
      * A [HostListener] used to track the active tasks.
      */
@@ -167,6 +175,37 @@ public final class ComputeService implements AutoCloseable {
         }
 
         @Override
+        public void onPriceStateChanged(@NotNull SimHost host, @NotNull PriceState newPriceState) {
+            LOGGER.debug("Host {} priceState changed: {}", host, newPriceState);
+
+            final HostView hv = hostToView.get(host);
+
+            if (hv != null) {
+                if (newPriceState != hv.priceState) {
+                    hv.priceState = newPriceState;
+                    availableHosts.remove(hv);
+                    availableHosts.add(hv);
+                    hostToView.put(host, hv);
+                    scheduler.updateHost(hv);
+                }
+            }
+        }
+
+        @Override
+        public void onPriceChanged(SimHost host, Double newPrice) {
+            final HostView hv = hostToView.get(host);
+            if (hv != null) {
+                hv.price = newPrice;
+                availableHosts.remove(hv);
+                availableHosts.add(hv);
+                hostToView.put(host, hv);
+                scheduler.updateHost(hv);
+            }
+
+            requestSchedulingCycle();
+        }
+
+        @Override
         public void onStateChanged(@NotNull SimHost host, @NotNull ServiceTask task, @NotNull TaskState newState) {
             if (task.getHost() != host) {
                 // This can happen when a task is rescheduled and started on another machine, while being deleted from
@@ -176,7 +215,7 @@ public final class ComputeService implements AutoCloseable {
 
             task.setState(newState);
 
-            if (newState == TaskState.COMPLETED || newState == TaskState.TERMINATED || newState == TaskState.FAILED) {
+            if (newState == TaskState.COMPLETED || newState == TaskState.TERMINATED || newState == TaskState.FAILED || newState == TaskState.KICKED) {
                 LOGGER.info("task {} {} {} finished", task.getUid(), task.getName(), task.getFlavor());
 
                 if (activeTasks.remove(task) != null) {
@@ -231,7 +270,65 @@ public final class ComputeService implements AutoCloseable {
         this.clock = dispatcher.getTimeSource();
         this.scheduler = scheduler;
         this.pacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> doSchedule());
+        this.reevaluatePacer = new Pacer(dispatcher, quantum.toMillis(), (time) -> reevaluateTasks());
         this.maxNumFailures = maxNumFailures;
+    }
+
+    /**
+     * Get the price of the host that can fit the task and has the lowest price.
+     * @param task the task to be scheduled
+     * @param priceState the price state to be considered
+     * @return the price of the host that can fit the task and has the lowest price
+     */
+    public double getLowestAvailablePrice(ServiceTask task, PriceState priceState) {
+        double lowestPrice = Double.MAX_VALUE;
+
+        for (HostView hv : availableHosts) {
+            SimHost host = hv.getHost();
+            double currentPrice = hv.getHost().getPrice(priceState);
+            if (host.canFit(task) && currentPrice < lowestPrice) {
+                lowestPrice = currentPrice;
+            }
+        }
+
+        return lowestPrice;
+    }
+
+    /**
+     * Estimate the bid price for the task. Poola et. al 2014, "Fault-tolerant Workflow Scheduling using Spot Instances on Clouds"
+     * @param onDemandPrice the on-demand price
+     * @param spotPrice the spot price
+     * @param timeToOnDemand the time to the deadline
+     * @return the bid price
+     */
+    public double estimateBidPrice(double onDemandPrice, double spotPrice, double timeToOnDemand) {
+        double alpha = 0.0005;
+        double beta = 0.9;
+        double gamma = -alpha * 10;// timeToOnDemand;
+
+        return Math.exp(gamma) * onDemandPrice + (1 - Math.exp(gamma) * (beta * onDemandPrice + (1 - beta) * spotPrice));
+    }
+
+    /**
+     * Reevaluate the tasks that are currently running.
+     */
+    private void reevaluateTasks() {
+        try {
+            if (activeTasks.isEmpty() && taskQueue.isEmpty()) {
+                return;
+            }
+
+            synchronized (this) {
+                for (Map.Entry<ServiceTask, SimHost> activeTask : activeTasks.entrySet()) {
+                    ServiceTask task = activeTask.getKey();
+                    task.reevaluate();
+                }
+
+            }
+        } catch (Exception e) {
+            LOGGER.info("Error in reevaluateTasks: {}", e);
+        }
+        requestSchedulingCycle();
     }
 
     /**
@@ -288,7 +385,6 @@ public final class ComputeService implements AutoCloseable {
         if (host.getState() == HostState.UP) {
             availableHosts.add(hv);
         }
-
         scheduler.addHost(hv);
         host.addListener(hostListener);
     }
@@ -417,11 +513,13 @@ public final class ComputeService implements AutoCloseable {
      */
     private void requestSchedulingCycle() {
         // Bail out in case the queue is empty.
-        if (taskQueue.isEmpty()) {
-            return;
+        if (!taskQueue.isEmpty()) {
+            pacer.enqueue();
         }
 
-        pacer.enqueue();
+        if (!activeTasks.isEmpty()) {
+            reevaluatePacer.enqueue();
+        }
     }
 
     /**
@@ -451,6 +549,45 @@ public final class ComputeService implements AutoCloseable {
 
                 this.setTaskToBeRemoved(task);
                 continue;
+            }
+
+            long delay = task.workload.getDelay();
+            // reset instance requirements from previous scheduling
+            task.requiresOnDemand(false);
+            task.requiresSpot(false);
+            if (scheduler instanceof UniformProgressionScheduler) {
+
+                task.HysteriaRuleApplies(delay);
+                task.SafetyNetRuleApplies(delay);
+
+            }
+
+            // Poola et. al 2014, "Fault-tolerant Workflow Scheduling using Spot Instances on Clouds"
+            if (scheduler instanceof IntelligentBiddingScheduler) {
+                long timeToOnDemand = task.getTimeToDeadline() - task.getRemainingComputationTime();
+
+                long rescheduleTime = task.workload.getDelay();
+
+                double onDemandPrice = getLowestAvailablePrice(task, PriceState.ON_DEMAND);
+                double spotPrice = getLowestAvailablePrice(task, PriceState.SPOT);
+
+                if (timeToOnDemand - rescheduleTime > 0) {
+                    double bid = estimateBidPrice(onDemandPrice, spotPrice, (double) timeToOnDemand);
+
+                    if (bid >= onDemandPrice) {
+                        task.requiresOnDemand(true);
+                        task.requiresSpot(false);
+                    } else {
+                        task.requiresOnDemand(false);
+                        task.requiresSpot(true);
+                    }
+                } else {
+                    task.requiresOnDemand();
+                }
+            }
+
+            if (scheduler instanceof GreedyPriceScheduler) {
+                task.SafetyNetRuleApplies(delay);
             }
 
             final ServiceFlavor flavor = task.getFlavor();
@@ -503,6 +640,10 @@ public final class ComputeService implements AutoCloseable {
                 attemptsFailure++;
             }
         }
+    }
+
+    public Object getScheduler() {
+        return this.scheduler;
     }
 
     /**
@@ -668,6 +809,8 @@ public final class ComputeService implements AutoCloseable {
 
         @Nullable
         public void rescheduleTask(@NotNull ServiceTask task, @NotNull Workload workload) {
+//            LOGGER.warn("Rescheduling task {}", task.getUid());
+
             ServiceTask internalTask = findTask(task.getUid());
             //            SimHost from = service.lookupHost(internalTask);
 
@@ -677,6 +820,7 @@ public final class ComputeService implements AutoCloseable {
 
             internalTask.setWorkload(workload);
             internalTask.start();
+//            service.taskQueue.add(task);
         }
     }
 
