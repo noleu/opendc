@@ -31,8 +31,10 @@ import org.opendc.compute.topology.specs.HostJSONSpec
 import org.opendc.compute.topology.specs.HostSpec
 import org.opendc.compute.topology.specs.PowerSourceSpec
 import org.opendc.compute.topology.specs.TopologySpec
-import org.opendc.simulator.compute.cpu.getPowerModel
+import org.opendc.simulator.compute.cpu.getCpuPowerModel
+import org.opendc.simulator.compute.gpu.getGpuPowerModel
 import org.opendc.simulator.compute.models.CpuModel
+import org.opendc.simulator.compute.models.GpuModel
 import org.opendc.simulator.compute.models.MachineModel
 import org.opendc.simulator.compute.models.MemoryUnit
 import java.io.File
@@ -185,15 +187,18 @@ private fun HostJSONSpec.toHostSpec(clusterName: String): HostSpec {
             unknownMemoryUnit,
             gpuUnits,
 
-    val powerModel =
-        getPowerModel(powerModel.modelType, powerModel.power.toWatts(), powerModel.maxPower.toWatts(), powerModel.idlePower.toWatts())
+    val cpuPowerModel =
+        getCpuPowerModel(cpuPowerModel.modelType, cpuPowerModel.power.toWatts(), cpuPowerModel.maxPower.toWatts(), cpuPowerModel.idlePower.toWatts())
+    val gpuPowerModel =
+        getGpuPowerModel(gpuPowerModel.modelType, gpuPowerModel.power.toWatts(), gpuPowerModel.maxPower.toWatts(), gpuPowerModel.idlePower.toWatts())
 
     val hostSpec =
         HostSpec(
             createUniqueName(this.name, hostNames),
             clusterName,
             machineModel,
-            powerModel,
+            cpuPowerModel,
+            gpuPowerModel, //TODO: Give GPU it's own powermodel
         )
     return hostSpec
 }
