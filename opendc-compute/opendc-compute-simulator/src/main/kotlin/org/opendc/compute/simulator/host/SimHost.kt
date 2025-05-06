@@ -32,6 +32,7 @@ import org.opendc.compute.simulator.telemetry.GuestSystemStats
 import org.opendc.compute.simulator.telemetry.HostCpuStats
 import org.opendc.compute.simulator.telemetry.HostSystemStats
 import org.opendc.simulator.compute.cpu.CpuPowerModel
+import org.opendc.simulator.compute.gpu.GpuPowerModel
 import org.opendc.simulator.compute.machine.SimMachine
 import org.opendc.simulator.compute.models.MachineModel
 import org.opendc.simulator.compute.models.MemoryUnit
@@ -58,6 +59,7 @@ public class SimHost(
     private val engine: FlowEngine,
     private val machineModel: MachineModel,
     private val cpuPowerModel: CpuPowerModel,
+    private val gpuPowerModel: GpuPowerModel,
     private val embodiedCarbon: Double,
     private val expectedLifetime: Double,
     private val powerDistributor: FlowDistributor,
@@ -81,12 +83,23 @@ public class SimHost(
             field = value
         }
 
+    private val gpuHostModels : List<GpuHostModel>? = machineModel.gpuModels?.map { gpumodel ->
+        return@map GpuHostModel(
+            gpumodel.totalCoreCapacity,
+            gpumodel.coreCount,
+            gpumodel.memorySize,
+            gpumodel.memoryBandwidth,
+        )
+    }
+
     private val model: HostModel =
         HostModel(
             machineModel.cpuModel.totalCapacity,
             machineModel.cpuModel.coreCount,
             machineModel.memory.size,
+            gpuHostModels
         )
+
 
     private var simMachine: SimMachine? = null
 
@@ -352,7 +365,12 @@ public class SimHost(
      * Convert flavor to machine model.
      */
     private fun Flavor.toMachineModel(): MachineModel {
-        return MachineModel(simMachine!!.machineModel.cpuModel, MemoryUnit("Generic", "Generic", 3200.0, memorySize))
+        return MachineModel(
+                simMachine!!.machineModel.cpuModel,
+                MemoryUnit("Generic", "Generic", 3200.0, memorySize),
+            simMachine!!.machineModel.gpuModels,
+            simMachine!!.machineModel.cpuDistributionStrategy,
+            simMachine!!.machineModel.gpuDistributionStrategy,)
     }
 
     /**

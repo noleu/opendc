@@ -20,12 +20,13 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.compute.cpu;
+package org.opendc.simulator.compute.gpu;
 
 import java.util.List;
 import java.util.Map;
-import org.opendc.simulator.compute.machine.CpuPerformanceCounters;
-import org.opendc.simulator.compute.models.CpuModel;
+
+import org.opendc.simulator.compute.machine.GpuPerformanceCounters;
+import org.opendc.simulator.compute.models.GpuModel;
 import org.opendc.simulator.engine.engine.FlowEngine;
 import org.opendc.simulator.engine.graph.FlowConsumer;
 import org.opendc.simulator.engine.graph.FlowEdge;
@@ -33,25 +34,25 @@ import org.opendc.simulator.engine.graph.FlowNode;
 import org.opendc.simulator.engine.graph.FlowSupplier;
 
 /**
- * A {@link SimCpu} of a machine.
+ * A {@link SimGpu} of a machine.
  */
-public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer {
-    private final CpuModel cpuModel;
+public final class SimGpu extends FlowNode implements FlowSupplier, FlowConsumer {
+    private final GpuModel gpuModel;
 
-    private final CpuPowerModel cpuPowerModel;
+    private final GpuPowerModel gpuPowerModel;
 
-    private double currentCpuDemand = 0.0f; // cpu capacity demanded by the mux
-    private double currentCpuUtilization = 0.0f;
-    private double currentCpuSupplied = 0.0f; // cpu capacity supplied to the mux
+    private double currentGpuDemand = 0.0f; // cpu capacity demanded by the mux
+    private double currentGpuUtilization = 0.0f;
+    private double currentGpuSupplied = 0.0f; // cpu capacity supplied to the mux
 
     private double currentPowerDemand; // power demanded of the psu
     private double currentPowerSupplied = 0.0f; // cpu capacity supplied by the psu
 
     private double maxCapacity;
 
-    private final CpuPerformanceCounters cpuPerformanceCounters = new CpuPerformanceCounters();
+    private final GpuPerformanceCounters gpuPerformanceCounters = new GpuPerformanceCounters();
     private long lastCounterUpdate;
-    private final double cpuFrequencyInv;
+    private final double gpuFrequencyInv;
 
     private FlowEdge distributorEdge;
     private FlowEdge psuEdge;
@@ -61,13 +62,7 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public double getFrequency() {
-        return cpuModel.getTotalCapacity();
-    }
-
-    public void setFrequency(double frequency) {
-        // Clamp the capacity of the CPU between [0.0, maxFreq]
-        frequency = Math.max(0, Math.min(this.maxCapacity, frequency));
-        //        psu.setCpuFrequency(muxInPort, frequency);
+        return gpuModel.getTotalCoreCapacity();
     }
 
     @Override
@@ -75,8 +70,8 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
         return maxCapacity;
     }
 
-    public CpuPerformanceCounters getPerformanceCounters() {
-        return cpuPerformanceCounters;
+    public GpuPerformanceCounters getPerformanceCounters() {
+        return gpuPerformanceCounters;
     }
 
     public double getPowerDraw() {
@@ -84,38 +79,38 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
     }
 
     public double getDemand() {
-        return this.currentCpuDemand;
+        return this.currentGpuDemand;
     }
 
     public double getSpeed() {
-        return this.currentCpuSupplied;
+        return this.currentGpuSupplied;
     }
 
-    public CpuModel getCpuModel() {
-        return cpuModel;
+    public GpuModel getGpuModel() {
+        return gpuModel;
     }
 
     @Override
     public String toString() {
-        return "SimBareMetalMachine.Cpu[model=" + cpuModel + "]";
+        return "SimBareMetalMachine.Gpu[model=" + gpuModel + "]";
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Constructors
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public SimCpu(FlowEngine engine, CpuModel cpuModel, CpuPowerModel powerModel, int id) {
+    public SimGpu(FlowEngine engine, GpuModel gpuModel, GpuPowerModel powerModel, int id) {
         super(engine);
-        this.cpuModel = cpuModel;
-        this.maxCapacity = this.cpuModel.getTotalCapacity();
+        this.gpuModel = gpuModel;
+        this.maxCapacity = this.gpuModel.getTotalCoreCapacity();
 
-        this.cpuPowerModel = powerModel;
+        this.gpuPowerModel = powerModel;
 
         this.lastCounterUpdate = clock.millis();
 
-        this.cpuFrequencyInv = 1 / this.maxCapacity;
+        this.gpuFrequencyInv = 1 / this.maxCapacity;
 
-        this.currentPowerDemand = this.cpuPowerModel.computePower(this.currentCpuUtilization);
+        this.currentPowerDemand = this.gpuPowerModel.computePower(this.currentGpuUtilization);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,9 +128,9 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
             return Long.MAX_VALUE;
         }
 
-        this.currentCpuSupplied = Math.min(this.currentCpuDemand, this.maxCapacity);
+        this.currentGpuSupplied = Math.min(this.currentGpuDemand, this.maxCapacity);
 
-        this.pushOutgoingSupply(this.distributorEdge, this.currentCpuSupplied);
+        this.pushOutgoingSupply(this.distributorEdge, this.currentGpuSupplied);
 
         return Long.MAX_VALUE;
     }
@@ -155,20 +150,20 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
         long delta = now - lastUpdate;
 
         if (delta > 0) {
-            double demand = this.currentCpuDemand;
-            double rate = this.currentCpuSupplied;
+            double demand = this.currentGpuDemand;
+            double rate = this.currentGpuSupplied;
             double capacity = this.maxCapacity;
 
-            final double factor = this.cpuFrequencyInv * delta;
+            final double factor = this.gpuFrequencyInv * delta;
 
-            this.cpuPerformanceCounters.addCpuActiveTime(Math.round(rate * factor));
-            this.cpuPerformanceCounters.addCpuIdleTime(Math.round((capacity - rate) * factor));
-            this.cpuPerformanceCounters.addCpuStealTime(Math.round((demand - rate) * factor));
+            this.gpuPerformanceCounters.addGpuActiveTime(Math.round(rate * factor));
+            this.gpuPerformanceCounters.addGpuIdleTime(Math.round((capacity - rate) * factor));
+            this.gpuPerformanceCounters.addGpuStealTime(Math.round((demand - rate) * factor));
         }
 
-        this.cpuPerformanceCounters.setCpuDemand(this.currentCpuDemand);
-        this.cpuPerformanceCounters.setCpuSupply(this.currentCpuSupplied);
-        this.cpuPerformanceCounters.setCpuCapacity(this.maxCapacity);
+        this.gpuPerformanceCounters.setGpuDemand(this.currentGpuDemand);
+        this.gpuPerformanceCounters.setGpuSupply(this.currentGpuSupplied);
+        this.gpuPerformanceCounters.setGpuCapacity(this.maxCapacity);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,25 +184,25 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
      * Push updated supply to the mux
      */
     @Override
-    public void pushOutgoingSupply(FlowEdge consumerEdge, double newCpuSupply) {
+    public void pushOutgoingSupply(FlowEdge consumerEdge, double newGpuSupply) {
         updateCounters();
-        this.currentCpuSupplied = newCpuSupply;
+        this.currentGpuSupplied = newGpuSupply;
 
-        this.distributorEdge.pushSupply(newCpuSupply, true);
+        this.distributorEdge.pushSupply(newGpuSupply, true);
     }
 
     /**
      * Handle new demand coming in from the mux
      */
     @Override
-    public void handleIncomingDemand(FlowEdge consumerEdge, double newCpuDemand) {
+    public void handleIncomingDemand(FlowEdge consumerEdge, double newGpuDemand) {
         updateCounters();
-        this.currentCpuDemand = newCpuDemand;
+        this.currentGpuDemand = newGpuDemand;
 
-        this.currentCpuUtilization = Math.min(this.currentCpuDemand / this.maxCapacity, 1.0);
+        this.currentGpuUtilization = Math.min(this.currentGpuDemand / this.maxCapacity, 1.0);
 
         // Calculate Power Demand and send to PSU
-        this.currentPowerDemand = this.cpuPowerModel.computePower(this.currentCpuUtilization);
+        this.currentPowerDemand = this.gpuPowerModel.computePower(this.currentGpuUtilization);
 
         this.invalidate();
     }
@@ -268,6 +263,6 @@ public final class SimCpu extends FlowNode implements FlowSupplier, FlowConsumer
 
     @Override
     public FlowEdge.ResourceType getResourceType() {
-        return FlowEdge.ResourceType.CPU;
+        return FlowEdge.ResourceType.GPU;
     }
 }

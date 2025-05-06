@@ -46,6 +46,7 @@ class SimMachineTest {
                     "amd64",
                 ),
                 MemoryUnit("Crucial", "MTA18ASF4G72AZ-3G2B1", 3200.0, 32_000 * 4),
+                null
             )
     }
 
@@ -104,10 +105,10 @@ class SimMachineTest {
 //            val cpuNode = machineModel.cpu
 //            val machineModel =
 //                MachineModel(
-//                    List(cpuNode.coreCount * 2) {
+//                    List(cpuNode.cpuCoreCount * 2) {
 //                        CpuModel(
 //                            it,
-//                            cpuNode.coreCount,
+//                            cpuNode.cpuCoreCount,
 //                            1000.0,
 //                        )
 //                    },

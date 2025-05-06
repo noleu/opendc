@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 AtLarge Research
+ * Copyright (c) 2022 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,31 +20,15 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.engine.graph;
+package org.opendc.compute.simulator.host;
 
-import jdk.jshell.spi.ExecutionControl;
-import org.opendc.simulator.engine.engine.FlowEngine;
-import org.opendc.simulator.engine.graph.distributionStrategies.DistributionStrategy;
+/**
+ * A model for a GPU in a host.
+ *
+ * @param gpuCoreCapacity The capacity of the GPU cores hz.
+ * @param gpuCoreCount    The number of GPU cores.
+ * @param GpuMemoryCapacity The capacity of the GPU memory in GB.
+ * @param GpuMemorySpeed   The speed of the GPU memory in GB/s.
+ */
+public record GpuHostModel(double gpuCoreCapacity, int gpuCoreCount, long GpuMemoryCapacity, double GpuMemorySpeed) {}
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-public interface FlowSupplier {
-
-    void handleIncomingDemand(FlowEdge consumerEdge, double newDemand);
-
-    void pushOutgoingSupply(FlowEdge consumerEdge, double newSupply);
-
-    void addConsumerEdge(FlowEdge consumerEdge);
-
-    void removeConsumerEdge(FlowEdge consumerEdge);
-
-    double getCapacity();
-
-    FlowEdge.ResourceType getResourceType() throws ExecutionControl.NotImplementedException;
-}

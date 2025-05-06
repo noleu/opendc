@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.compute.cpu
+package org.opendc.simulator.compute.gpu
 
 // TODO: couple this correctly
-public enum class CPUPowerModel {
+public enum class GPUPowerModel {
     Constant,
     Sqrt,
     Linear,
@@ -31,30 +31,30 @@ public enum class CPUPowerModel {
     Cubic,
 }
 
-public fun getCpuPowerModel(
+public fun getGpuPowerModel(
     modelType: String,
     power: Double,
     maxPower: Double,
     idlePower: Double,
-): CpuPowerModel {
+): GpuPowerModel {
     return when (modelType) {
-        "constant" -> CpuPowerModels.constant(power)
-        "sqrt" -> CpuPowerModels.sqrt(maxPower, idlePower)
-        "linear" -> CpuPowerModels.linear(maxPower, idlePower)
-        "square" -> CpuPowerModels.square(maxPower, idlePower)
-        "cubic" -> CpuPowerModels.cubic(maxPower, idlePower)
+        "constant" -> GpuPowerModels.constant(power)
+        "sqrt" -> GpuPowerModels.sqrt(maxPower, idlePower)
+        "linear" -> GpuPowerModels.linear(maxPower, idlePower)
+        "square" -> GpuPowerModels.square(maxPower, idlePower)
+        "cubic" -> GpuPowerModels.cubic(maxPower, idlePower)
 
         else -> throw IllegalArgumentException("Unknown power modelType $modelType")
     }
 }
 
-public fun getCpuPowerModel(modelType: String): CpuPowerModel {
+public fun getGpuPowerModel(modelType: GPUPowerModel): GpuPowerModel {
     return when (modelType) {
-        "constant" -> CpuPowerModels.constant(200.0)
-        "sqrt" -> CpuPowerModels.sqrt(350.0, 200.0)
-        "linear" -> CpuPowerModels.linear(350.0, 200.0)
-        "square" -> CpuPowerModels.square(350.0, 200.0)
-        "cubic" -> CpuPowerModels.cubic(350.0, 200.0)
+        GPUPowerModel.Constant -> GpuPowerModels.constant(200.0)
+        GPUPowerModel.Sqrt -> GpuPowerModels.sqrt(350.0, 200.0)
+        GPUPowerModel.Linear -> GpuPowerModels.linear(350.0, 200.0)
+        GPUPowerModel.Square -> GpuPowerModels.square(350.0, 200.0)
+        GPUPowerModel.Cubic -> GpuPowerModels.cubic(350.0, 200.0)
 
         else -> throw IllegalArgumentException("Unknown power modelType $modelType")
     }

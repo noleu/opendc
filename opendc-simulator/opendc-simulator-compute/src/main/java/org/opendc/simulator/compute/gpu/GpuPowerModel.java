@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 AtLarge Research
+ * Copyright (c) 2022 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,31 +20,25 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.engine.graph;
+package org.opendc.simulator.compute.gpu;
 
-import jdk.jshell.spi.ExecutionControl;
-import org.opendc.simulator.engine.engine.FlowEngine;
-import org.opendc.simulator.engine.graph.distributionStrategies.DistributionStrategy;
+import org.opendc.simulator.compute.machine.SimMachine;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+/**
+ * A model for estimating the power usage of a {@link SimMachine} based on the CPU usage.
+ */
+public interface GpuPowerModel {
+    /**
+     * Computes CPU power consumption for each host.
+     *
+     * @param utilization The CPU utilization percentage.
+     * @return A double value of CPU power consumption (in W).
+     */
+    double computePower(double utilization);
 
-public interface FlowSupplier {
+    String getName();
 
-    void handleIncomingDemand(FlowEdge consumerEdge, double newDemand);
-
-    void pushOutgoingSupply(FlowEdge consumerEdge, double newSupply);
-
-    void addConsumerEdge(FlowEdge consumerEdge);
-
-    void removeConsumerEdge(FlowEdge consumerEdge);
-
-    double getCapacity();
-
-    FlowEdge.ResourceType getResourceType() throws ExecutionControl.NotImplementedException;
+    default String getFullName() {
+        return getName();
+    }
 }

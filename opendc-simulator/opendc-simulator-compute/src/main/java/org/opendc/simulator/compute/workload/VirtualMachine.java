@@ -26,7 +26,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.opendc.simulator.compute.machine.PerformanceCounters;
+
+import jdk.jshell.spi.ExecutionControl;
+import org.opendc.simulator.compute.machine.CpuPerformanceCounters;
 import org.opendc.simulator.compute.machine.SimMachine;
 import org.opendc.simulator.engine.graph.FlowEdge;
 import org.opendc.simulator.engine.graph.FlowNode;
@@ -40,7 +42,7 @@ public final class VirtualMachine extends SimWorkload implements FlowSupplier {
     private int workloadIndex;
 
     private SimWorkload activeWorkload;
-    private double cpuDemand = 0.0f;
+    private double cpuDemand = 0.0f; // TODO: Transform into list of resoureDemands
     private double cpuSupply = 0.0f;
     private double d = 0.0f;
 
@@ -57,7 +59,7 @@ public final class VirtualMachine extends SimWorkload implements FlowSupplier {
     private final ChainWorkload snapshot;
 
     private long lastUpdate;
-    private final PerformanceCounters performanceCounters = new PerformanceCounters();
+    private final CpuPerformanceCounters cpuPerformanceCounters = new CpuPerformanceCounters();
     private Consumer<Exception> completion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,8 +91,8 @@ public final class VirtualMachine extends SimWorkload implements FlowSupplier {
         return checkpointIntervalScaling;
     }
 
-    public PerformanceCounters getPerformanceCounters() {
-        return performanceCounters;
+    public CpuPerformanceCounters getCpuPerformanceCounters() {
+        return cpuPerformanceCounters;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,14 +158,14 @@ public final class VirtualMachine extends SimWorkload implements FlowSupplier {
         if (delta > 0) {
             final double factor = this.d * delta;
 
-            this.performanceCounters.addCpuActiveTime(Math.round(this.cpuSupply * factor));
-            this.performanceCounters.setCpuIdleTime(Math.round((cpuCapacity - this.cpuSupply) * factor));
-            this.performanceCounters.addCpuStealTime(Math.round((this.cpuDemand - this.cpuSupply) * factor));
+            this.cpuPerformanceCounters.addCpuActiveTime(Math.round(this.cpuSupply * factor));
+            this.cpuPerformanceCounters.setCpuIdleTime(Math.round((cpuCapacity - this.cpuSupply) * factor));
+            this.cpuPerformanceCounters.addCpuStealTime(Math.round((this.cpuDemand - this.cpuSupply) * factor));
         }
 
-        this.performanceCounters.setCpuDemand(this.cpuDemand);
-        this.performanceCounters.setCpuSupply(this.cpuSupply);
-        this.performanceCounters.setCpuCapacity(cpuCapacity);
+        this.cpuPerformanceCounters.setCpuDemand(this.cpuDemand);
+        this.cpuPerformanceCounters.setCpuSupply(this.cpuSupply);
+        this.cpuPerformanceCounters.setCpuCapacity(cpuCapacity);
     }
 
     @Override
@@ -344,5 +346,12 @@ public final class VirtualMachine extends SimWorkload implements FlowSupplier {
         return Map.of(
                 FlowEdge.NodeType.CONSUMING, consumerEdges,
                 FlowEdge.NodeType.SUPPLYING, supplierEdges);
+    }
+
+    @Override
+    public FlowEdge.ResourceType getResourceType() throws ExecutionControl.NotImplementedException {
+        // TODO: Check if correct
+//        return this.consumerEdges.get(0).getResourceType();
+        throw new ExecutionControl.NotImplementedException(" Not implemented yet");
     }
 }
