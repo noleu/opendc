@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 AtLarge Research
+ * Copyright (c) 2022 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,15 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.compute.workload.trace.scaling;
+package org.opendc.compute.simulator.host;
 
 /**
- * The NoDelay scaling policy states that there will be no delay
- * when less CPU can be provided than needed.
+ * A model for a GPU in a host.
  *
- * This could be used in situations where the data is streamed.
- * This will also result in the same behaviour as older OpenDC.
+ * @param gpuCoreCapacity The capacity of the GPU cores hz.
+ * @param gpuCoreCount    The number of GPU cores.
+ * @param GpuMemoryCapacity The capacity of the GPU memory in GB.
+ * @param GpuMemorySpeed   The speed of the GPU memory in GB/s.
  */
-public class NoDelayScaling implements ScalingPolicy {
-    @Override
-    public double getFinishedWork(double cpuFreqDemand, double cpuFreqSupplied, long passedTime) {
-        return cpuFreqDemand * passedTime;
-    }
+public record GpuHostModel(double gpuCoreCapacity, int gpuCoreCount, long GpuMemoryCapacity, double GpuMemorySpeed) {}
 
-    @Override
-    public long getRemainingDuration(double cpuFreqDemand, double cpuFreqSupplied, double remainingWork) {
-        return (long) (remainingWork / cpuFreqDemand);
-    }
-
-    @Override
-    public double getRemainingWork(double cpuFreqDemand, long duration) {
-        return cpuFreqDemand * duration;
-    }
-}

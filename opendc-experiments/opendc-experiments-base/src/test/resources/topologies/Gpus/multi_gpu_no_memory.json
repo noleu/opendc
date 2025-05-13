@@ -20,21 +20,17 @@
                         "power": 400.0,
                         "idlePower": 100.0,
                         "maxPower": 200.0
+                    },
+                    "gpu": {
+                        "count": 2,
+                        "coreCount": 1,
+                        "coreSpeed": 2000,
+                        "vendor": "NVIDIA",
+                        "modelName": "Tesla V100",
+                        "architecture": "Volta"
                     }
                 }
-            ],
-            "powerSource": {
-                "carbonTracePath": "src/test/resources/carbonTraces/2022-01-01_two_80_120.parquet"
-            },
-            "battery": {
-                "capacity": 0.02,
-                "chargingSpeed": 1000,
-                "batteryPolicy":
-                {
-                    "type": "single",
-                    "carbonThreshold": 100
-                }
-            }
+            ]
         }
     ]
 }

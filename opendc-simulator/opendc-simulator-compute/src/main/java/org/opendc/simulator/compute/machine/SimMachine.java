@@ -23,9 +23,14 @@
 package org.opendc.simulator.compute.machine;
 
 import java.time.InstantSource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+
+import org.opendc.common.ResourceType;
 import org.opendc.simulator.compute.cpu.CpuPowerModel;
 import org.opendc.simulator.compute.cpu.SimCpu;
+import org.opendc.simulator.compute.gpu.SimGpu;
 import org.opendc.simulator.compute.memory.Memory;
 import org.opendc.simulator.compute.models.MachineModel;
 import org.opendc.simulator.compute.power.SimPsu;
@@ -35,6 +40,7 @@ import org.opendc.simulator.compute.workload.VirtualMachine;
 import org.opendc.simulator.engine.engine.FlowEngine;
 import org.opendc.simulator.engine.graph.FlowDistributor;
 import org.opendc.simulator.engine.graph.FlowEdge;
+import org.opendc.simulator.engine.graph.FlowSupplier;
 
 /**
  * A machine that is able to execute {@link SimWorkload} objects.
@@ -49,6 +55,9 @@ public class SimMachine {
     private FlowDistributor cpuDistributor;
     private SimPsu psu;
     private Memory memory;
+    private List<SimGpu> gpus;
+
+    private final List<ResourceType> availableResources;
 
     private final Consumer<Exception> completion;
 
@@ -56,7 +65,7 @@ public class SimMachine {
     // Basic Getters and Setters
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public PerformanceCounters getPerformanceCounters() {
+    public CpuPerformanceCounters getPerformanceCounters() {
         return this.cpu.getPerformanceCounters();
     }
 
@@ -105,6 +114,10 @@ public class SimMachine {
         return 0.0;
     }
 
+    public List<ResourceType> getAvailableResources() {
+        return availableResources;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Constructors
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,6 +149,8 @@ public class SimMachine {
         new FlowEdge(this.cpuDistributor, this.cpu);
 
         this.completion = completion;
+
+        this.availableResources = this.machineModel.getUsedResources();
     }
 
     public void shutdown() {
@@ -180,6 +195,11 @@ public class SimMachine {
      * @param completion The completion callback that needs to be called when the workload is done
      */
     public VirtualMachine startWorkload(ChainWorkload workload, Consumer<Exception> completion) {
-        return (VirtualMachine) workload.startWorkload(this.cpuDistributor, this, completion);
+//        return (VirtualMachine) workload.startWorkload(this.cpuDistributor, this, completion);
+        ArrayList<FlowSupplier> distributors = new ArrayList<>();
+        distributors.add(this.cpuDistributor);
+        return (VirtualMachine) workload.startWorkload(distributors, this, completion);
+        // TODO: Include GPU
     }
+
 }

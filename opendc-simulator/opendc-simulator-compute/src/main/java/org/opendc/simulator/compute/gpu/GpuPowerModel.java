@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 AtLarge Research
+ * Copyright (c) 2022 AtLarge Research
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,25 @@
  * SOFTWARE.
  */
 
-package org.opendc.simulator.compute.workload.trace.scaling;
+package org.opendc.simulator.compute.gpu;
+
+import org.opendc.simulator.compute.machine.SimMachine;
 
 /**
- * The NoDelay scaling policy states that there will be no delay
- * when less CPU can be provided than needed.
- *
- * This could be used in situations where the data is streamed.
- * This will also result in the same behaviour as older OpenDC.
+ * A model for estimating the power usage of a {@link SimMachine} based on the CPU usage.
  */
-public class NoDelayScaling implements ScalingPolicy {
-    @Override
-    public double getFinishedWork(double cpuFreqDemand, double cpuFreqSupplied, long passedTime) {
-        return cpuFreqDemand * passedTime;
-    }
+public interface GpuPowerModel {
+    /**
+     * Computes CPU power consumption for each host.
+     *
+     * @param utilization The CPU utilization percentage.
+     * @return A double value of CPU power consumption (in W).
+     */
+    double computePower(double utilization);
 
-    @Override
-    public long getRemainingDuration(double cpuFreqDemand, double cpuFreqSupplied, double remainingWork) {
-        return (long) (remainingWork / cpuFreqDemand);
-    }
+    String getName();
 
-    @Override
-    public double getRemainingWork(double cpuFreqDemand, long duration) {
-        return cpuFreqDemand * duration;
+    default String getFullName() {
+        return getName();
     }
 }

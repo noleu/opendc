@@ -24,6 +24,9 @@ package org.opendc.simulator.compute.power;
 
 import java.util.List;
 import java.util.Map;
+
+import jdk.jshell.spi.ExecutionControl;
+import org.opendc.common.ResourceType;
 import org.opendc.simulator.compute.cpu.SimCpu;
 import org.opendc.simulator.engine.engine.FlowEngine;
 import org.opendc.simulator.engine.graph.FlowConsumer;
@@ -194,5 +197,10 @@ public final class SimPsu extends FlowNode implements FlowSupplier, FlowConsumer
         return Map.of(
                 FlowEdge.NodeType.SUPPLYING, supplyingEdges,
                 FlowEdge.NodeType.CONSUMING, consumingEdges);
+    }
+
+    @Override
+    public ResourceType getResourceType() {
+        return ResourceType.AUXILIARY;
     }
 }

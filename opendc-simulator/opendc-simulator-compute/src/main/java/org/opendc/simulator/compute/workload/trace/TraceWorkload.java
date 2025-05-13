@@ -24,11 +24,15 @@ package org.opendc.simulator.compute.workload.trace;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Consumer;
+
+import org.opendc.common.ResourceType;
 import org.opendc.simulator.compute.machine.SimMachine;
 import org.opendc.simulator.compute.workload.SimWorkload;
 import org.opendc.simulator.compute.workload.Workload;
 import org.opendc.simulator.compute.workload.trace.scaling.ScalingPolicy;
+import org.opendc.simulator.engine.graph.FlowEdge;
 import org.opendc.simulator.engine.graph.FlowSupplier;
 
 public class TraceWorkload implements Workload {
@@ -37,12 +41,10 @@ public class TraceWorkload implements Workload {
     private final long checkpointDuration;
     private final double checkpointIntervalScaling;
     private final double maxCpuDemand;
-    private final int maxCoreCount;
-
-    public String getTaskName() {
-        return taskName;
-    }
-
+    private final int maxCpuCoreCount;
+    private final double maxGpuDemand;
+    private final int maxGpuCoreCount;
+    private final double maxGpuMemoryDemand;
     private final String taskName;
 
     public ScalingPolicy getScalingPolicy() {
@@ -69,11 +71,24 @@ public class TraceWorkload implements Workload {
         this.maxCpuDemand = fragments.stream()
                 .max(Comparator.comparing(TraceFragment::cpuUsage))
                 .get()
-                .cpuUsage();
-        this.maxCoreCount = fragments.stream()
-                .max(Comparator.comparing(TraceFragment::coreCount))
+//                .cpuUsage();
+                .getResourceUsage(ResourceType.CPU);
+        this.maxCpuCoreCount = fragments.stream()
+                .max(Comparator.comparing(TraceFragment::cpuCoreCount))
                 .get()
-                .coreCount();
+//                .cpuCoreCount();
+                .getCoreCount(ResourceType.CPU);
+
+        this.maxGpuDemand = fragments.stream()
+                .max(Comparator.comparing(TraceFragment::gpuUsage))
+                .get()
+                .getResourceUsage(ResourceType.GPU);
+        this.maxGpuCoreCount = fragments.stream()
+                .max(Comparator.comparing(TraceFragment::gpuCoreCount))
+                .get()
+                .getCoreCount(ResourceType.GPU);
+        this.maxGpuMemoryDemand = 0.0; // TODO: add GPU memory demand to the trace fragments
+
     }
 
     public ArrayList<TraceFragment> getFragments() {
@@ -96,12 +111,18 @@ public class TraceWorkload implements Workload {
     }
 
     public int getMaxCoreCount() {
-        return maxCoreCount;
+        return maxCpuCoreCount;
     }
 
     public double getMaxCpuDemand() {
         return maxCpuDemand;
     }
+
+    public double getMaxGpuDemand() { return maxGpuDemand; }
+    public int getMaxGpuCoreCount() { return maxGpuCoreCount; }
+    public double getMaxGpuMemoryDemand() { return maxGpuMemoryDemand; }
+
+    public String getTaskName() { return taskName; }
 
     public void removeFragments(int numberOfFragments) {
         if (numberOfFragments <= 0) {
@@ -117,11 +138,15 @@ public class TraceWorkload implements Workload {
     @Override
     public SimWorkload startWorkload(FlowSupplier supplier) {
         return new SimTraceWorkload(supplier, this);
+//        ArrayList<FlowSupplier> flowSuppliers = new ArrayList<>();
+//        flowSuppliers.add(supplier);
+//        return new SimTraceWorkload(flowSuppliers, this);
     }
 
     @Override
-    public SimWorkload startWorkload(FlowSupplier supplier, SimMachine machine, Consumer<Exception> completion) {
-        return this.startWorkload(supplier);
+    public SimWorkload startWorkload(List<FlowSupplier> supplier, SimMachine machine, Consumer<Exception> completion) {
+//        return this.startWorkload(supplier);
+        return new SimTraceWorkload(supplier, this);
     }
 
     public static Builder builder(
