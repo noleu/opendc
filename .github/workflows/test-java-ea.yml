@@ -1,7 +1,7 @@
 name: Test Java EA release
 on:
   schedule:
-    - cron: 0 0 * * 0 # weekly
+    # - cron: 0 0 * * 0 # weekly
 
 jobs:
   java-ea:
